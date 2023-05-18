@@ -11,7 +11,6 @@ import pandas as pd
 import cufflinks as cf
 import plotly.graph_objects as go
 from anonymeter.evaluators import SinglingOutEvaluator
-from anonymeter.evaluators import LinkabilityEvaluator
 from anonymeter.evaluators import InferenceEvaluator
 sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
 import testUtils

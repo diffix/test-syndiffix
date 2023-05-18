@@ -1,7 +1,5 @@
 import os
 import sys
-import pandas as pd
-import json
 sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
 import testUtils
 import fire

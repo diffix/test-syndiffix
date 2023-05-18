@@ -1,10 +1,7 @@
-from sdv.demo import load_tabular_demo
 import os
 import sys
 sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
-import testUtils
 import pandas as pd
-import json
 import pprint
 import fire
 

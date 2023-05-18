@@ -1,12 +1,9 @@
 import os
 import sys
 import pandas as pd
-import numpy as np
-import json
 import itertools
 import seaborn as sns
 import matplotlib.pyplot as plt
-from functools import partial
 sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
 import testUtils
 import gatherResults

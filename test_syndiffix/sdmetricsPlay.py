@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import seaborn as sns
 import sys
-import random
-import numpy as np
 sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
 import testUtils
 import sdmetrics
