@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import fire
 import pprint
@@ -13,6 +13,7 @@ determine which ML measures run well on the original data, so that we know which
 to run on the synthetic data later on.
 '''
 
+
 def oneOrigMlJob(jobNum=0, csvLib='csvAb', measuresDir='measuresAb'):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(csvLib)
@@ -21,8 +22,10 @@ def oneOrigMlJob(jobNum=0, csvLib='csvAb', measuresDir='measuresAb'):
     sdmt.enumerateOrigMlJobs()
     sdmt.runOrigMlJob(jobNum)
 
+
 def main():
     fire.Fire(oneOrigMlJob)
+
 
 if __name__ == '__main__':
     main()

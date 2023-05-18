@@ -30,7 +30,7 @@ class mlSupport:
                     continue
                 if metaFile[-5:] != '.json':
                     continue
-                metadataPath = os.path.join(metadataDir,metaFile)
+                metadataPath = os.path.join(metadataDir, metaFile)
                 f = open(metadataPath, 'r')
                 metadata = json.load(f)
                 f.close()
@@ -40,7 +40,7 @@ class mlSupport:
         # so we derive one as best we can
         if columns is None:
             columns = list(df.columns)
-        mlClassInfo = {'binary':[],'numeric':[],'categorical':[],'colInfo':[]}
+        mlClassInfo = {'binary': [], 'numeric': [], 'categorical': [], 'colInfo': []}
         colTypes = self.getColTypes(df)
         if len(colTypes) == len(columns) + 1 and colTypes[0] == 'integer':
             # The first colType is for an index column, which we want to ignore
@@ -49,7 +49,7 @@ class mlSupport:
             column = columns[i]
             colType = colTypes[i]
             numUnique = df[column].nunique()
-            mlClassInfo['colInfo'].append({'column':column, 'colType':colType, 'numDistinct':numUnique})
+            mlClassInfo['colInfo'].append({'column': column, 'colType': colType, 'numDistinct': numUnique})
             if numUnique == 2 and len(mlClassInfo['binary']) == 0:
                 mlClassInfo['binary'].append(column)
             elif numUnique > 2 and ((colType == 'text' and numUnique < 20) or numUnique < 10) and len(mlClassInfo['categorical']) == 0:
@@ -69,7 +69,7 @@ class mlSupport:
                 colTypes.append('text')
             else:
                 print(f"ERROR: Unknown column data type {colType}")
-                a = 1/0
+                a = 1 / 0
                 quit()
         return colTypes
 
@@ -94,13 +94,14 @@ class mlSupport:
         for colName, colType in zip(cols, colTypes):
             if colName == 'aid':
                 continue
-            if colType in ['integer','float']:
+            if colType in ['integer', 'float']:
                 metadata['fields'][colName] = {
                     'type': 'numerical', 'subtype': colType}
             elif colType == 'text':
                 metadata['fields'][colName] = {
                     'type': 'categorical'}
         return metadata
+
 
 class testUtilities:
     def __init__(self):
@@ -130,11 +131,11 @@ class testUtilities:
     def getColTypesFromDataframe(self, df):
         colTypes = []
         from pandas.errors import ParserError
-        for c in df.columns[df.dtypes=='object']: #don't cnvt num
+        for c in df.columns[df.dtypes == 'object']:  # don't cnvt num
             try:
-                df[c]=pd.to_datetime(df[c])
-            except (ParserError,ValueError): #Can't cnvrt some
-                pass # ...so leave whole column as-is unconverted
+                df[c] = pd.to_datetime(df[c])
+            except (ParserError, ValueError):  # Can't cnvrt some
+                pass  # ...so leave whole column as-is unconverted
         for colType in df.dtypes:
             if pd.api.types.is_bool_dtype(colType):
                 colTypes.append('text')
@@ -150,7 +151,7 @@ class testUtilities:
                 colTypes.append(None)
         return colTypes
 
-    def getSynOutputFileInfo(self,sourceFileName,colName=None):
+    def getSynOutputFileInfo(self, sourceFileName, colName=None):
         if colName:
             fileName = sourceFileName + '.' + colName + '.' + self.synTestOutputDirName + '.json'
         else:
@@ -159,7 +160,7 @@ class testUtilities:
         fileExists = os.path.exists(filePath)
         return fileName, filePath, fileExists
 
-    def getDataFromMeasuresFile(self,inPath):
+    def getDataFromMeasuresFile(self, inPath):
         data = {}
         explain = {}
         if inPath[-5:] != '.json':
@@ -200,11 +201,11 @@ class testUtilities:
         explain['d_src'] = 'Data source'
         explain['p_str'] = 'String with all AB build information'
         # TODO: uncomment
-        #data['cols'] = params['columns']
-        #explain['cols'] = 'Column names (in indexed order)'
+        # data['cols'] = params['columns']
+        # explain['cols'] = 'Column names (in indexed order)'
 
-    def validTestDir(self,dirName):
-        if dirName[2:7] == '.for_' or dirName.startswith(('copulaGan','ctGan','fastMl','tvae','gaussianCopula','syndiffix','mostly', 'synthpop')):
+    def validTestDir(self, dirName):
+        if dirName[2:7] == '.for_' or dirName.startswith(('copulaGan', 'ctGan', 'fastMl', 'tvae', 'gaussianCopula', 'syndiffix', 'mostly', 'synthpop')):
             return True
         return False
 
@@ -214,13 +215,13 @@ class testUtilities:
     def getSynMeasuresDirs(self):
         return self.getDirs(self.synMeasures)
 
-    def getDirs(self,synDir):
+    def getDirs(self, synDir):
         inDirPaths = []
         inDirs = []
         allObjects = [f for f in os.listdir(synDir)]
         for thing in allObjects:
-            thingPath = os.path.join(synDir,thing)
-            if not os.path.isdir(thingPath):  
+            thingPath = os.path.join(synDir, thing)
+            if not os.path.isdir(thingPath):
                 continue
             if not self.validTestDir(thing):
                 continue
@@ -228,7 +229,7 @@ class testUtilities:
             inDirPaths.append(thingPath)
         return inDirPaths, inDirs
 
-    def setSynTestOutputDir(self,params):
+    def setSynTestOutputDir(self, params):
         import harvest
         import microdata
         import forest
@@ -240,25 +241,25 @@ class testUtilities:
         harvestVersion = bh.version
         md = microdata.microdata(None, None, getVersionOnly=True)
         self.synTestOutputDirName = f"py.for_{params['forest']['pName']}_{baf.version}.har_{harvestVersion}.cl_{clThing}.md_{md.version}"
-        self.synTestOutputDirPath = os.path.join(self.synResults,self.synTestOutputDirName)
+        self.synTestOutputDirPath = os.path.join(self.synResults, self.synTestOutputDirName)
         if not os.path.exists(self.synTestOutputDirPath):
             os.makedirs(self.synTestOutputDirPath, exist_ok=True)
 
     def getAbDefaultParams(self):
         defaults = {
             'forest': {'sing': 10, 'range': 50, 'lcf': 5, 'dependence_old': 10,
-                        'threshSd': 1.0, 'noiseSd': 1.0, 'lcdBound': 2,
-                        'pName':'def',
-                      },
-            'cluster': { 'maxStitchCluster': 1,
-                         'maxClusterSize': 3, 'clusterQualityThreshold': 0.2,
-                         'patchThreshold': 0.05,
-                         'clusterMinColumnExponent': 1.5,
-                         'clusterNumColumnsExponent': 2,
-                         'singThreshHigh': 0.95, 'singThreshLow': 0.5,
-                 	     'compositePenalty': 0.5,
-                         'sampleSize': None, 'pName': 'def',
-            },
+                       'threshSd': 1.0, 'noiseSd': 1.0, 'lcdBound': 2,
+                       'pName': 'def',
+                       },
+            'cluster': {'maxStitchCluster': 1,
+                        'maxClusterSize': 3, 'clusterQualityThreshold': 0.2,
+                        'patchThreshold': 0.05,
+                        'clusterMinColumnExponent': 1.5,
+                        'clusterNumColumnsExponent': 2,
+                        'singThreshHigh': 0.95, 'singThreshLow': 0.5,
+                        'compositePenalty': 0.5,
+                        'sampleSize': None, 'pName': 'def',
+                        },
         }
         return defaults
 
@@ -280,8 +281,8 @@ class testUtilities:
                     continue
                 # Focus columns have extra stuff in the file name after '.csv', so remove:
                 csvPos = fileName.find('.csv')
-                csvName = fileName[:csvPos+4]
-                allResults.append({'dirName':dirName, 'fileName':fileName, 'csvName':csvName})
+                csvName = fileName[:csvPos + 4]
+                allResults.append({'dirName': dirName, 'fileName': fileName, 'csvName': csvName})
         return allResults
 
     def getColumnsFromResult(self, result):
@@ -309,31 +310,31 @@ class testUtilities:
     def registerConfigFilesDir(self, dirName):
         self.configFilesDir = os.path.join(self.baseDir, dirName)
 
-    def registerRunsDir(self,name):
+    def registerRunsDir(self, name):
         self.runsDir = os.path.join(self.baseDir, name)
 
-    def registerCsvLib(self,name):
+    def registerCsvLib(self, name):
         self.csvLib = os.path.join(self.baseDir, name)
 
-    def registerSynResults(self,name):
+    def registerSynResults(self, name):
         self.synResults = os.path.join(self.baseDir, name)
 
-    def registerControlDir(self,name):
+    def registerControlDir(self, name):
         self.controlDir = os.path.join(self.baseDir, name)
 
-    def registerSynMeasure(self,name):
+    def registerSynMeasure(self, name):
         self.synMeasures = os.path.join(self.baseDir, name)
 
-    def registerSummariesDir(self,name):
+    def registerSummariesDir(self, name):
         self.summariesDir = os.path.join(self.summariesDirCore, name)
         os.makedirs(self.summariesDir, exist_ok=True)
 
-    def registerSummariesDirCore(self,name):
+    def registerSummariesDirCore(self, name):
         self.summariesDirCore = os.path.join(self.baseDir, name)
         self.summariesDir = self.summariesDirCore
         os.makedirs(self.summariesDirCore, exist_ok=True)
 
-    def registerBatchConfigFile(self,name):
+    def registerBatchConfigFile(self, name):
         self.batchConfigFile = os.path.join(self.baseDir, name)
         if os.path.exists(self.batchConfigFile):
             with open(self.batchConfigFile, 'r') as f:
@@ -359,19 +360,19 @@ class testUtilities:
         for f, c in itertools.product(forests, clusters):
             # This is the default:
             if f not in pNameToLabel:
-                pNameToLabel[f] = {c:{
-                                      'shortColVal':f"{f}.{c}",
-                                      'shortCol':f"{f}.{c}",
-                                      'longCol':f"{f}.{c}",
-                                      'longColVal':f"{f}.{c}",
-                                      'diffs':[]}}
+                pNameToLabel[f] = {c: {
+                    'shortColVal': f"{f}.{c}",
+                    'shortCol': f"{f}.{c}",
+                    'longCol': f"{f}.{c}",
+                    'longColVal': f"{f}.{c}",
+                    'diffs': []}}
             else:
                 pNameToLabel[f][c] = {
-                                      'shortColVal':f"{f}.{c}",
-                                      'shortCol':f"{f}.{c}",
-                                      'longCol':f"{f}.{c}",
-                                      'longColVal':f"{f}.{c}",
-                                      'diffs':[]}
+                    'shortColVal': f"{f}.{c}",
+                    'shortCol': f"{f}.{c}",
+                    'longCol': f"{f}.{c}",
+                    'longColVal': f"{f}.{c}",
+                    'diffs': []}
             finfo = self.pNameInfo[f]['info']
             cinfo = self.pNameInfo[c]['info']
             diffs = []
@@ -387,36 +388,36 @@ class testUtilities:
                     diffs.append([param, cinfo[param]])
             if len(diffs) == 0:
                 pNameToLabel[f][c] = {
-                                      'shortColVal':'Base',
-                                      'shortCol':'Base',
-                                      'longCol':'Base',
-                                      'longColVal':'Base',
-                                      'diffs':[]}
+                    'shortColVal': 'Base',
+                    'shortCol': 'Base',
+                    'longCol': 'Base',
+                    'longColVal': 'Base',
+                    'diffs': []}
             elif len(diffs) <= 2:
                 query = ''
                 shortColVal = ''
                 shortCol = ''
                 longColVal = ''
                 longCol = ''
-                for param,val in diffs:
+                for param, val in diffs:
                     shortColVal += f"{rg.getColNameFromAlias(param)}_{val}."
                     shortCol += f"{rg.getColNameFromAlias(param)}."
                     longColVal += f"{param}_{val}."
                     longCol += f"{param}."
                     query += f"(for_p == '{f}' and clu_p == '{c}') and "
                 pNameToLabel[f][c] = {
-                                      'shortColVal':shortColVal[:-1],
-                                      'shortCol':shortCol[:-1],
-                                      'longCol':longCol[:-1],
-                                      'longColVal':longColVal[:-1],
-                                      'diffs':diffs}
+                    'shortColVal': shortColVal[:-1],
+                    'shortCol': shortCol[:-1],
+                    'longCol': longCol[:-1],
+                    'longColVal': longColVal[:-1],
+                    'diffs': diffs}
         return pNameToLabel
 
-    def getPnameValuesFromConfig(self,config):
-        maxPnameVals = [-1,-1]
-        configTypes = ['cluster','forest']
-        configChar = ['c','f']
-        returnThing = {'cluster':None, 'forest':None}
+    def getPnameValuesFromConfig(self, config):
+        maxPnameVals = [-1, -1]
+        configTypes = ['cluster', 'forest']
+        configChar = ['c', 'f']
+        returnThing = {'cluster': None, 'forest': None}
         for i in range(len(configTypes)):
             configType = configTypes[i]
             configInfo = config['tests'][configType]
@@ -426,7 +427,7 @@ class testUtilities:
                     continue
                 maxPnameVals[i] = max(maxPnameVals[i], info['pNameVal'])
                 pnameInfo = info['info']
-                for config1,config2 in [[pnameInfo,configInfo],[configInfo,pnameInfo]]:
+                for config1, config2 in [[pnameInfo, configInfo], [configInfo, pnameInfo]]:
                     for param, value in config1.items():
                         if param == 'pName':
                             continue
@@ -455,17 +456,17 @@ class testUtilities:
 
     def synConfigFileName(self, cnt):
         return f"syn_{cnt:05d}.json"
-    
+
     def measuresConfigFileName(self, cnt):
         return f"measure_{cnt:05d}.json"
-    
-    def registerSynTestConfigFile(self,name):
+
+    def registerSynTestConfigFile(self, name):
         self.synTestConfigFile = os.path.join(self.configFilesDir, name)
         if os.path.exists(self.synTestConfigFile):
             with open(self.synTestConfigFile, 'r') as f:
                 self.synTestConfig = json.load(f)
 
-    def registerSynMeasureConfigFile(self,name):
+    def registerSynMeasureConfigFile(self, name):
         self.synMeasureConfigFile = os.path.join(self.configFilesDir, name)
         if os.path.exists(self.synMeasureConfigFile):
             with open(self.synMeasureConfigFile, 'r') as f:

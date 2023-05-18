@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import fire
 import pprint
@@ -10,6 +10,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 ''' This is used in SLURM to run column quality measures on one test.
 '''
+
 
 def oneQualityMeasure(jobNum=0, measuresDir='measuresAb', resultsDir='resultsAb', showResultsListOnly=False, force=False, doVisuals=True, synMethod=None):
     tu = testUtils.testUtilities()
@@ -32,8 +33,10 @@ def oneQualityMeasure(jobNum=0, measuresDir='measuresAb', resultsDir='resultsAb'
         sdmt.makeQualityVisuals(force)
     print("oneQualityMeasure: SUCCESS")
 
+
 def main():
     fire.Fire(oneQualityMeasure)
+
 
 if __name__ == '__main__':
     main()

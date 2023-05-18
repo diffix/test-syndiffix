@@ -19,7 +19,7 @@ abSharp outputs. These `.json` files can then be read in by the measurement soft
 pp = pprint.PrettyPrinter(indent=4)
 
 baseDir = os.path.join(os.environ['AB_RESULTS_DIR'])
-#mostlyBaseDir = os.path.join(baseDir, 'mostly', 'half1')
+# mostlyBaseDir = os.path.join(baseDir, 'mostly', 'half1')
 mostlyBaseDir = os.path.join(baseDir, 'mostly')
 csvInPath = os.path.join(baseDir, 'csvAb')
 mostlyInPath = os.path.join(mostlyBaseDir, 'mostlyResults')
@@ -29,8 +29,9 @@ os.makedirs(mostlyOutPath, exist_ok=True)
 mostlyJson = os.path.join(mostlyBaseDir, 'mostlyJson')
 os.makedirs(mostlyJson, exist_ok=True)
 
+
 def getElapsedTime(f, path):
-    #print('---------',path, '------------')
+    # print('---------',path, '------------')
     numFound = 0
     elapsed = 0
     lines = f.readlines()
@@ -38,7 +39,7 @@ def getElapsedTime(f, path):
         if 'DELIVER' in line:
             continue
         if 'finished' in line:
-            #print(line)
+            # print(line)
             timeTerm = line.split()[-1]
             if timeTerm[-1] != 's':
                 print(f"FAIL1, {line}")
@@ -57,6 +58,7 @@ def getElapsedTime(f, path):
         quit()
     return elapsed
 
+
 # Get list of datasource names
 dataSourceNames = {}
 files = [f for f in os.listdir(mostlyInPath) if os.path.isfile(os.path.join(mostlyInPath, f))]
@@ -73,7 +75,7 @@ for file in files:
             if logsBase in file:
                 dataSourceNames[fileRoot]['log'] = file
 # Extract
-for fileRoot,paths in dataSourceNames.items():
+for fileRoot, paths in dataSourceNames.items():
     toPath = os.path.join(mostlyOutPath, fileRoot)
     os.makedirs(toPath, exist_ok=True)
     csvExtractPath = os.path.join(mostlyInPath, paths['csv'])
@@ -85,8 +87,8 @@ for fileRoot,paths in dataSourceNames.items():
 
 for fileRoot in dataSourceNames.keys():
     results = {}
-    csvPath = os.path.join(csvInPath, fileRoot+'.csv')
-    dfOrigCsv = pd.read_csv(csvPath,index_col=False, low_memory=False)
+    csvPath = os.path.join(csvInPath, fileRoot + '.csv')
+    dfOrigCsv = pd.read_csv(csvPath, index_col=False, low_memory=False)
     results['colNames'] = list(dfOrigCsv.columns)
 
     elapsedTime = 0
@@ -99,8 +101,8 @@ for fileRoot in dataSourceNames.keys():
             elapsedTime += getElapsedTime(f, logFilePath)
     results['elapsedTime'] = elapsedTime
 
-    synCsvPath = os.path.join(resultsDir, fileRoot, fileRoot+'_syn.csv')
-    dfSynCsv = pd.read_csv(synCsvPath,index_col=False)
+    synCsvPath = os.path.join(resultsDir, fileRoot, fileRoot + '_syn.csv')
+    dfSynCsv = pd.read_csv(synCsvPath, index_col=False)
     if list(dfSynCsv.columns) != results['colNames']:
         print("FAIL columns")
         print(dfSynCsv.columns)
@@ -108,7 +110,7 @@ for fileRoot in dataSourceNames.keys():
         quit()
     results['originalTable'] = dfOrigCsv.values.tolist()
     results['anonTable'] = dfSynCsv.values.tolist()
-    jsonPath = os.path.join(mostlyJson, fileRoot+'.csv.json')
+    jsonPath = os.path.join(mostlyJson, fileRoot + '.csv.json')
     print(f"Writing {jsonPath}")
     with open(jsonPath, 'w') as f:
         json.dump(results, f, indent=4)

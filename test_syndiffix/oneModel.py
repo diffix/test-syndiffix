@@ -7,7 +7,7 @@ import fire
 import shlex
 import time
 import subprocess
-sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import sdmetricsPlay
 import sdmTools
@@ -17,7 +17,8 @@ import sdmTools
 
 pp = pprint.PrettyPrinter(indent=4)
 
-def runTest(runModel,metaData,df,colNames,outPath,dataSourceNum):
+
+def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum):
     print("First row of data:")
     print(df.iloc[0])
     if runModel == 'gaussianCopula':
@@ -58,13 +59,14 @@ def runTest(runModel,metaData,df,colNames,outPath,dataSourceNum):
 
     print(synData.head())
     outJson = {}
-    outJson['elapsedTime'] = end-start
+    outJson['elapsedTime'] = end - start
     outJson['colNames'] = colNames
     outJson['originalTable'] = df.values.tolist()
     outJson['anonTable'] = synData.values.tolist()
     print(f"Writing output to {outPath}")
     with open(outPath, 'w') as f:
-        json.dump(outJson,f,indent=4)
+        json.dump(outJson, f, indent=4)
+
 
 def runAbSharp(dataSourcePath, outPath, abSharpArgs, columns, focusColumn):
     thisDir = os.path.dirname(os.path.abspath(__file__))
@@ -92,6 +94,7 @@ def runAbSharp(dataSourcePath, outPath, abSharpArgs, columns, focusColumn):
     with open(outPath, 'w') as f:
         json.dump(outJson, f, indent=4)
 
+
 def makeMetadata(df):
     ''' This makes the metadata file expected by sdmetrics '''
     cols = list(df.columns)
@@ -105,16 +108,16 @@ def makeMetadata(df):
             colTypes.append('text')
         else:
             print(f"ERROR: Unknown column data type {colType}")
-            a = 1/0
+            a = 1 / 0
             quit()
-    metadata = { 'sdvMetaData': {
-                                "METADATA_SPEC_VERSION": "SINGLE_TABLE_V1",
-                                'columns': {},
-                                'constraints':[],
-                  },
-                  'classifications': {
-                  },
-                }
+    metadata = {'sdvMetaData': {
+        "METADATA_SPEC_VERSION": "SINGLE_TABLE_V1",
+        'columns': {},
+        'constraints': [],
+    },
+        'classifications': {
+    },
+    }
     gotBinary = False
     gotNumeric = False
     gotCategorical = False
@@ -128,20 +131,20 @@ def makeMetadata(df):
             elif not gotCategorical:
                 gotCategorical = True
                 metadata['classifications']['categorical'] = [colName]
-        elif colType in ['integer','float']:
-            metadata['sdvMetaData']['columns'][colName] = { 'type': 'numerical', 'subtype': colType}
+        elif colType in ['integer', 'float']:
+            metadata['sdvMetaData']['columns'][colName] = {'type': 'numerical', 'subtype': colType}
             if not gotNumeric:
                 gotNumeric = True
                 metadata['classifications']['numeric'] = [colName]
     return metadata
 
 
-def oneModel(dataDir='csvGeneral',dataSourceNum=0,model='fastMl',suffix='',synResults='synResults',synMeasures='synMeasures',abSharpArgs='',runsDir='runsAb',doMeasures=False, withFocusColumn=False):
+def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', synResults='synResults', synMeasures='synMeasures', abSharpArgs='', runsDir='runsAb', doMeasures=False, withFocusColumn=False):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(dataDir)
     tu.registerSynResults(synResults)
     if len(abSharpArgs) > 0:
-       print(f"abSharpArgs: {abSharpArgs}")
+        print(f"abSharpArgs: {abSharpArgs}")
     focusColumn = None
     if not withFocusColumn:
         inFiles = [f for f in os.listdir(
@@ -151,7 +154,7 @@ def oneModel(dataDir='csvGeneral',dataSourceNum=0,model='fastMl',suffix='',synRe
             if fileName[-3:] == 'csv':
                 dataSources.append(fileName)
         dataSources.sort()
-        if dataSourceNum > len(dataSources)-1:
+        if dataSourceNum > len(dataSources) - 1:
             print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
             quit()
         sourceFileName = dataSources[dataSourceNum]
@@ -182,13 +185,13 @@ def oneModel(dataDir='csvGeneral',dataSourceNum=0,model='fastMl',suffix='',synRe
         return
     print(f"Model {label} for dataset {dataSourcePath}, focus column {focusColumn}")
 
-    df = pd.read_csv(dataSourcePath,index_col=False, low_memory=False)
+    df = pd.read_csv(dataSourcePath, index_col=False, low_memory=False)
     colNames = list(df.columns.values)
     print(f"Columns {colNames}")
     mls = testUtils.mlSupport(tu)
     metaData = makeMetadata(df)
     if model == 'abSharp' or 'syndiffix' in model:
-        colTypeSymbols = {'text':'s', 'real':'r', 'datetime':'t', 'int':'i'}
+        colTypeSymbols = {'text': 's', 'real': 'r', 'datetime': 't', 'int': 'i'}
         colTypes = tu.getColTypesFromDataframe(df)
         columns = []
         for colName, colType in zip(colNames, colTypes):
@@ -217,18 +220,19 @@ def oneModel(dataDir='csvGeneral',dataSourceNum=0,model='fastMl',suffix='',synRe
     abInfo['columns'] = results['colNames']
     abInfo['mlClassInfo'] = mlClassInfo
     abInfo['elapsedTime'] = results['elapsedTime'] if 'elapsedTime' in results else None
-    abInfo['params'] = {'dataSource':sourceFileName,
-                        'outputFile':sourceFileName+'.json',
+    abInfo['params'] = {'dataSource': sourceFileName,
+                        'outputFile': sourceFileName + '.json',
                         }
 
-    sdm = sdmetricsPlay.abSdmetrics(colNames, results['originalTable'], 
-        results['anonTable'], None, None, None,
-        fileName=baseFileName, dir=os.path.join(tu.synMeasures, label),
-        abInfo=abInfo,
-        )
+    sdm = sdmetricsPlay.abSdmetrics(colNames, results['originalTable'],
+                                    results['anonTable'], None, None, None,
+                                    fileName=baseFileName, dir=os.path.join(tu.synMeasures, label),
+                                    abInfo=abInfo,
+                                    )
     sdm.runAll()
     sdm.runMl()
     print("oneModel:SUCCESS")
+
 
 if __name__ == "__main__":
     fire.Fire(oneModel)

@@ -12,10 +12,11 @@ import cufflinks as cf
 import plotly.graph_objects as go
 from anonymeter.evaluators import SinglingOutEvaluator
 from anonymeter.evaluators import InferenceEvaluator
-sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
+
 
 class sdmTools:
     def __init__(self, tu):
@@ -31,44 +32,44 @@ class sdmTools:
             'syndiffix_focus',
         ]
         self.mlConfig = [
-            { 'type':'text', 'low':2, 'high':2,
-                    'methods':  ['BinaryAdaBoostClassifier',
-                                 'BinaryLogisticRegression',
-                                 'BinaryMLPClassifier',
-                                 ],
-                    'methodType': 'binary',
-            },
-            { 'type':'text', 'low':3, 'high':20,
-                    'methods':  ['MulticlassDecisionTreeClassifier',
-                                 'MulticlassMLPClassifier',
-                                 ],
-                    'methodType': 'category',
-            },
-            { 'type':'integer', 'low':2, 'high':2,
-                    'methods':  ['BinaryAdaBoostClassifier',
-                                 'BinaryLogisticRegression',
-                                 'BinaryMLPClassifier',
-                                 ],
-                    'methodType': 'binary',
-            },
-            { 'type':'integer', 'low':3, 'high':20,
-                    'methods':  ['MulticlassDecisionTreeClassifier',
-                                 'MulticlassMLPClassifier',
-                                 ],
-                    'methodType': 'category',
-            },
-            { 'type':'integer', 'low':50, 'high':1000000000000,
-                    'methods':  ['LinearRegression',
-                                 'MLPRegressor',
-                                 ],
-                    'methodType': 'numeric',
-            },
-            { 'type':'float', 'low':50, 'high':1000000000000,
-                    'methods':  ['LinearRegression',
-                                 'MLPRegressor',
-                                 ],
-                    'methodType': 'numeric',
-            },
+            {'type': 'text', 'low': 2, 'high': 2,
+             'methods': ['BinaryAdaBoostClassifier',
+                         'BinaryLogisticRegression',
+                         'BinaryMLPClassifier',
+                         ],
+             'methodType': 'binary',
+             },
+            {'type': 'text', 'low': 3, 'high': 20,
+             'methods': ['MulticlassDecisionTreeClassifier',
+                         'MulticlassMLPClassifier',
+                         ],
+             'methodType': 'category',
+             },
+            {'type': 'integer', 'low': 2, 'high': 2,
+             'methods': ['BinaryAdaBoostClassifier',
+                         'BinaryLogisticRegression',
+                         'BinaryMLPClassifier',
+                         ],
+             'methodType': 'binary',
+             },
+            {'type': 'integer', 'low': 3, 'high': 20,
+             'methods': ['MulticlassDecisionTreeClassifier',
+                         'MulticlassMLPClassifier',
+                         ],
+             'methodType': 'category',
+             },
+            {'type': 'integer', 'low': 50, 'high': 1000000000000,
+             'methods': ['LinearRegression',
+                         'MLPRegressor',
+                         ],
+             'methodType': 'numeric',
+             },
+            {'type': 'float', 'low': 50, 'high': 1000000000000,
+             'methods': ['LinearRegression',
+                         'MLPRegressor',
+                         ],
+             'methodType': 'numeric',
+             },
         ]
         self.exec = {
             'BinaryAdaBoostClassifier': sdmetrics.single_table.BinaryAdaBoostClassifier,
@@ -121,27 +122,28 @@ class sdmTools:
                 # Cannot to a multivariate attack with 3 or fewer columns
                 print(f"Too few columns in table, exit")
                 return
-            evaluator = SinglingOutEvaluator(ori=self.dfOrig, 
-                                            syn=self.dfAnon, 
-                                            control=self.dfControl,
-                                            n_attacks=privJob['numAttacks'])
+            evaluator = SinglingOutEvaluator(ori=self.dfOrig,
+                                             syn=self.dfAnon,
+                                             control=self.dfControl,
+                                             n_attacks=privJob['numAttacks'])
             try:
                 evaluator.evaluate(mode=privJob['subtask'])
-            except RuntimeError as ex: 
+            except RuntimeError as ex:
                 print(f"Singling out evaluation failed with {ex}. Please re-run this cell."
-                    "For more stable results increase `n_attacks`. Note that this will "
-                    "make the evaluation slower.")
+                      "For more stable results increase `n_attacks`. Note that this will "
+                      "make the evaluation slower.")
                 quit()
         elif privJob['task'] == 'inference':
             # evaluate crashes if the number of attacks (guesses) is more than the number of
             # possible values to guess
-            numAttacks = min(privJob['numAttacks']+1, self.dfOrig.shape[0], self.dfAnon.shape[0], self.dfControl.shape[0]) - 1
-            evaluator = InferenceEvaluator(ori=self.dfOrig, 
-                                        syn=self.dfAnon, 
-                                        control=self.dfControl,
-                                        aux_cols=privJob['auxCols'],
-                                        secret=privJob['secret'],
-                                        n_attacks=numAttacks)
+            numAttacks = min(privJob['numAttacks'] + 1, self.dfOrig.shape[0],
+                             self.dfAnon.shape[0], self.dfControl.shape[0]) - 1
+            evaluator = InferenceEvaluator(ori=self.dfOrig,
+                                           syn=self.dfAnon,
+                                           control=self.dfControl,
+                                           aux_cols=privJob['auxCols'],
+                                           secret=privJob['secret'],
+                                           n_attacks=numAttacks)
             evaluator.evaluate(n_jobs=-2)
         self.privReports = self.getPrivReport(evaluator)
         self.privReports['privJob'] = privJob
@@ -162,9 +164,9 @@ class sdmTools:
         privRisk = evalRes.risk()
         print(privRisk)
         return {
-            'attack_rate':evalRes.attack_rate,
-            'baseline_rate':evalRes.baseline_rate,
-            'control_rate':evalRes.control_rate,
+            'attack_rate': evalRes.attack_rate,
+            'baseline_rate': evalRes.baseline_rate,
+            'control_rate': evalRes.control_rate,
             'privRisk': privRisk,
         }
 
@@ -221,7 +223,7 @@ class sdmTools:
         self.qualityReport.generate(
             self.dfOrig, self.dfAnon, self.metadata)
         dfProperties = self.qualityReport.get_properties()
-        fullReport = {'csvFile':self.resultsInfo['csvName'], 'synMethod':self.resultsInfo['dirName']}
+        fullReport = {'csvFile': self.resultsInfo['csvName'], 'synMethod': self.resultsInfo['dirName']}
         fullReport['overallScore'] = self.qualityReport.get_score()
         fullReport['properties'] = dfProperties.to_dict(orient='list')
         dfShapes = self.qualityReport.get_details(property_name='Column Shapes')
@@ -311,7 +313,7 @@ class sdmTools:
                     columnSpecs.append(None)
                     columnSpecs.append(None)
             specs.append(columnSpecs)
-            
+
         # nDim - 1 because we don't want to show the empty diagonal for (c0, c0) pairs
         # * 2 the subplot columns because the categorical column pairs are two cells each
         subplots = cf.subplots(figs, shape=(nDim - 1, (nDim - 1) * 2), specs=specs, subplot_titles=titles)
@@ -326,9 +328,9 @@ class sdmTools:
         scale = 1.0 if nDim <= 8 else (0.5 if nDim <= 16 else 0.25)
 
         try:
-            subplotsFig.write_image(figPath, 
-                                width=nDim*512, height=nDim*512,
-                                scale=scale)
+            subplotsFig.write_image(figPath,
+                                    width=nDim * 512, height=nDim * 512,
+                                    scale=scale)
         except:
             pass
 
@@ -381,7 +383,8 @@ class sdmTools:
         metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
         print("Metadata:")
         pp.pprint(metadata)
-        score = self._runOneMlMeasure(dfOrigTest, dfAnonTrain, metadata, myJob['column'], myJob['method'], myJob['csvFile'])
+        score = self._runOneMlMeasure(dfOrigTest, dfAnonTrain, metadata,
+                                      myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
             print("Scores is None, quitting")
             quit()
@@ -419,7 +422,7 @@ class sdmTools:
         print(jsonStr)
         origMlJobPath = os.path.join(self.tu.synMeasures, 'OrigMlJobs')
         with open(origMlJobPath, 'a') as f:
-            f.write(jsonStr+'\n')
+            f.write(jsonStr + '\n')
         print("oneOrigMlJob: SUCCESS")
 
     def _runOneMlMeasure(self, dfTest, dfTrain, metadata, column, method, csvFile):
@@ -427,25 +430,25 @@ class sdmTools:
         kwargs = self.kwargs[method]
         score = None
         if kwargs:
-            exec.MODEL_KWARGS = { 'max_iter': 500 }
+            exec.MODEL_KWARGS = {'max_iter': 500}
         try:
             score = exec.compute(
                 test_data=dfTest,
                 train_data=dfTrain,
                 target=column,
                 metadata=metadata
-        )
+            )
         except Exception as e:
             print(f"exception on {csvFile}, {column}, {method}")
             print(e)
             pp.pprint(metadata)
-            a=1/0
+            a = 1 / 0
             quit()
         return score
 
     def _getTestAndTrain(self, df):
         dfShuffled = df.sample(frac=1)
-        trainSize = int(dfShuffled.shape[0]/2)
+        trainSize = int(dfShuffled.shape[0] / 2)
         if trainSize > self.maxTrainingSize:
             trainSize = self.maxTrainingSize
         testSize = dfShuffled.shape[0] - trainSize - 1
@@ -474,9 +477,9 @@ class sdmTools:
         mc = measuresConfig(self.tu)
         for csvFile, mlClassInfo in mc.getCsvOrderInfo():
             limits = {
-                'binary':0,
-                'numeric':0,
-                'category':0,
+                'binary': 0,
+                'numeric': 0,
+                'category': 0,
             }
             for colInfo in mlClassInfo['colInfo']:
                 methodType, methods = self._getMethodsFromColInfo(colInfo)
@@ -486,13 +489,13 @@ class sdmTools:
                     continue
                 limits[methodType] += 1
                 for method in methods:
-                    self.origMlJobs.append({'csvFile':csvFile, 'column':colInfo['column'], 'method':method})
+                    self.origMlJobs.append({'csvFile': csvFile, 'column': colInfo['column'], 'method': method})
 
     def _getMethodsFromColInfo(self, colInfo):
         for mlInfo in self.mlConfig:
             if (colInfo['colType'] == mlInfo['type'] and
                 colInfo['numDistinct'] >= mlInfo['low'] and
-                colInfo['numDistinct'] <= mlInfo['high']):
+                    colInfo['numDistinct'] <= mlInfo['high']):
                 return mlInfo['methodType'], mlInfo['methods']
         return None, []
 
@@ -500,7 +503,7 @@ class sdmTools:
         # Find mlInfo
         mc = measuresConfig(self.tu)
         mlInfo = mc.getMlInfoFromCsvOrder(csvFile)
-        metadata = {'METADATA_SPEC_VERSION': 'SINGLE_TABLE_V1', 'columns':{}}
+        metadata = {'METADATA_SPEC_VERSION': 'SINGLE_TABLE_V1', 'columns': {}}
         for colInfo in mlInfo['colInfo']:
             whatToDo = 'category'
             if colInfo['colType'] == 'float':
@@ -510,17 +513,18 @@ class sdmTools:
                 for mlInfo in self.mlConfig:
                     if (colInfo['colType'] == mlInfo['type'] and
                         colInfo['numDistinct'] >= mlInfo['low'] and
-                        colInfo['numDistinct'] <= mlInfo['high']):
+                            colInfo['numDistinct'] <= mlInfo['high']):
                         if mlInfo['methodType'] in ['binary', 'category']:
                             whatToDo = 'category'
                         else:
                             whatToDo = 'numeric'
                             subType = 'integer'
             if whatToDo == 'category':
-                metadata['columns'][colInfo['column']] = {"type": "categorical",}
+                metadata['columns'][colInfo['column']] = {"type": "categorical", }
             else:
                 metadata['columns'][colInfo['column']] = {"type": "numerical", "subtype": subType}
         return metadata
+
 
 class measuresConfig:
     def __init__(self, tu):
@@ -563,7 +567,7 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
         self.focusJobs = []
         for csv, cols in csvCol.items():
             for col in cols.keys():
-                self.focusJobs.append({'csvFile':csv, 'column':col})
+                self.focusJobs.append({'csvFile': csv, 'column': col})
         return self.focusJobs
 
     def getFocusJobs(self):
@@ -704,7 +708,8 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
                 print(f"   Skip {method}")
                 continue
             methodResultsDir = os.path.join(self.tu.synResults, method)
-            resultsFileNames = [f for f in os.listdir(methodResultsDir) if os.path.isfile(os.path.join(methodResultsDir, f))]
+            resultsFileNames = [f for f in os.listdir(
+                methodResultsDir) if os.path.isfile(os.path.join(methodResultsDir, f))]
             focusColumnsPath = os.path.join(self.tu.runsDir, 'focusColumns.json')
             if os.path.exists(focusColumnsPath):
                 print(f"Read in {focusColumnsPath}")
@@ -736,7 +741,7 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
                             json.dump(focusColumns, f, indent=4)
                         json.dump
                 csvPos = fileName.find('.csv')
-                dataSourceName = fileName[:csvPos+4]
+                dataSourceName = fileName[:csvPos + 4]
                 if dataSourceName not in self.goodMlJobs:
                     # Can happen with for instance 2dim tables
                     continue
@@ -744,7 +749,7 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
                     if focusColumn is not None and job['column'] != focusColumn:
                         continue
                     self.mlJobsOrder.append({**job,
-                                             **{'resultsFile':fileName,
+                                             **{'resultsFile': fileName,
                                                 'synMethod': method,
                                                 }})
         mlJobsOrderPath = os.path.join(self.tu.runsDir, 'mlJobs.json')
@@ -755,7 +760,7 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
         ''' Here we assume that there is one directory per method in the results
         directory
         '''
-        self.methods = [ f.name for f in os.scandir(self.tu.synResults) if f.is_dir() ]
+        self.methods = [f.name for f in os.scandir(self.tu.synResults) if f.is_dir()]
 
     def initGoodMlJobs(self):
         ''' This computes the ML measure jobs that should be run on each datasource
@@ -807,9 +812,11 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
         else:
             print(f"Initialize csvOrderInfo")
             csvOrderInfo = []
-        def filesOrder(): 
+
+        def filesOrder():
             return [x[0] for x in csvOrderInfo]
-        def colsOrder(): 
+
+        def colsOrder():
             return [x[1] for x in csvOrderInfo]
         csvFiles = self.tu.getDataSources()
         mls = testUtils.mlSupport(self.tu)
@@ -821,10 +828,11 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
             csvPath = os.path.join(self.tu.csvLib, csvFile)
             df = pd.read_csv(csvPath, low_memory=False, skipinitialspace=True)
             mlClassInfo = mls.makeMlClassInfo(df, csvFile)
-            csvOrderInfo.append([csvFile,mlClassInfo])
+            csvOrderInfo.append([csvFile, mlClassInfo])
             print(f"Adding datasource {csvFile}")
         with open(csvOrderPath, 'w') as f:
             json.dump(csvOrderInfo, f, indent=4)
+
 
 if __name__ == '__main__':
     # Just for testing
@@ -834,5 +842,5 @@ if __name__ == '__main__':
 
     sdmt = sdmTools(tu)
     sdmt.enumerateOrigMlJobs()
-    #pp.pprint(mlJobs)
+    # pp.pprint(mlJobs)
     print(f"Total {len(sdmt.origMlJobs)} jobs")

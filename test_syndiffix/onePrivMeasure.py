@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import fire
 import pprint
@@ -12,7 +12,8 @@ pp = pprint.PrettyPrinter(indent=4)
 ''' This is used in SLURM to run column quality measures on one test.
 '''
 
-def onePrivMeasure(jobNum=0, runsDir = 'runAb', measuresDir='measuresAb', resultsDir='resultsAbHalf1', controlDir='csvAbHalf2', force=False):
+
+def onePrivMeasure(jobNum=0, runsDir='runAb', measuresDir='measuresAb', resultsDir='resultsAbHalf1', controlDir='csvAbHalf2', force=False):
     tu = testUtils.testUtilities()
     tu.registerSynMeasure(measuresDir)
     tu.registerSynResults(resultsDir)
@@ -28,8 +29,10 @@ def onePrivMeasure(jobNum=0, runsDir = 'runAb', measuresDir='measuresAb', result
     sdmt.runPrivMeasureJob(privJobs[jobNum], force)
     print("onePrivMeasure: SUCCESS")
 
+
 def main():
     fire.Fire(onePrivMeasure)
+
 
 if __name__ == '__main__':
     main()

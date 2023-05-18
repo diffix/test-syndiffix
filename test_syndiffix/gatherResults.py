@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import sdmTools
 import pandas as pd
@@ -9,8 +9,9 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 class resultsGather():
-    def __init__(self,measuresDir='measuresAb', csvDir='csvAb'):
+    def __init__(self, measuresDir='measuresAb', csvDir='csvAb'):
         self.tu = testUtils.testUtilities()
         self.sdmt = sdmTools.sdmTools(self.tu)
         self.tu.registerSynMeasure(measuresDir)
@@ -26,7 +27,7 @@ class resultsGather():
             for self.inFile in inFiles:
                 if self.inFile[-5:] != '.json':
                     continue
-                inPath = os.path.join(self.inDirPath,self.inFile)
+                inPath = os.path.join(self.inDirPath, self.inFile)
                 with open(inPath, 'r') as f:
                     testRes = json.load(f)
                 if 'overallScore' in testRes:
@@ -122,11 +123,11 @@ class resultsGather():
             csvName = tr['csvFile']
         elif 'privJob' in tr:
             csvName = tr['privJob']['csvName']
-            csvName = csvName.replace('.half1','')
+            csvName = csvName.replace('.half1', '')
         if csvName not in self.csvCounts:
             sourcePath = os.path.join(self.tu.csvLib, csvName)
-            df = pd.read_csv(sourcePath,index_col=False,low_memory=False)
-            self.csvCounts[csvName] = {'rows':df.shape[0], 'cols':df.shape[1]}
+            df = pd.read_csv(sourcePath, index_col=False, low_memory=False)
+            self.csvCounts[csvName] = {'rows': df.shape[0], 'cols': df.shape[1]}
             colProfile = {}
             for colName in list(df.columns):
                 colProfile[colName] = df[colName].nunique()
@@ -134,60 +135,60 @@ class resultsGather():
         if 'synMethod' not in tr and 'privJob' not in tr:
             print(self.inFile)
             print(self.inDirPath)
-            return {'rowType':None,
-                   'rowValue':None,
-                   'targetColumn':None,
-                   'targetColumn2':None,
-                   'targetCardinality':None,
-                   'mlMethod':None,
-                   'mlMethodType':None,
-                   'privMethod':None,
-                   'csvFile':None,
-                   'numRows':None,
-                   'numColumns':None,
-                   'synMethod':None,
-            }
+            return {'rowType': None,
+                    'rowValue': None,
+                    'targetColumn': None,
+                    'targetColumn2': None,
+                    'targetCardinality': None,
+                    'mlMethod': None,
+                    'mlMethodType': None,
+                    'privMethod': None,
+                    'csvFile': None,
+                    'numRows': None,
+                    'numColumns': None,
+                    'synMethod': None,
+                    }
         if 'privJob' in tr:
-            return {'rowType':None,
-                   'rowValue':None,
-                   'targetColumn':None,
-                   'targetColumn2':None,
-                   'targetCardinality':None,
-                   'mlMethod':None,
-                   'mlMethodType':None,
-                   'privMethod':None,
-                   'csvFile':csvName,
-                   'numRows': self.csvCounts[csvName]['rows'],
-                   'numColumns': self.csvCounts[csvName]['cols'],
-                   'synMethod':tr['privJob']['dirName'],
-            }
+            return {'rowType': None,
+                    'rowValue': None,
+                    'targetColumn': None,
+                    'targetColumn2': None,
+                    'targetCardinality': None,
+                    'mlMethod': None,
+                    'mlMethodType': None,
+                    'privMethod': None,
+                    'csvFile': csvName,
+                    'numRows': self.csvCounts[csvName]['rows'],
+                    'numColumns': self.csvCounts[csvName]['cols'],
+                    'synMethod': tr['privJob']['dirName'],
+                    }
         if self.csvCounts[csvName]['cols'] <= 10:
             numColumns = str(self.csvCounts[csvName]['cols'])
         else:
             numColumns = '>10'
-        return {'rowType':None,
-               'rowValue':None,
-               'targetColumn':None,
-               'targetColumn2':None,
-               'targetCardinality':None,
-               'mlMethod':None,
-               'mlMethodType':None,
-               'privMethod':None,
-               'csvFile':csvName,
-               'numRows': self.csvCounts[csvName]['rows'],
-               'numColumns': self.csvCounts[csvName]['cols'],
-               'numColumnsCat': numColumns,
-               'synMethod': tr['synMethod'],
-        }
+        return {'rowType': None,
+                'rowValue': None,
+                'targetColumn': None,
+                'targetColumn2': None,
+                'targetCardinality': None,
+                'mlMethod': None,
+                'mlMethodType': None,
+                'privMethod': None,
+                'csvFile': csvName,
+                'numRows': self.csvCounts[csvName]['rows'],
+                'numColumns': self.csvCounts[csvName]['cols'],
+                'numColumnsCat': numColumns,
+                'synMethod': tr['synMethod'],
+                }
 
 
 if __name__ == '__main__':
     rg = resultsGather()
     rg.gather()
-    #print(rg.dfTab.head())
+    # print(rg.dfTab.head())
     print(rg.prettyExplain())
-    #print(rg.dfTab.to_string())
-    #pp.pprint(rg.tabData)
+    # print(rg.dfTab.to_string())
+    # pp.pprint(rg.tabData)
     dfComp = rg.compare('py.for_g0_v3.har_v5.cl_t01_v4.md_v2', 'py.for_g0_v3.har_v5.cl_t02_v4.md_v2')
     print(f"dfComp has {dfComp.shape[0]} entries")
     dfComp2 = rg.compare('py.for_g0_v3.har_v5.cl_t04_v4.md_v2', 'py.for_g0_v3.har_v5.cl_t03_v4.md_v2')

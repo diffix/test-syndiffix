@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import seaborn as sns
 import sys
-sys.path.append( os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ) )
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import sdmetrics
 import sdmetrics.single_table
@@ -47,7 +47,7 @@ class abSdmetrics:
         self.play2dim = play2dim
         self.lcfBuckets = lcfBuckets
         self.fileName = fileName
-        
+
         self.dir = dir
         os.makedirs(self.dir, exist_ok=True)
 
@@ -58,7 +58,7 @@ class abSdmetrics:
             with open(self.jsonPath, 'r') as f:
                 self.fullReport = json.load(f)
         else:
-            self.fullReport = {'abInfo':abInfo}
+            self.fullReport = {'abInfo': abInfo}
         self.dataSource = None
         self.targetCol = None
         if abInfo and 'params' in abInfo and abInfo['params']:
@@ -122,8 +122,8 @@ class abSdmetrics:
         # (This may cause an issue when we deal with time-series data)
         self.dforigShuffled = self.dforigNoAid.sample(frac=1)
         self.dfanonShuffled = self.dfanonNoAid.sample(frac=1)
-        halfOrig = int(self.dforigShuffled.shape[0]/2)
-        halfAnon = int(self.dfanonShuffled.shape[0]/2)
+        halfOrig = int(self.dforigShuffled.shape[0] / 2)
+        halfAnon = int(self.dfanonShuffled.shape[0] / 2)
         self.dforigTrain = self.dforigShuffled.head(halfOrig)
         self.dforigTest = self.dforigShuffled.head(-halfOrig)
         self.dfanonTrain = self.dfanonShuffled.head(halfAnon)
@@ -139,23 +139,23 @@ class abSdmetrics:
 
     def cleanUniques(self):
         rowNum = 0
-        for classType,columns in self.mlClassInfo.items():
+        for classType, columns in self.mlClassInfo.items():
             for column in columns:
                 if not classType == 'categorical':
                     continue
-                origTestUniques = {x:True for x in list(self.dforigTest[column].unique())}
-                origTrainUniques = {x:True for x in list(self.dforigTrain[column].unique())}
-                anonTrainUniques = {x:True for x in list(self.dfanonTrain[column].unique())}
+                origTestUniques = {x: True for x in list(self.dforigTest[column].unique())}
+                origTrainUniques = {x: True for x in list(self.dforigTrain[column].unique())}
+                anonTrainUniques = {x: True for x in list(self.dfanonTrain[column].unique())}
                 # We use dforigTest in all modeling, so add the missing value just once to
                 # dforigTest
                 for val in origTrainUniques.keys():
                     if val not in origTestUniques:
-                        self.dforigTest.at[rowNum,column]=val
+                        self.dforigTest.at[rowNum, column] = val
                         rowNum += 1
                         print(f"Adding {val} to dforigTest due to dforigTrain")
                 for val in anonTrainUniques.keys():
                     if val not in origTestUniques:
-                        self.dforigTest.at[rowNum,column]=val
+                        self.dforigTest.at[rowNum, column] = val
                         rowNum += 1
                         print(f"Adding {val} to dforigTest due to dfanonTrain")
         return rowNum
@@ -185,7 +185,7 @@ class abSdmetrics:
             return
         self.mlClassInfo = self.mls.makeMlClassInfo(self.dforigNoAid, self.dataSource, columns=self.baseColumns)
         self.makeSampledTables()
-        for classType,columns in self.mlClassInfo.items():
+        for classType, columns in self.mlClassInfo.items():
             for column in columns:
                 if self.targetCol and column != self.targetCol:
                     # If targetCol is defined, only measure that column
@@ -199,7 +199,7 @@ class abSdmetrics:
         self.saveFullReport()
         self.makeMlVisuals()
 
-    def doBinaryClassifiers(self,column):
+    def doBinaryClassifiers(self, column):
         numUnique = self.dforigAid[column].nunique()
         if numUnique != 2:
             print(f"Binary classification column {column} has {numUnique} distinct values!")
@@ -213,7 +213,7 @@ class abSdmetrics:
                 train_data=self.dfanonTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         print("BinaryAdaBoostClassifier orig")
@@ -223,20 +223,20 @@ class abSdmetrics:
                 train_data=self.dforigTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         if anon is not None and orig is not None:
             improvement = anon - orig
             self.fullReport['ml'].append({'alg': f'{column}: BinaryAdaBoost',
-                                            'measure': 'anon',
-                                            'score': anon})
+                                          'measure': 'anon',
+                                          'score': anon})
             self.fullReport['ml'].append({'alg': f'{column}: BinaryAdaBoost',
-                                            'measure': 'orig',
-                                            'score': orig})
+                                          'measure': 'orig',
+                                          'score': orig})
             self.fullReport['ml'].append({'alg': f'{column}: BinaryAdaBoost',
-                                            'measure': 'improve',
-                                            'score': improvement})
+                                          'measure': 'improve',
+                                          'score': improvement})
         print("BinaryLogisticRegression anon")
         anon = None
         orig = None
@@ -246,7 +246,7 @@ class abSdmetrics:
                 train_data=self.dfanonTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         print("BinaryLogisticRegression orig")
@@ -256,22 +256,22 @@ class abSdmetrics:
                 train_data=self.dforigTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         if anon is not None and orig is not None:
             improvement = anon - orig
             self.fullReport['ml'].append({'alg': f'{column}: BinaryRegression',
-                                            'measure': 'anon',
-                                            'score': anon})
+                                          'measure': 'anon',
+                                          'score': anon})
             self.fullReport['ml'].append({'alg': f'{column}: BinaryRegression',
-                                            'measure': 'orig',
-                                            'score': orig})
+                                          'measure': 'orig',
+                                          'score': orig})
             self.fullReport['ml'].append({'alg': f'{column}: BinaryRegression',
-                                            'measure': 'improve',
-                                            'score': improvement})
+                                          'measure': 'improve',
+                                          'score': improvement})
         print("BinaryMLPClassifier anon")
-        sdmetrics.single_table.BinaryMLPClassifier.MODEL_KWARGS = { 'max_iter': 500 }
+        sdmetrics.single_table.BinaryMLPClassifier.MODEL_KWARGS = {'max_iter': 500}
         anon = None
         orig = None
         try:
@@ -280,7 +280,7 @@ class abSdmetrics:
                 train_data=self.dfanonTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         print("BinaryMLPClassifier orig")
@@ -290,22 +290,22 @@ class abSdmetrics:
                 train_data=self.dforigTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         if anon is not None and orig is not None:
             improvement = anon - orig
             self.fullReport['ml'].append({'alg': f'{column}: BinaryMLP',
-                                            'measure': 'anon',
-                                            'score': anon})
+                                          'measure': 'anon',
+                                          'score': anon})
             self.fullReport['ml'].append({'alg': f'{column}: BinaryMLP',
-                                            'measure': 'orig',
-                                            'score': orig})
+                                          'measure': 'orig',
+                                          'score': orig})
             self.fullReport['ml'].append({'alg': f'{column}: BinaryMLP',
-                                            'measure': 'improve',
-                                            'score': improvement})
+                                          'measure': 'improve',
+                                          'score': improvement})
 
-    def doCategoricalClassifiers(self,column):
+    def doCategoricalClassifiers(self, column):
         print("MulticlassDecisionTreeClassifier anon")
         anon = None
         orig = None
@@ -315,7 +315,7 @@ class abSdmetrics:
                 train_data=self.dfanonTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         print("MulticlassDecisionTreeClassifier orig")
@@ -325,22 +325,22 @@ class abSdmetrics:
                 train_data=self.dforigTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         if anon is not None and orig is not None:
             improvement = anon - orig
             self.fullReport['ml'].append({'alg': f'{column}: MulticlassTree',
-                                            'measure': 'anon',
-                                            'score': anon})
+                                          'measure': 'anon',
+                                          'score': anon})
             self.fullReport['ml'].append({'alg': f'{column}: MulticlassTree',
-                                            'measure': 'orig',
-                                            'score': orig})
+                                          'measure': 'orig',
+                                          'score': orig})
             self.fullReport['ml'].append({'alg': f'{column}: MulticlassTree',
-                                            'measure': 'improve',
-                                            'score': improvement})
+                                          'measure': 'improve',
+                                          'score': improvement})
         print("MulticlassMLPClassifier anon")
-        sdmetrics.single_table.MulticlassMLPClassifier.MODEL_KWARGS = { 'max_iter': 500 }
+        sdmetrics.single_table.MulticlassMLPClassifier.MODEL_KWARGS = {'max_iter': 500}
         anon = None
         orig = None
         try:
@@ -349,8 +349,8 @@ class abSdmetrics:
                 train_data=self.dfanonTrain,
                 target=column,
                 metadata=self.metadata,
-            # max_iter=500,
-        )
+                # max_iter=500,
+            )
         except:
             print("model.compute() exception")
         print("MulticlassMLPClassifier orig")
@@ -360,23 +360,23 @@ class abSdmetrics:
                 train_data=self.dforigTrain,
                 target=column,
                 metadata=self.metadata,
-            # max_iter=500,
-        )
+                # max_iter=500,
+            )
         except:
             print("model.compute() exception")
         if anon is not None and orig is not None:
             improvement = anon - orig
             self.fullReport['ml'].append({'alg': f'{column}: MulticlassMLP',
-                                            'measure': 'anon',
-                                            'score': anon})
+                                          'measure': 'anon',
+                                          'score': anon})
             self.fullReport['ml'].append({'alg': f'{column}: MulticlassMLP',
-                                            'measure': 'orig',
-                                            'score': orig})
+                                          'measure': 'orig',
+                                          'score': orig})
             self.fullReport['ml'].append({'alg': f'{column}: MulticlassMLP',
-                                            'measure': 'improve',
-                                            'score': improvement})
+                                          'measure': 'improve',
+                                          'score': improvement})
 
-    def doNumericClassifiers(self,column):
+    def doNumericClassifiers(self, column):
         print("LinearRegression anon")
         anon = None
         orig = None
@@ -396,22 +396,22 @@ class abSdmetrics:
                 train_data=self.dforigTrain,
                 target=column,
                 metadata=self.metadata
-        )
+            )
         except:
             print("model.compute() exception")
         if anon is not None and orig is not None:
             improvement = anon - orig
             self.fullReport['ml'].append({'alg': f'{column}: LinearRegression',
-                                            'measure': 'anon',
-                                            'score': anon})
+                                          'measure': 'anon',
+                                          'score': anon})
             self.fullReport['ml'].append({'alg': f'{column}: LinearRegression',
-                                            'measure': 'orig',
-                                            'score': orig})
+                                          'measure': 'orig',
+                                          'score': orig})
             self.fullReport['ml'].append({'alg': f'{column}: LinearRegression',
-                                            'measure': 'improve',
-                                            'score': improvement})
+                                          'measure': 'improve',
+                                          'score': improvement})
         print("MLPRegressor anon")
-        sdmetrics.single_table.MLPRegressor.MODEL_KWARGS = { 'max_iter': 500 }
+        sdmetrics.single_table.MLPRegressor.MODEL_KWARGS = {'max_iter': 500}
         anon = None
         orig = None
         try:
@@ -420,8 +420,8 @@ class abSdmetrics:
                 train_data=self.dfanonTrain,
                 target=column,
                 metadata=self.metadata,
-            # max_iter=500,
-        )
+                # max_iter=500,
+            )
         except:
             print("model.compute() exception")
         print("MLPRegressor orig")
@@ -431,25 +431,25 @@ class abSdmetrics:
                 train_data=self.dforigTrain,
                 target=column,
                 metadata=self.metadata,
-            # max_iter=500,
-        )
+                # max_iter=500,
+            )
         except:
             print("model.compute() exception")
         if anon is not None and orig is not None:
             improvement = anon - orig
             self.fullReport['ml'].append({'alg': f'{column}: MLPRegressor',
-                                            'measure': 'anon',
-                                            'score': anon})
+                                          'measure': 'anon',
+                                          'score': anon})
             self.fullReport['ml'].append({'alg': f'{column}: MLPRegressor',
-                                            'measure': 'orig',
-                                            'score': orig})
+                                          'measure': 'orig',
+                                          'score': orig})
             self.fullReport['ml'].append({'alg': f'{column}: MLPRegressor',
-                                            'measure': 'improve',
-                                            'score': improvement})
+                                          'measure': 'improve',
+                                          'score': improvement})
 
     def visual2d(self, colNames=None):
         if colNames is None:
-            colNames=[[self.baseColumns[0], self.baseColumns[1]]]
+            colNames = [[self.baseColumns[0], self.baseColumns[1]]]
         if len(self.baseColumns) == 1:
             return
         for combs in colNames:
@@ -474,7 +474,7 @@ class abSdmetrics:
 
     def visual1d(self, colNames=None):
         if colNames is None:
-            colNames=[self.baseColumns[0]]
+            colNames = [self.baseColumns[0]]
         for colName in colNames:
             name = self.fileName + f"_1d_{colName}.png"
             fig = sdmetrics.reports.utils.get_column_plot(
@@ -543,7 +543,7 @@ class abSdmetrics:
                     columnSpecs.append(None)
                     columnSpecs.append(None)
             specs.append(columnSpecs)
-            
+
         # nDim - 1 because we don't want to show the empty diagonal for (c0, c0) pairs
         # * 2 the subplot columns because the categorical column pairs are two cells each
         subplots = cf.subplots(figs, shape=(nDim - 1, (nDim - 1) * 2), specs=specs, subplot_titles=titles)
@@ -557,9 +557,9 @@ class abSdmetrics:
         scale = 1.0 if nDim <= 8 else (0.5 if nDim <= 16 else 0.25)
 
         try:
-            subplotsFig.write_image(figPath, 
-                                width=nDim*512, height=nDim*512,
-                                scale=scale)
+            subplotsFig.write_image(figPath,
+                                    width=nDim * 512, height=nDim * 512,
+                                    scale=scale)
         except:
             pass
 
@@ -568,12 +568,12 @@ class abSdmetrics:
             return
         nDim = len(self.baseColumns)
         fig, axes = plt.subplots(nDim, 1,
-                                constrained_layout=True,
-                                figsize=(10, nDim*5),
-                                #subplot_kw=dict(box_aspect=1)
-                                )
-        for colName,ax in zip(self.list1dimNodes.keys(),axes.flat):
-            self.doList1dimNodesPlot(ax,self.list1dimNodes[colName],colName)
+                                 constrained_layout=True,
+                                 figsize=(10, nDim * 5),
+                                 # subplot_kw=dict(box_aspect=1)
+                                 )
+        for colName, ax in zip(self.list1dimNodes.keys(), axes.flat):
+            self.doList1dimNodesPlot(ax, self.list1dimNodes[colName], colName)
 
         name = self.fileName + f"_1dnodeplots.png"
         figPath = os.path.join(os.environ['AB_RESULTS_DIR'], self.dir, name)
@@ -597,7 +597,7 @@ class abSdmetrics:
                 return
             fig.update_layout(showlegend=False)
             figs.append(fig)
-            
+
         subplots = cf.subplots(figs, shape=(nDim, 1))
         subplotsFig = go.Figure(data=subplots['data'], layout=subplots['layout'])
         subplotsFig.update_layout(showlegend=False)
@@ -606,7 +606,7 @@ class abSdmetrics:
         figPath = os.path.join(os.environ['AB_RESULTS_DIR'], self.dir, name)
 
         try:
-            subplotsFig.write_image(figPath, width=1024, height=nDim*256)
+            subplotsFig.write_image(figPath, width=1024, height=nDim * 256)
         except:
             pass
 
@@ -621,7 +621,7 @@ class abSdmetrics:
         '''
         self.fullReport['synthesis'] = []
         maxNumCols = max(self.maxDim, len(self.baseColumns))
-        for dim in range(1, maxNumCols+1):
+        for dim in range(1, maxNumCols + 1):
             for matchTolerance in self.matchTolerances:
                 for columnComb in itertools.combinations(self.baseColumns, dim):
                     newDfColumns = ['aid'] + list(columnComb)
@@ -651,27 +651,27 @@ class abSdmetrics:
             synthetic_sample_size=None
         )
         numRows = len(self.anon)
-        matched = int((1-fracNew)*numRows)
-        new = int(fracNew*numRows)
-        return 1-fracNew, matched, new
+        matched = int((1 - fracNew) * numRows)
+        new = int(fracNew * numRows)
+        return 1 - fracNew, matched, new
 
     def makeAidColumns(self):
         if self.p:
             print(f"First row of orig without aid column: {self.orig[0]}")
         if self.p:
             print(f"First row of anon without aid column: {self.anon[0]}")
-        self.origAid = [[i]+self.orig[i] for i in range(len(self.orig))]
+        self.origAid = [[i] + self.orig[i] for i in range(len(self.orig))]
         if self.p:
             print(f"First row of orig with aid column: {self.origAid[0]}")
         if self.p:
             print(f"Last row of orig with aid column: {self.origAid[-1]}")
-        offset = len(self.origAid)+1
-        self.anonAid = [[offset+i]+self.anon[i] for i in range(len(self.anon))]
+        offset = len(self.origAid) + 1
+        self.anonAid = [[offset + i] + self.anon[i] for i in range(len(self.anon))]
         if self.p:
             print(f"First row of anon with aid column: {self.anonAid[0]}")
         if self.p:
             print(f"Last row of anon with aid column: {self.anonAid[-1]}")
-        self.columns = ['aid']+self.baseColumns
+        self.columns = ['aid'] + self.baseColumns
         if self.p:
             print(self.columns)
         self.dforigAid = pd.DataFrame(self.origAid, columns=self.columns)
@@ -681,8 +681,8 @@ class abSdmetrics:
         if self.p:
             print(self.dfanonAid.describe())
         # These are the tables with uniform identical AID columns
-        self.origNoAid = [[0]+self.orig[i] for i in range(len(self.orig))]
-        self.anonNoAid = [[0]+self.anon[i] for i in range(len(self.anon))]
+        self.origNoAid = [[0] + self.orig[i] for i in range(len(self.orig))]
+        self.anonNoAid = [[0] + self.anon[i] for i in range(len(self.anon))]
         self.dforigNoAid = pd.DataFrame(self.origNoAid, columns=self.columns)
         self.dfanonNoAid = pd.DataFrame(self.anonNoAid, columns=self.columns)
 
@@ -706,7 +706,7 @@ class abSdmetrics:
     def doAllBucketsPlots(self):
         if self.buckets is None or self.refiningNodes is None:
             return
-        #self.doPlay2dimPlotWork()    # uncomment to do this  TODO: remove at some point
+        # self.doPlay2dimPlotWork()    # uncomment to do this  TODO: remove at some point
         self.plotLcfBuckets()
         plotable2dimPairs = []
         for pair in self.used2dimPairs:
@@ -718,7 +718,7 @@ class abSdmetrics:
         self.doAllBucketsPlotsWork('from2dim', numPlots, plotable2dimPairs)
         self.doAllBucketsPlotsWork('from3dim', numPlots, plotable2dimPairs)
 
-    def getRangeIndices(self,comb,bigComb):
+    def getRangeIndices(self, comb, bigComb):
         ri = []
         if comb[0] in bigComb:
             ri.append(bigComb.index(comb[0]))
@@ -739,16 +739,16 @@ class abSdmetrics:
                 if tuple(thingy['comb']) == comb:
                     for bkt in thingy['buckets']:
                         if len(bkt['ranges'][0]) == 2 and len(bkt['ranges'][1]) == 2:
-                            preppedBuckets[comb].append({'color':'blue', 'bucket':bkt['ranges']})
+                            preppedBuckets[comb].append({'color': 'blue', 'bucket': bkt['ranges']})
                 elif len(thingy['comb']) > 2:
                     # These lcf buckets might contain the comb
-                    ri = self.getRangeIndices(comb,thingy['comb'])
+                    ri = self.getRangeIndices(comb, thingy['comb'])
                     if ri is None:
                         continue
                     for bkt in thingy['buckets']:
-                        ranges = [bkt['ranges'][ri[0]],bkt['ranges'][ri[1]]]
+                        ranges = [bkt['ranges'][ri[0]], bkt['ranges'][ri[1]]]
                         if len(ranges[0]) == 2 and len(ranges[1]) == 2:
-                            preppedBuckets[comb].append({'color':'green', 'bucket':ranges})
+                            preppedBuckets[comb].append({'color': 'green', 'bucket': ranges})
         return preppedBuckets
 
     def plotLcfBuckets(self):
@@ -758,20 +758,20 @@ class abSdmetrics:
         allPairs = list(preppedBuckets.keys())
         numPlots = len(allPairs)
         plotHorz = math.ceil(math.sqrt(numPlots))
-        plotHorz = max(plotHorz,1)
-        plotVert = math.ceil(numPlots/plotHorz)
-        plotVert = max(plotVert,1)
+        plotHorz = max(plotHorz, 1)
+        plotVert = math.ceil(numPlots / plotHorz)
+        plotVert = max(plotVert, 1)
         if plotHorz > 1 or plotVert > 1:
             fig, axes = plt.subplots(plotVert, plotHorz,
-                                    figsize=(plotHorz*4, plotVert*4),
-                                    constrained_layout=True,
-                                    subplot_kw=dict(box_aspect=1))
-            for comb,ax in zip(allPairs,axes.flat):
-                self.plotLcfBucketsPlot(ax,comb[0],comb[1],preppedBuckets[comb])
+                                     figsize=(plotHorz * 4, plotVert * 4),
+                                     constrained_layout=True,
+                                     subplot_kw=dict(box_aspect=1))
+            for comb, ax in zip(allPairs, axes.flat):
+                self.plotLcfBucketsPlot(ax, comb[0], comb[1], preppedBuckets[comb])
         else:
             fig, ax = plt.subplots()
             comb = allPairs[0]
-            self.plotLcfBucketsPlot(ax,comb[0],comb[1],preppedBuckets[comb])
+            self.plotLcfBucketsPlot(ax, comb[0], comb[1], preppedBuckets[comb])
         name = self.fileName + f"_lcf.png"
         figPath = os.path.join(os.environ['AB_RESULTS_DIR'], self.dir, name)
         fig.suptitle(f"Buckets that failed LCF (blue at 2dim, green at > 2dim")
@@ -781,22 +781,22 @@ class abSdmetrics:
 
     def doAllBucketsPlotsWork(self, slice, numPlots, plotable2dimPairs):
         plotHorz = math.ceil(math.sqrt(numPlots))
-        plotHorz = max(plotHorz,1)
-        plotVert = math.ceil(numPlots/plotHorz)
-        plotVert = max(plotVert,1)
+        plotHorz = max(plotHorz, 1)
+        plotVert = math.ceil(numPlots / plotHorz)
+        plotVert = max(plotVert, 1)
         if plotHorz > 1 or plotVert > 1:
             fig, axes = plt.subplots(plotVert, plotHorz,
-                                    figsize=(plotHorz*4, plotVert*4),
-                                    constrained_layout=True,
-                                    subplot_kw=dict(box_aspect=1))
-            for comb,ax in zip(plotable2dimPairs,axes.flat):
+                                     figsize=(plotHorz * 4, plotVert * 4),
+                                     constrained_layout=True,
+                                     subplot_kw=dict(box_aspect=1))
+            for comb, ax in zip(plotable2dimPairs, axes.flat):
                 refiningNodes, buckets = self.getSlice(slice, comb)
-                self.doBucketsPlot(ax,comb[0],comb[1],refiningNodes,buckets)
+                self.doBucketsPlot(ax, comb[0], comb[1], refiningNodes, buckets)
         else:
             fig, ax = plt.subplots()
             comb = plotable2dimPairs[0]
             refiningNodes, buckets = self.getSlice(slice, comb)
-            self.doBucketsPlot(ax,comb[0],comb[1],refiningNodes,buckets)
+            self.doBucketsPlot(ax, comb[0], comb[1], refiningNodes, buckets)
         name = self.fileName + f"_buckets_{slice}.png"
         figPath = os.path.join(os.environ['AB_RESULTS_DIR'], self.dir, name)
         fig.suptitle(f"Refining Nodes and Buckets ({slice})")
@@ -805,22 +805,22 @@ class abSdmetrics:
         all2dimPairs = list(self.play2dim.keys())
         numPlots = len(all2dimPairs)
         plotHorz = math.ceil(math.sqrt(numPlots))
-        plotHorz = max(plotHorz,1)
-        plotVert = math.ceil(numPlots/plotHorz)
-        plotVert = max(plotVert,1)
+        plotHorz = max(plotHorz, 1)
+        plotVert = math.ceil(numPlots / plotHorz)
+        plotVert = max(plotVert, 1)
         if plotHorz > 1 or plotVert > 1:
             fig, axes = plt.subplots(plotVert, plotHorz,
-                                    figsize=(plotHorz*4, plotVert*4),
-                                    constrained_layout=True,
-                                    subplot_kw=dict(box_aspect=1))
-            for combStr,ax in zip(all2dimPairs,axes.flat):
+                                     figsize=(plotHorz * 4, plotVert * 4),
+                                     constrained_layout=True,
+                                     subplot_kw=dict(box_aspect=1))
+            for combStr, ax in zip(all2dimPairs, axes.flat):
                 comb = [int(x) for x in combStr[1:-1].split(',')]
-                self.doPlay2dimPlot(ax,comb[0],comb[1],self.play2dim[combStr]['buckets'])
+                self.doPlay2dimPlot(ax, comb[0], comb[1], self.play2dim[combStr]['buckets'])
         else:
             fig, ax = plt.subplots()
             combStr = all2dimPairs[0]
             comb = [int(x) for x in combStr[1:-1].split(',')]
-            self.doPlay2dimPlot(ax,comb[0],comb[1],self.play2dim[combStr]['buckets'])
+            self.doPlay2dimPlot(ax, comb[0], comb[1], self.play2dim[combStr]['buckets'])
         name = self.fileName + f"_play2dim.png"
         figPath = os.path.join(os.environ['AB_RESULTS_DIR'], self.dir, name)
         fig.suptitle(f"Test flexible 2dim prebuild")
@@ -830,22 +830,22 @@ class abSdmetrics:
 
     def doAllBucketsPlotsWork(self, slice, numPlots, plotable2dimPairs):
         plotHorz = math.ceil(math.sqrt(numPlots))
-        plotHorz = max(plotHorz,1)
-        plotVert = math.ceil(numPlots/plotHorz)
-        plotVert = max(plotVert,1)
+        plotHorz = max(plotHorz, 1)
+        plotVert = math.ceil(numPlots / plotHorz)
+        plotVert = max(plotVert, 1)
         if plotHorz > 1 or plotVert > 1:
             fig, axes = plt.subplots(plotVert, plotHorz,
-                                    figsize=(plotHorz*4, plotVert*4),
-                                    constrained_layout=True,
-                                    subplot_kw=dict(box_aspect=1))
-            for comb,ax in zip(plotable2dimPairs,axes.flat):
+                                     figsize=(plotHorz * 4, plotVert * 4),
+                                     constrained_layout=True,
+                                     subplot_kw=dict(box_aspect=1))
+            for comb, ax in zip(plotable2dimPairs, axes.flat):
                 refiningNodes, buckets = self.getSlice(slice, comb)
-                self.doBucketsPlot(ax,comb[0],comb[1],refiningNodes,buckets)
+                self.doBucketsPlot(ax, comb[0], comb[1], refiningNodes, buckets)
         else:
             fig, ax = plt.subplots()
             comb = plotable2dimPairs[0]
             refiningNodes, buckets = self.getSlice(slice, comb)
-            self.doBucketsPlot(ax,comb[0],comb[1],refiningNodes,buckets)
+            self.doBucketsPlot(ax, comb[0], comb[1], refiningNodes, buckets)
         name = self.fileName + f"_buckets_{slice}.png"
         figPath = os.path.join(os.environ['AB_RESULTS_DIR'], self.dir, name)
         fig.suptitle(f"Refining Nodes and Buckets ({slice})")
@@ -877,15 +877,15 @@ class abSdmetrics:
         if combStr not in self.refiningNodes:
             return [], []
         for node in self.refiningNodes[combStr]:
-            refiningNodes.append({'noisyCount':node['noisyCount'],
-                                  'ranges':[node['ranges'][ci[0]], node['ranges'][ci[1]]]})
+            refiningNodes.append({'noisyCount': node['noisyCount'],
+                                  'ranges': [node['ranges'][ci[0]], node['ranges'][ci[1]]]})
         buckets = []
         for bucket in self.buckets[combStr]:
-            buckets.append({'noisyCount':bucket['noisyCount'],
-                                  'ranges':[bucket['ranges'][ci[0]], bucket['ranges'][ci[1]]]})
+            buckets.append({'noisyCount': bucket['noisyCount'],
+                            'ranges': [bucket['ranges'][ci[0]], bucket['ranges'][ci[1]]]})
         return refiningNodes, buckets
 
-    def doList1dimNodesPlot(self,ax,list1dimNodes,colName):
+    def doList1dimNodesPlot(self, ax, list1dimNodes, colName):
         minx = float('inf')
         maxx = float('-inf')
         miny = float('inf')
@@ -900,10 +900,10 @@ class abSdmetrics:
             bottom = node['depth']
             top = node['depth'] + 1
             perLevelCount[node['depth']] += node['noisyCount']
-            minx = min(minx,left)
-            maxx = max(maxx,right)
-            miny = min(miny,bottom)
-            maxy = max(maxy,top)
+            minx = min(minx, left)
+            maxx = max(maxx, right)
+            miny = min(miny, bottom)
+            maxy = max(maxy, top)
             if node['noisyCount'] > 100:
                 color = 'black'
             elif node['noisyCount'] > 50:
@@ -912,22 +912,22 @@ class abSdmetrics:
                 color = 'blue'
             else:
                 color = 'green'
-            ax.add_patch(patches.Rectangle((left, bottom), right-left, top-bottom,
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom,
                                            facecolor='none',
                                            edgecolor=color,
                                            ))
         all = max(perLevelCount)
         for i in range(len(perLevelCount)):
             if perLevelCount[i]:
-                label = str(int((perLevelCount[i]/all)*100)) + '%'
+                label = str(int((perLevelCount[i] / all) * 100)) + '%'
                 ax.text(minx, i, label, horizontalalignment='left', verticalalignment='bottom')
         ax.set_xlabel(f"Range for column {colName}")
         ax.set_ylabel("Tree depth")
         if minx != float('inf') and maxx != float('-inf') and miny != float('inf') and maxy != float('-inf'):
-            ax.set_ylim(miny,maxy)
-            ax.set_xlim(minx,maxx)
+            ax.set_ylim(miny, maxy)
+            ax.set_xlim(minx, maxx)
 
-    def plotLcfBucketsPlot(self,ax,yi,xi,buckets):
+    def plotLcfBucketsPlot(self, ax, yi, xi, buckets):
         ''' xi and yi are the column indices for the x and y axis respectively
         '''
         colTypes = list(self.dforigAid.dtypes)
@@ -935,12 +935,12 @@ class abSdmetrics:
         maxx = float('-inf')
         miny = float('inf')
         maxy = float('-inf')
-        if ((pd.api.types.is_integer_dtype(colTypes[xi]) or 
+        if ((pd.api.types.is_integer_dtype(colTypes[xi]) or
             pd.api.types.is_float_dtype(colTypes[xi]) or
             pd.api.types.is_numeric_dtype(colTypes[xi])) and
-            (pd.api.types.is_integer_dtype(colTypes[yi]) or 
+            (pd.api.types.is_integer_dtype(colTypes[yi]) or
             pd.api.types.is_float_dtype(colTypes[yi]) or
-            pd.api.types.is_numeric_dtype(colTypes[yi]))):
+                pd.api.types.is_numeric_dtype(colTypes[yi]))):
             x = [x[xi] for x in self.orig]
             y = [x[yi] for x in self.orig]
             minx = min(x)
@@ -959,11 +959,11 @@ class abSdmetrics:
             right = bucket[1][1]
             bottom = bucket[0][0]
             top = bucket[0][1]
-            minx = min(minx,left)
-            maxx = max(maxx,right)
-            miny = min(miny,bottom)
-            maxy = max(maxy,top)
-            ax.add_patch(patches.Rectangle((left, bottom), right-left, top-bottom,
+            minx = min(minx, left)
+            maxx = max(maxx, right)
+            miny = min(miny, bottom)
+            maxy = max(maxy, top)
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom,
                                            facecolor='none',
                                            edgecolor=bkt['color'],
                                            alpha=0.5,
@@ -971,10 +971,10 @@ class abSdmetrics:
         ax.set_xlabel(self.baseColumns[xi], fontsize=12)
         ax.set_ylabel(self.baseColumns[yi], fontsize=12)
         if minx != float('inf') and maxx != float('-inf') and miny != float('inf') and maxy != float('-inf'):
-            ax.set_ylim(miny,maxy)
-            ax.set_xlim(minx,maxx)
+            ax.set_ylim(miny, maxy)
+            ax.set_xlim(minx, maxx)
 
-    def doPlay2dimPlot(self,ax,yi,xi,buckets):
+    def doPlay2dimPlot(self, ax, yi, xi, buckets):
         ''' xi and yi are the column indices for the x and y axis respectively
         '''
         colTypes = list(self.dforigAid.dtypes)
@@ -982,18 +982,18 @@ class abSdmetrics:
         maxx = float('-inf')
         miny = float('inf')
         maxy = float('-inf')
-        if ((pd.api.types.is_integer_dtype(colTypes[xi]) or 
+        if ((pd.api.types.is_integer_dtype(colTypes[xi]) or
             pd.api.types.is_float_dtype(colTypes[xi]) or
             pd.api.types.is_numeric_dtype(colTypes[xi])) and
-            (pd.api.types.is_integer_dtype(colTypes[yi]) or 
+            (pd.api.types.is_integer_dtype(colTypes[yi]) or
             pd.api.types.is_float_dtype(colTypes[yi]) or
-            pd.api.types.is_numeric_dtype(colTypes[yi]))):
+                pd.api.types.is_numeric_dtype(colTypes[yi]))):
             x = [x[xi] for x in self.orig]
             y = [x[yi] for x in self.orig]
-            #minx = min(x)
-            #miny = min(y)
-            #maxx = max(x)
-            #maxy = max(y)
+            # minx = min(x)
+            # miny = min(y)
+            # maxx = max(x)
+            # maxy = max(y)
             ax.scatter(x, y, s=1, alpha=0.8)
         for bucket in buckets:
             r1 = 1
@@ -1006,11 +1006,11 @@ class abSdmetrics:
             right = bucket[1][0][r1]
             bottom = bucket[0][0][0]
             top = bucket[0][0][t1]
-            minx = min(minx,left)
-            maxx = max(maxx,right)
-            miny = min(miny,bottom)
-            maxy = max(maxy,top)
-            ax.add_patch(patches.Rectangle((left, bottom), right-left, top-bottom,
+            minx = min(minx, left)
+            maxx = max(maxx, right)
+            miny = min(miny, bottom)
+            maxy = max(maxy, top)
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom,
                                            facecolor='none',
                                            edgecolor='green',
                                            alpha=0.5,
@@ -1018,19 +1018,19 @@ class abSdmetrics:
         ax.set_xlabel(self.baseColumns[xi], fontsize=13)
         ax.set_ylabel(self.baseColumns[yi], fontsize=12)
         if minx != float('inf') and maxx != float('-inf') and miny != float('inf') and maxy != float('-inf'):
-            ax.set_ylim(miny,maxy)
-            ax.set_xlim(minx,maxx)
+            ax.set_ylim(miny, maxy)
+            ax.set_xlim(minx, maxx)
 
-    def doBucketsPlot(self,ax,yi,xi,refiningNodes,buckets):
+    def doBucketsPlot(self, ax, yi, xi, refiningNodes, buckets):
         ''' xi and yi are the column indices for the x and y axis respectively
         '''
         colTypes = list(self.dforigAid.dtypes)
-        if ((pd.api.types.is_integer_dtype(colTypes[xi]) or 
+        if ((pd.api.types.is_integer_dtype(colTypes[xi]) or
             pd.api.types.is_float_dtype(colTypes[xi]) or
             pd.api.types.is_numeric_dtype(colTypes[xi])) and
-            (pd.api.types.is_integer_dtype(colTypes[yi]) or 
+            (pd.api.types.is_integer_dtype(colTypes[yi]) or
             pd.api.types.is_float_dtype(colTypes[yi]) or
-            pd.api.types.is_numeric_dtype(colTypes[yi]))):
+                pd.api.types.is_numeric_dtype(colTypes[yi]))):
             x = [x[xi] for x in self.orig]
             y = [x[yi] for x in self.orig]
             ax.scatter(x, y, s=1, alpha=0.2)
@@ -1049,11 +1049,11 @@ class abSdmetrics:
             right = bucket['ranges'][1][r1]
             bottom = bucket['ranges'][0][0]
             top = bucket['ranges'][0][t1]
-            minx = min(minx,left)
-            maxx = max(maxx,right)
-            miny = min(miny,bottom)
-            maxy = max(maxy,top)
-            ax.add_patch(patches.Rectangle((left, bottom), right-left, top-bottom,
+            minx = min(minx, left)
+            maxx = max(maxx, right)
+            miny = min(miny, bottom)
+            maxy = max(maxy, top)
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom,
                                            facecolor='red',
                                            alpha=0.7,
                                            ))
@@ -1068,21 +1068,21 @@ class abSdmetrics:
             right = bucket['ranges'][1][r1]
             bottom = bucket['ranges'][0][0]
             top = bucket['ranges'][0][t1]
-            minx = min(minx,left)
-            maxx = max(maxx,right)
-            miny = min(miny,bottom)
-            maxy = max(maxy,top)
-            ax.add_patch(patches.Rectangle((left, bottom), right-left, top-bottom,
+            minx = min(minx, left)
+            maxx = max(maxx, right)
+            miny = min(miny, bottom)
+            maxy = max(maxy, top)
+            ax.add_patch(patches.Rectangle((left, bottom), right - left, top - bottom,
                                            facecolor='none',
-                                           #edgecolor='aquamarine',
+                                           # edgecolor='aquamarine',
                                            edgecolor='black',
                                            linewidth=0.3,
                                            ))
         ax.set_xlabel(self.baseColumns[xi], fontsize=13)
         ax.set_ylabel(self.baseColumns[yi], fontsize=12)
         if minx != float('inf') and maxx != float('-inf') and miny != float('inf') and maxy != float('-inf'):
-            ax.set_ylim(miny,maxy)
-            ax.set_xlim(minx,maxx)
+            ax.set_ylim(miny, maxy)
+            ax.set_xlim(minx, maxx)
 
     def saveFullReport(self):
         with open(self.jsonPath, 'w') as f:
@@ -1092,8 +1092,8 @@ class abSdmetrics:
         self.visual1dimNodePlots()
         self.visual2dSubplots()
         self.visual1dSubplots()
-        #self.visual1d()
-        #self.visual2d()
+        # self.visual1d()
+        # self.visual2d()
 
     def diagnosticReportIsFinished(self):
         if ('results' in self.fullReport and
@@ -1155,6 +1155,7 @@ class abSdmetrics:
         except:
             pass
         self.saveFullReport()
+
 
 if __name__ == "__main__":
     pass
