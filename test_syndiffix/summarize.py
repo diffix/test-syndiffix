@@ -303,11 +303,9 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     fig, axs = plt.subplots(nrows=2,ncols=2,figsize=(10,height))
 
     dfTemp = df.query("rowType == 'columnScore'")
-    print(f"Before removeExtras: dfTemp has {dfTemp.shape[0]} entries (columnScore)")
     if dfTemp.shape[0] > 0:
         if apples:
             dfTemp = removeExtras(dfTemp)
-        print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (columnScore)")
         #dfMerged = pd.merge(dfBase, dfOther, how='inner', on = ['csvFile','targetColumn','mlMethod'])
         xaxis = 'Marginal columns quality'
         hueDf = getHueDf(dfTemp, hueCol)
@@ -327,11 +325,9 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         axs[0][0].set_xlim(max(0.8, low),1.0)
 
     dfTemp = df.query("rowType == 'pairScore'")
-    print(f"Before removeExtras: dfTemp has {dfTemp.shape[0]} entries (pairScore)")
     if dfTemp.shape[0] > 0:
         if apples:
             dfTemp = removeExtras(dfTemp)
-        print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (pairScore)")
         xaxis = 'Column pairs quality'
         hueDf = getHueDf(dfTemp, hueCol)
         print(figPath)
@@ -351,11 +347,9 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         #axs[0][1].set(yticklabels = [], ylabel = None)
 
     dfTemp = df.query("rowType == 'synMlScore'")
-    print(f"Before removeExtras: dfTemp has {dfTemp.shape[0]} entries (synMlScore)")
     if dfTemp.shape[0] > 0:
         if apples:
             dfTemp = removeExtras(dfTemp)
-        print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (synMlScore)")
         xaxis = 'ML Score'
         hueDf = getHueDf(dfTemp, hueCol)
         print(figPath)
@@ -373,13 +367,9 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         axs[1][0].set_xlim(max(0, low),1.0)
 
     dfTemp = df.query("rowType == 'elapsedTime'")
-    print(f"Before removeExtras: dfTemp has {dfTemp.shape[0]} entries (elapsedTime)")
     if dfTemp.shape[0] > 0:
         if apples:
             dfTemp = removeExtras(dfTemp)
-        print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (elapsedTime)")
-        print("dfTemp for elapsedTime:")
-        print(dfTemp.to_string())
         xaxis = 'Elapsed Time (seconds) (log)'
         hueDf = getHueDf(dfTemp, hueCol)
         print(figPath)
