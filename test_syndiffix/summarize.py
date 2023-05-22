@@ -223,11 +223,11 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit
     countY = len(dfMerged[dfMerged['rowValue_x']<dfMerged['rowValue_y']])
     print(f"    All models with X>Y = {countX}, with Y>X = {countY}")
     # And for top-scoring models only:
-    countX = len(dfMerged[(dfMerged['rowValue_x']>dfMerged['rowValue_y']) and 
-                  ((dfMerged['rowValue_x']>=0.8) or
+    countX = len(dfMerged[(dfMerged['rowValue_x']>dfMerged['rowValue_y']) & 
+                  ((dfMerged['rowValue_x']>=0.8) |
                    (dfMerged['rowValue_y']>=0.8))])
-    countY = len(dfMerged[(dfMerged['rowValue_x']<dfMerged['rowValue_y']) and 
-                  ((dfMerged['rowValue_x']>=0.8) or
+    countY = len(dfMerged[(dfMerged['rowValue_x']<dfMerged['rowValue_y']) & 
+                  ((dfMerged['rowValue_x']>=0.8) |
                    (dfMerged['rowValue_y']>=0.8))])
     print(f"    >0.8 models with X>Y = {countX}, with Y>X = {countY}")
     # The columns get renamed after merging, so hueCol needs to be modified (to either
