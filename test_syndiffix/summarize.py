@@ -208,6 +208,7 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
         if dfTemp.shape[0] > 0:
             dfBase = dfTemp.query(f"synMethod == '{synMethods[0]}'")
             dfOther = dfTemp.query(f"synMethod == '{synMethods[1]}'")
+            print(f"Methods {synMethods}, score {score}:")
             makeScatterWork(dfBase, dfOther, synMethods, axs[ax0][ax1], score, hueCol, doLog, limit, axisType)
     fig.suptitle(title)
     plt.tight_layout()
@@ -220,7 +221,7 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit
     # Let's count the number of times that X is greater than Y
     countX = len(dfMerged[dfMerged['rowValue_x']>dfMerged['rowValue_y']])
     countY = len(dfMerged[dfMerged['rowValue_x']<dfMerged['rowValue_y']])
-    print(f"Rows with X>Y = {countX}, rows with Y>X = {countY}")
+    print(f"    Rows with X>Y = {countX}, rows with Y>X = {countY}")
     # The columns get renamed after merging, so hueCol needs to be modified (to either
     # hueCol_x or hueCol_y). So long as the hueCol applies identically to the base and the other
     # data, it doesn't matter which.
