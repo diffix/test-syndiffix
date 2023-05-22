@@ -217,6 +217,10 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
 def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit, axisType):
     legendDone = False
     dfMerged = pd.merge(dfBase, dfOther, how='inner', on = ['csvFile','targetColumn','mlMethod'])
+    # Let's count the number of times that X is greater than Y
+    countX = len(dfMerged[dfMerged['rowValue_x']>dfMerged['rowValue_y']])
+    countY = len(dfMerged[dfMerged['rowValue_x']<dfMerged['rowValue_y']])
+    print(f"Rows with X>Y = {countX}, rows with Y>X = {countY}")
     # The columns get renamed after merging, so hueCol needs to be modified (to either
     # hueCol_x or hueCol_y). So long as the hueCol applies identically to the base and the other
     # data, it doesn't matter which.
