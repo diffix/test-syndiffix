@@ -257,7 +257,8 @@ def setLabelSampleCount(s, labels):
         if label not in sCounts:
             continue
         count = sCounts[label]
-        newLabels.append(f"{label}  ({count})")
+        #newLabels.append(f"{label}  ({count})")
+        newLabels.append(f"{label}")
     return newLabels
 
 def doMlPlot(tu, df, force, hueCol=None):
