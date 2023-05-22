@@ -1,0 +1,7 @@
+anonymeter==0.0.1
+autopep8==2.0.1
+cufflinks==0.17.3
+fire==0.5.0
+pandas==1.5.3
+sdmetrics==0.9.1
+seaborn==0.12.2
