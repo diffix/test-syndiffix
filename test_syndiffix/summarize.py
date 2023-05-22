@@ -166,7 +166,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
 
     # Now for just 2dim and 8dim (our generated datasets)
     for numCol in [2,8]:
-        title = f"Parameterized datasets with {numCol} columns"
+        title = f"Datasets with {numCol} columns"
         print(title)
         dfTemp = df.query(f"numColumns == {numCol}")
         hueColsScatter = [None]
