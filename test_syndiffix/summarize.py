@@ -377,6 +377,8 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         if apples:
             dfTemp = removeExtras(dfTemp)
         print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (elapsedTime)")
+        print("dfTemp for elapsedTime:")
+        print(dfTemp.to_string())
         xaxis = 'Elapsed Time (seconds) (log)'
         hueDf = getHueDf(dfTemp, hueCol)
         print(figPath)
