@@ -166,7 +166,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
 
     # Now for just 2dim and 8dim (our generated datasets)
     for numCol in [2,8]:
-        title = f"Parameterized datasets with {numCol} columns"
+        title = f"Datasets with {numCol} columns"
         print(title)
         dfTemp = df.query(f"numColumns == {numCol}")
         hueColsScatter = [None]
@@ -257,7 +257,8 @@ def setLabelSampleCount(s, labels):
         if label not in sCounts:
             continue
         count = sCounts[label]
-        newLabels.append(f"{label}  ({count})")
+        #newLabels.append(f"{label}  ({count})")
+        newLabels.append(f"{label}")
     return newLabels
 
 def doMlPlot(tu, df, force, hueCol=None):
@@ -302,11 +303,9 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     fig, axs = plt.subplots(nrows=2,ncols=2,figsize=(10,height))
 
     dfTemp = df.query("rowType == 'columnScore'")
-    print(f"Before removeExtras: dfTemp has {dfTemp.shape[0]} entries (columnScore)")
     if dfTemp.shape[0] > 0:
         if apples:
             dfTemp = removeExtras(dfTemp)
-        print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (columnScore)")
         #dfMerged = pd.merge(dfBase, dfOther, how='inner', on = ['csvFile','targetColumn','mlMethod'])
         xaxis = 'Marginal columns quality'
         hueDf = getHueDf(dfTemp, hueCol)
@@ -326,11 +325,9 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         axs[0][0].set_xlim(max(0.8, low),1.0)
 
     dfTemp = df.query("rowType == 'pairScore'")
-    print(f"Before removeExtras: dfTemp has {dfTemp.shape[0]} entries (pairScore)")
     if dfTemp.shape[0] > 0:
         if apples:
             dfTemp = removeExtras(dfTemp)
-        print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (pairScore)")
         xaxis = 'Column pairs quality'
         hueDf = getHueDf(dfTemp, hueCol)
         print(figPath)
@@ -350,11 +347,9 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         #axs[0][1].set(yticklabels = [], ylabel = None)
 
     dfTemp = df.query("rowType == 'synMlScore'")
-    print(f"Before removeExtras: dfTemp has {dfTemp.shape[0]} entries (synMlScore)")
     if dfTemp.shape[0] > 0:
         if apples:
             dfTemp = removeExtras(dfTemp)
-        print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (synMlScore)")
         xaxis = 'ML Score'
         hueDf = getHueDf(dfTemp, hueCol)
         print(figPath)
@@ -372,11 +367,9 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         axs[1][0].set_xlim(max(0, low),1.0)
 
     dfTemp = df.query("rowType == 'elapsedTime'")
-    print(f"Before removeExtras: dfTemp has {dfTemp.shape[0]} entries (elapsedTime)")
     if dfTemp.shape[0] > 0:
         if apples:
             dfTemp = removeExtras(dfTemp)
-        print(f"After removeExtras: dfTemp has {dfTemp.shape[0]} entries (elapsedTime)")
         xaxis = 'Elapsed Time (seconds) (log)'
         hueDf = getHueDf(dfTemp, hueCol)
         print(figPath)
