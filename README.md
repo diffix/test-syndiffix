@@ -189,3 +189,13 @@ The results file produced by `controller.py` has the following structure:
 ... other stuff
 }
 ```
+
+## Maintenance
+
+### Formatting
+
+Python code is formatted using:
+
+```
+autopep8 --in-place --recursive .
+```
