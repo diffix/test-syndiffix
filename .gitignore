@@ -92,3 +92,5 @@ ENV/
 # generated R script
 
 synAll.R
+
+data/
