@@ -30,6 +30,7 @@ class sdmTools:
             'syndiffix',
             'syndiffix_ns',
             'syndiffix_focus',
+            'syndiffix_multi',
         ]
         self.mlConfig = [
             {'type': 'text', 'low': 2, 'high': 2,
