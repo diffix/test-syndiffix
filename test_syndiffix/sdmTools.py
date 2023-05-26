@@ -139,11 +139,34 @@ class sdmTools:
             # possible values to guess
             numAttacks = min(privJob['numAttacks'] + 1, self.dfOrig.shape[0],
                              self.dfAnon.shape[0], self.dfControl.shape[0]) - 1
+            origFileName = privJob['csvName'].replace('half1.', '')
+            metadata = self._getMetadataFromCsvFile(origFileName)
+            if metadata['columns'][privJob['secret']]['type'] == 'numerical':
+                regression = True
+            else:
+                regression = False
+            if privJob['secret'] == 'native-country':
+                print("Got native-country!")
+                if 'pob' in privJob['auxCols']:
+                    privJob['auxCols'].remove('pob')
+            if privJob['secret'] == 'sf_flag':
+                print("Got sf_flag!")
+                print(privJob['auxCols'])
+                if 'vendor_id' in privJob['auxCols']:
+                    privJob['auxCols'].remove('vendor_id')
+                print(privJob['auxCols'])
+            if privJob['secret'] == 'vendor_id':
+                print("Got vendor_id!")
+                print(privJob['auxCols'])
+                if 'sf_flag' in privJob['auxCols']:
+                    privJob['auxCols'].remove('sf_flag')
+                print(privJob['auxCols'])
             evaluator = InferenceEvaluator(ori=self.dfOrig,
                                            syn=self.dfAnon,
                                            control=self.dfControl,
                                            aux_cols=privJob['auxCols'],
                                            secret=privJob['secret'],
+                                           regression=regression,
                                            n_attacks=numAttacks)
             evaluator.evaluate(n_jobs=-2)
         self.privReports = self.getPrivReport(evaluator)
