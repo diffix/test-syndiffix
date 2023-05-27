@@ -205,6 +205,7 @@ class testUtilities:
         # explain['cols'] = 'Column names (in indexed order)'
 
     def validTestDir(self, dirName):
+        return True
         if dirName[2:7] == '.for_' or dirName.startswith(('copulaGan', 'ctGan', 'fastMl', 'tvae', 'gaussianCopula', 'syndiffix', 'mostly', 'synthpop')):
             return True
         return False
