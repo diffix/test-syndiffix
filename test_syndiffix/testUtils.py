@@ -319,12 +319,14 @@ class testUtilities:
 
     def registerSynResults(self, name):
         self.synResults = os.path.join(self.baseDir, name)
+        os.makedirs(self.synResults, exist_ok=True)
 
     def registerControlDir(self, name):
         self.controlDir = os.path.join(self.baseDir, name)
 
     def registerSynMeasure(self, name):
         self.synMeasures = os.path.join(self.baseDir, name)
+        os.makedirs(self.synMeasures, exist_ok=True)
 
     def registerSummariesDir(self, name):
         self.summariesDir = os.path.join(self.summariesDirCore, name)
