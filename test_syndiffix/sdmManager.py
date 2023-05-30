@@ -27,8 +27,7 @@ class SdmManager(object):
         tu.registerSynMeasure(measuresDir)
         sdmt = sdmTools.sdmTools(tu)
         sdmt.enumerateOrigMlJobs()
-        quit()
-        pp.pprint(sdmt.synMlJobs)
+        pp.pprint(sdmt.origMlJobs)
         pass
 
     def makeMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', synMethod=None):
