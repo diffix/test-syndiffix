@@ -41,7 +41,8 @@ To build synthetic data with focus columns, it is necessary to first run `sdmMan
 To do measures on the SLURM cluster, we have the following workflow:
 
 * Use `sdmManager.py updateCsvInfo` whenever new tables are added to a csv directory. This creates the file `csvOrder.json` in the measures directory.
-* Then use `oneOrigMlJob.py` to run ML measures over the original (not synthesized) datasets. The purpose of this is to determine which ML measures (i.e. column and method) have the best quality. These the the measures to use for comparison with synthetic data.
+* Run `sdmManager.py makeOrigMlRuns` to create `batchOrigMl`. 
+* Run `sbatch batchOrigMl` to run ML measures over the original (not synthesized) datasets. The purpose of this is to determine which ML measures (i.e. column and method) have the best quality. These the the measures to use for comparison with synthetic data. This creates the file `OrigMlJobs` in the measures directory, which is used subsequently by the following step.
 * Run `sdmManager.py makeMlRuns` to build the SLURM configuration information for doing ML measures (creates the files `mlJobs.json` and `batchMl` in the run commands directory). The cmd line parameter `--synMethod=method` can be used to limit the created jobs to those of the synMethod only.
 * In the run commands directory, do `sbatch batchMl` to do the ML measures
 * Run `sdmManager.py makeQualRuns` to build the SLURM configuration information for doing quality measures (creates the file `batchQual` in the run commands directory)
