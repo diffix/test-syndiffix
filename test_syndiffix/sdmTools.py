@@ -475,9 +475,8 @@ class sdmTools:
         trainSize = int(dfShuffled.shape[0] / 2)
         if trainSize > self.maxTrainingSize:
             trainSize = self.maxTrainingSize
-        testSize = dfShuffled.shape[0] - trainSize - 1
-        dfTrain = dfShuffled.head(trainSize)
-        dfTest = dfShuffled.head(-testSize)
+        dfTrain = dfShuffled[:trainSize]
+        dfTest = dfShuffled[trainSize:]
         return dfTest, dfTrain
 
     def _readCsv(self, csvFile):
