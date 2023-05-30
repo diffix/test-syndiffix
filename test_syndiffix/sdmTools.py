@@ -815,9 +815,10 @@ python3 {testPath} \\
         '''
         origMlJobsPath = os.path.join(self.tu.synMeasures, 'OrigMlJobs')
         # Get all of the orig ml measures json files
-        mlPaths = self.tu.getOrigMlPaths()
+        mlFiles = self.tu.getOrigMlFiles()
         self.goodMlJobs = {}
-        for mlPath in mlPaths:
+        for mlFile in mlFiles:
+            mlPath = os.path.join(self.tu.origMlDir, mlFile)
             with open(mlPath, 'r') as f:
                 job = json.load(f)
             if job['score'] is None or job['score'] < self.origMlScoreThreshold:
