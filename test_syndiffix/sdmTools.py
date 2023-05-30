@@ -566,11 +566,12 @@ class measuresConfig:
 
     def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
+        testPath = os.path.join(self.tu.pythonDir, 'oneOrgiMlJob.py')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs-1}
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
-python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/tests/oneOrigMlJob.py \\
+python3 {testPath} \\
     --jobNum=$arrayNum \\
     --csvLib={csvLib} \\
     --measuresDir={measuresDir}
@@ -580,11 +581,12 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
 
     def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
+        testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py.py')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(self.mlJobsOrder)-1}
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
-python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/tests/oneSynMLJob.py \\
+python3 {testPath} \\
     --jobNum=$arrayNum \\
     --force=False \\
     --csvLib={csvLib} \\
@@ -633,11 +635,12 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
             json.dump(self.focusJobs, f, indent=4)
 
         batchScriptPath = os.path.join(self.tu.runsDir, "batchFocus")
+        testPath = os.path.join(self.tu.pythonDir, 'oneModel.py')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(self.focusJobs)-1}
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
-python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/tests/oneModel.py \\
+python3 {testPath} \\
     --dataSourceNum=$arrayNum \\
     --dataDir={csvLib} \\
     --synResults={resultsDir} \\
@@ -650,13 +653,14 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
             f.write(batchScript)
 
     def makeQualJobsBatchScript(self, measuresDir, resultsDir, numJobs, synMethod):
+        testPath = os.path.join(self.tu.pythonDir, 'oneQualityMeasure.py')
         batchScriptPath = os.path.join(self.tu.runsDir, "batchQual")
         if synMethod:
             batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs}
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
-python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/tests/oneQualityMeasure.py \\
+python3 {testPath} \\
     --jobNum=$arrayNum \\
     --resultsDir={resultsDir} \\
     --synMethod={synMethod} \\
@@ -668,7 +672,7 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs}
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
-python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/tests/oneQualityMeasure.py \\
+python3 {testPath} \\
     --jobNum=$arrayNum \\
     --resultsDir={resultsDir} \\
     --force=False \\
@@ -719,11 +723,12 @@ python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/te
         privJobsPath = os.path.join(self.tu.runsDir, "privJobs.json")
         with open(privJobsPath, 'w') as f:
             json.dump(privJobs, f, indent=4)
+        testPath = os.path.join(self.tu.pythonDir, 'onePrivMeasure.py')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(privJobs)-1}
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
-python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/tests/onePrivMeasure.py \\
+python3 {testPath} \\
     --jobNum=$arrayNum \\
     --runsDir={runsDir} \\
     --resultsDir={resultsDir} \\

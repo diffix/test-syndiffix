@@ -106,6 +106,8 @@ class mlSupport:
 class testUtilities:
     def __init__(self):
         self.baseDir = os.environ['AB_RESULTS_DIR']
+        self.pythonDir = os.environ['AB_PYTHON_DIR']
+        self.abSharpDir = os.environ['AB_SHARP_DIR']
         # These are the default directories and config file locations
         self.csvLib = os.path.join(self.baseDir, 'csvLib')
         self.synResults = os.path.join(self.baseDir, 'synResults')

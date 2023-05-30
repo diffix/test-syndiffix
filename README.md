@@ -1,3 +1,9 @@
+## Environment variables
+
+* `AB_RESULTS_DIR` is the path to the test configuration directory
+* `AB_PYTHON_DIR` is the path to the directory containing the python test programs
+* `AB_SHARP_DIR` is the path to the directory containing AB Sharp SynDiffix code (the `adaptive-buckets-sharp` directory)
+
 ## Tests directory structure
 
 These tests all assume a root directory whose location is defined by the environment variable `AB_RESULTS_DIR`. The `AB_RESULTS_DIR` has a number of default subdirectories (which must be configured prior to running the tests):

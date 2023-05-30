@@ -68,9 +68,9 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum):
         json.dump(outJson, f, indent=4)
 
 
-def runAbSharp(dataSourcePath, outPath, abSharpArgs, columns, focusColumn):
+def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn):
     thisDir = os.path.dirname(os.path.abspath(__file__))
-    abSharpDir = os.path.join(thisDir, '..', '..', 'adaptive-buckets-sharp', 'src', 'SynDiffix.Debug')
+    abSharpDir = os.path.join(tu.abSharpDir, 'src', 'SynDiffix.Debug')
 
     abSharpArgs = shlex.split(abSharpArgs)
     print(f"cmd-line args: {abSharpArgs}")
@@ -202,7 +202,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         if withFocusColumn:
             abSharpArgs += f" --clustering-maincolumn '{focusColumn}' "
-        runAbSharp(dataSourcePath, outPath, abSharpArgs, columns, focusColumn)
+        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn)
     else:
         runTest(model, metaData['sdvMetaData'], df, colNames, outPath, dataSourceNum)
 
