@@ -20,7 +20,7 @@ def oneOrigMlJob(jobNum=0, csvLib='csvAb', measuresDir='measuresAb', origMlDir='
     tu.registerOrigMlDir(origMlDir)
     sdmt = sdmTools.sdmTools(tu)
     sdmt.enumerateOrigMlJobs()
-    sdmt.runOrigMlJob(jobNum, tu.origMlDir)
+    sdmt.runOrigMlJob(jobNum)
 
 
 def main():
