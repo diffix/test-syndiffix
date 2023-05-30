@@ -572,7 +572,6 @@ class measuresConfig:
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/tests/oneOrigMlJob.py \\
     --jobNum=$arrayNum \\
-    --force=False \\
     --csvLib={csvLib} \\
     --measuresDir={measuresDir}
     '''
