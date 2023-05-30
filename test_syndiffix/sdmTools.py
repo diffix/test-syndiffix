@@ -443,11 +443,10 @@ class sdmTools:
         print(f"Score = {score}")
         myJob['score'] = score
         myJob['elapsed'] = endTime - startTime
-        jsonStr = json.dumps(myJob)
-        print(jsonStr)
-        origMlJobPath = os.path.join(self.tu.synMeasures, 'OrigMlJobs')
-        with open(origMlJobPath, 'a') as f:
-            f.write(jsonStr + '\n')
+        origMlJobName = f"{myJob['csvFile']}.{myJob['column'].replace(' ','')}.{myJob['method']}.json"
+        origMlJobPath = os.path.join(self.tu.origMlDir, origMlJobName)
+        with open(origMlJobPath, 'w') as f:
+            json.dump(myJob, f, indent=4)
         print("oneOrigMlJob: SUCCESS")
 
     def _runOneMlMeasure(self, dfTest, dfTrain, metadata, column, method, csvFile):
