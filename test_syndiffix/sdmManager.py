@@ -27,6 +27,7 @@ class SdmManager(object):
         tu.registerSynMeasure(measuresDir)
         sdmt = sdmTools.sdmTools(tu)
         sdmt.enumerateOrigMlJobs()
+        quit()
         pp.pprint(sdmt.synMlJobs)
         pass
 
