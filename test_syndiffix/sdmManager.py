@@ -28,6 +28,7 @@ class SdmManager(object):
         sdmt = sdmTools.sdmTools(tu)
         sdmt.enumerateOrigMlJobs()
         pp.pprint(sdmt.origMlJobs)
+        print(len(sdmt.origMlJobs))
         pass
 
     def makeMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', synMethod=None):
