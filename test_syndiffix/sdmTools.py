@@ -425,11 +425,17 @@ class sdmTools:
             json.dump(myJob, f, indent=4)
         print("oneSynMLJob: SUCCESS")
 
-    def runOrigMlJob(self, jobNum):
+    def runOrigMlJob(self, jobNum, force):
         if jobNum >= len(self.origMlJobs):
             print(f"oneOrigMlJob: my jobNum {jobNum} is too large")
             return
         myJob = self.origMlJobs[jobNum]
+        origMlJobName = f"{myJob['csvFile']}.{myJob['column'].replace(' ','')}.{myJob['method']}.json"
+        origMlJobPath = os.path.join(self.tu.origMlDir, origMlJobName)
+        if not force and os.path.exists(origMlJobPath):
+            print(f"{origMlJobPath} exists, skipping")
+            print("oneSynMLJob: SUCCESS (skipped)")
+            return
         startTime = time.time()
         print(f"oneOrigMlJob: Starting job {myJob} at time {startTime}")
         df = self._readCsv(myJob['csvFile'])
@@ -443,8 +449,6 @@ class sdmTools:
         print(f"Score = {score}")
         myJob['score'] = score
         myJob['elapsed'] = endTime - startTime
-        origMlJobName = f"{myJob['csvFile']}.{myJob['column'].replace(' ','')}.{myJob['method']}.json"
-        origMlJobPath = os.path.join(self.tu.origMlDir, origMlJobName)
         with open(origMlJobPath, 'w') as f:
             json.dump(myJob, f, indent=4)
         print("oneOrigMlJob: SUCCESS")
@@ -574,6 +578,7 @@ python3 {testPath} \\
     --jobNum=$arrayNum \\
     --csvLib={csvLib} \\
     --origMlDir={origMlDir} \\
+    --force=False \\
     --measuresDir={measuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
