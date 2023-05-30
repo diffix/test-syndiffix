@@ -814,24 +814,18 @@ python3 {testPath} \\
         ''' This computes the ML measure jobs that should be run on each datasource
         '''
         origMlJobsPath = os.path.join(self.tu.synMeasures, 'OrigMlJobs')
+        # Get all of the orig ml measures json files
+        mlPaths = self.tu.getOrigMlPaths()
         self.goodMlJobs = {}
-        with open(origMlJobsPath, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                try:
-                    job = json.loads(line)
-                except:
-                    # Not sure why this happens. Could be some race conditions in the file
-                    # append operations, though I didn't think that was supposed to happen
-                    # Anyway, it is relatively rare...  TODO: fix (low priority)
-                    print(f"Bad line: {line}")
-                    continue
-                if job['score'] is None or job['score'] < self.origMlScoreThreshold:
-                    continue
-                if job['csvFile'] in self.goodMlJobs:
-                    self.goodMlJobs[job['csvFile']].append(job)
-                else:
-                    self.goodMlJobs[job['csvFile']] = [job]
+        for mlPath in mlPaths:
+            with open(mlPath, 'r') as f:
+                job = json.load(f)
+            if job['score'] is None or job['score'] < self.origMlScoreThreshold:
+                continue
+            if job['csvFile'] in self.goodMlJobs:
+                self.goodMlJobs[job['csvFile']].append(job)
+            else:
+                self.goodMlJobs[job['csvFile']] = [job]
 
     def getCsvOrderInfo(self):
         csvOrderPath = os.path.join(self.tu.synMeasures, 'csvOrder.json')

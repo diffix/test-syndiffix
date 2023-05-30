@@ -271,6 +271,10 @@ class testUtilities:
         files = [f for f in os.listdir(self.csvLib) if os.path.isfile(os.path.join(self.csvLib, f))]
         return sorted(files)
 
+    def getOrigMlPaths(self):
+        files = [f for f in os.listdir(self.origMlDir) if os.path.isfile(os.path.join(self.origMlDir, f))]
+        return sorted(files)
+
     def getResultsPaths(self, synMethod=None):
         allResults = []
         dirs = [f for f in os.listdir(self.synResults) if os.path.isdir(os.path.join(self.synResults, f))]
