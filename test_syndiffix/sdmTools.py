@@ -563,7 +563,7 @@ class measuresConfig:
         with open(mlJobsOrderPath, 'r') as f:
             return json.load(f)
 
-    def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, numJobs):
+    def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneOrgiMlJob.py')
         batchScript = f'''#!/bin/sh
@@ -573,6 +573,7 @@ arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
     --csvLib={csvLib} \\
+    --origMlDir={origMlDir} \\
     --measuresDir={measuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
