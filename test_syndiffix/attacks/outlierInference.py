@@ -200,12 +200,13 @@ def attack(synthAids, synthDataset):
     baselineRowsByCat['count'] *= estRowsPerAid
     rowsByCat = synthDataset.groupby(['cat']).size().reset_index(name='count')
 
-    overBaseline = rowsByCat['count'] - baselineRowsByCat['count']
-    rowsByCat['overBaseline'] = overBaseline
-    rowsByCat = rowsByCat.sort_values(by=['overBaseline'], ascending=False).reset_index(drop=True)
+    # We need to take into account that some categories might have become low-count filtered.
+    countsByCat = pd.merge(rowsByCat, baselineRowsByCat, how='inner', on='cat', suffixes=('Estimate', 'Baseline'))
+    countsByCat['overBaseline'] = countsByCat['countEstimate'] - countsByCat['countBaseline']
+    countsByCat = countsByCat.sort_values(by=['overBaseline'], ascending=False).reset_index(drop=True)
 
-    if rowsByCat['overBaseline'][0] > 0:
-        guess = rowsByCat['cat'][0]
+    if countsByCat['overBaseline'][0] > 0:
+        guess = countsByCat['cat'][0]
     else:
         guess = None
     return guess
