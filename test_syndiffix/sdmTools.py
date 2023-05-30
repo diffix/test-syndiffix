@@ -564,6 +564,20 @@ class measuresConfig:
         with open(mlJobsOrderPath, 'r') as f:
             return json.load(f)
 
+    def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, numJobs):
+        batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
+        batchScript = f'''#!/bin/sh
+#SBATCH --time=7-0
+#SBATCH --array=0-{numJobs-1}
+arrayNum="${{SLURM_ARRAY_TASK_ID}}"
+python3 /INS/syndiffix/nobackup/internal-strategy/playground/adaptive-buckets/tests/oneOrigMlJob.py \\
+    --jobNum=$arrayNum \\
+    --csvLib={csvLib} \\
+    --measuresDir={measuresDir}
+    '''
+        with open(batchScriptPath, 'w') as f:
+            f.write(batchScript)
+
     def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         batchScript = f'''#!/bin/sh
