@@ -565,7 +565,7 @@ class measuresConfig:
 
     def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
-        testPath = os.path.join(self.tu.pythonDir, 'oneOrgiMlJob.py')
+        testPath = os.path.join(self.tu.pythonDir, 'oneOrigMlJob.py')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs-1}
