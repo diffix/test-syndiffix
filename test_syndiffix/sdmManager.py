@@ -21,10 +21,11 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeCsvOrder()
 
-    def makeOrigMlRuns(self, csvLib='csvAb', measuresDir='measuresAb'):
+    def makeOrigMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', runsDir='runAb'):
         tu = testUtils.testUtilities()
         tu.registerCsvLib(csvLib)
         tu.registerSynMeasure(measuresDir)
+        tu.registerRunsDir(runsDir)
         sdmt = sdmTools.sdmTools(tu)
         sdmt.enumerateOrigMlJobs()
         mc = sdmTools.measuresConfig(tu)
