@@ -14,9 +14,9 @@ The code is setup so that there is one group of these five directories per disti
 
 ### Synthetic data methods
 
-There are two syn-diffix implementations for synthetic data, PPoC (Python Proof of Concept), and AB#. PPoC is now retired.
+To build synthetic data with SynDiffix, `github/diffix/syndiffix` needs to be installed.
 
-We use the SDV library to build synthetic with learning-based methods (see `sdmetricsPlay.py`, `sdmManager.py`, and `sdmTools.py`).
+We use the SDV library to build synthetic with learning-based methods (see `sdmManager.py`, and `sdmTools.py`).
 
 ## Creating CSV datasets
 
@@ -28,11 +28,7 @@ Other than this, one can put any CSV dataset they wish.
 
 `quicktester.py` can also build synthetic data and run quality measures on it.
 
-Through most of the development of PPoC, Francis used `syntest.py` to build synthetic data for PPoC on a single machine, and `oneJob.py` on a SLURM cluster (also using `makeRuns.py` to setup jobs).
-
-`oneModel.py` is used to build learning and AB# synthetic data on a SLURM cluster.
-
-Note that both `oneJob.py` and `oneModel.py` can also run the quality measures.
+`oneModel.py` is used to build synthetic data on a SLURM cluster.
 
 ### Running syndiffix with focus columns
 
@@ -42,13 +38,9 @@ To build synthetic data with focus columns, it is necessary to first run `sdmMan
 
 `quicktester.py` can measure quality.
 
-Through most of the development of PPoC, Francis used `synmeasure.py` to measure quality for PPoC on a single machine, and `oneJob.py` (or `oneModel.py`) on a SLURM cluster.
+To do measures on the SLURM cluster, we have the following workflow:
 
-The latter would build and measure in one job. This worked fine for relatively small datasets with few ML quality measures, but is not scaling as well for large datasets and many ML quality measures.
-
-To accommodate larger datasets and many ML measures, we now have the following sequence:
-
-* Use `sdmManager.py updateCsvInfo` whenever new tables are added to a csv directory.
+* Use `sdmManager.py updateCsvInfo` whenever new tables are added to a csv directory. This creates the file `csvOrder.json` in the measures directory.
 * Then use `oneOrigMlJob.py` to run ML measures over the original (not synthesized) datasets. The purpose of this is to determine which ML measures (i.e. column and method) have the best quality. These the the measures to use for comparison with synthetic data.
 * Run `sdmManager.py makeMlRuns` to build the SLURM configuration information for doing ML measures (creates the files `mlJobs.json` and `batchMl` in the run commands directory). The cmd line parameter `--synMethod=method` can be used to limit the created jobs to those of the synMethod only.
 * In the run commands directory, do `sbatch batchMl` to do the ML measures
