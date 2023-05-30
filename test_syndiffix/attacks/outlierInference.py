@@ -27,7 +27,8 @@ class OutlierInference(object):
             nCategories,
             nAids,
             i,
-            outlierCount):
+            outlierCount,
+            localOutlier):
         """
         Run one instance of the attack with all methods.
 
@@ -37,6 +38,7 @@ class OutlierInference(object):
           - `nAids` - count of AIDs to generate data for.
           - `i` - index number of the dataset to run.
           - `outlierCount` - the count of rows for the outlier AID to have in the dataset (regular AIDs have 5-10 rows).
+          - `localOutlier` - whether or not the outlier should be global or local for one category.
 
         Outputs the result in `.json` to a file under `data/`.
         """
@@ -49,7 +51,8 @@ class OutlierInference(object):
                                       nCategories,
                                       nAids,
                                       i,
-                                      outlierCount)
+                                      outlierCount,
+                                      localOutlier)
                 attackResults.append(result)
         fileCode = f'{i:03d}'
         with open(f'data/result.{fileCode}.json', 'w+') as file:
@@ -76,7 +79,8 @@ class OutlierInference(object):
             nCategories=[2, 5, 10],
             nAids=100,
             nDatasets=100,
-            outlierCount=200):
+            outlierCount=200,
+            localOutlier=False):
         """
         Generate CSVs intended to be loaded to mostly.ai.
         """
@@ -84,7 +88,7 @@ class OutlierInference(object):
         for nCategories in nCategories:
             for i in range(nDatasets):
                 np.random.seed(int(str(nCategories) + str(i)))
-                aids = generateAids(nCategories, nAids, outlierCount)
+                aids = generateAids(nCategories, nAids, outlierCount, localOutlier)
                 dataset = generateDataset(aids)
                 aids = aids.drop(['count'], axis=1)
                 dataset = dataset.drop(['count'], axis=1)
@@ -98,7 +102,8 @@ class OutlierInference(object):
              nCategories=[2, 5, 10],
              nAids=100,
              nDatasets=100,
-             outlierCount=200):
+             outlierCount=200,
+             localOutlier=False):
         """
         Run multiple instances of attack in one process. See `one` for documentation on the arguments.
 
@@ -110,7 +115,7 @@ class OutlierInference(object):
         for nCategories in nCategories:
             for i in range(nDatasets):
                 for method in ['original', 'syndiffix']:
-                    result = runOneAttack(syndiffixPath, method, nCategories, nAids, i, outlierCount)
+                    result = runOneAttack(syndiffixPath, method, nCategories, nAids, i, outlierCount, localOutlier)
                     attackResults.append(result)
 
         attackResults = pd.DataFrame(attackResults).groupby(['nCategories', 'method'])[
@@ -178,12 +183,20 @@ def runCTGAN(data):
     return modelSample(model, num_rows=data.shape[0])
 
 
-def generateAids(nCategories, nAids, outlierCount):
+def generateAids(nCategories, nAids, outlierCount, localOutlier=False):
     aids = list(range(0, nAids))
     categories = pd.Series(np.random.randint(0, nCategories, size=nAids))
-    categories = categories.apply(lambda cell: 'category' + str(cell))
+
+    # Fix outlier (first AID in the table) to have category 0.
+    categories[0] = 0
     rowCounts = np.random.randint(5, 10, size=nAids)
+    if localOutlier:
+        # Outlier is local to the first group of categories, making the second group have higher row counts.
+        secondGroup = categories >= nCategories // 2
+        (secondGroupIdx, ) = np.where(secondGroup)
+        rowCounts[secondGroupIdx] = np.random.randint(outlierCount, outlierCount * 3 // 2, size=len(secondGroupIdx))
     rowCounts[0] = outlierCount
+
     return pd.DataFrame({'aid': aids, 'cat': categories, 'count': rowCounts})
 
 
@@ -191,7 +204,11 @@ def generateDataset(uniqueDf):
     return uniqueDf.reindex(uniqueDf.index.repeat(uniqueDf['count'])).reset_index(drop=True)
 
 
-def attack(synthAids, synthDataset):
+def attack(synthAids, synthDataset, localOutlier, nCategories):
+    if localOutlier:
+        # The attacker knows the outlier is in the first group.
+        synthAids = synthAids.iloc[np.where(synthAids['cat'] < nCategories // 2)]
+        synthDataset = synthDataset.iloc[np.where(synthDataset['cat'] < nCategories // 2)]
     estAidsByCat = synthAids.groupby(['cat']).size().reset_index(name='count')
     estNAids = synthAids.size
     estNRows = synthDataset.size
@@ -200,12 +217,13 @@ def attack(synthAids, synthDataset):
     baselineRowsByCat['count'] *= estRowsPerAid
     rowsByCat = synthDataset.groupby(['cat']).size().reset_index(name='count')
 
-    overBaseline = rowsByCat['count'] - baselineRowsByCat['count']
-    rowsByCat['overBaseline'] = overBaseline
-    rowsByCat = rowsByCat.sort_values(by=['overBaseline'], ascending=False).reset_index(drop=True)
+    # We need to take into account that some categories might have become low-count filtered.
+    countsByCat = pd.merge(rowsByCat, baselineRowsByCat, how='inner', on='cat', suffixes=('Estimate', 'Baseline'))
+    countsByCat['overBaseline'] = countsByCat['countEstimate'] - countsByCat['countBaseline']
+    countsByCat = countsByCat.sort_values(by=['overBaseline'], ascending=False).reset_index(drop=True)
 
-    if rowsByCat['overBaseline'][0] > 0:
-        guess = rowsByCat['cat'][0]
+    if countsByCat['overBaseline'][0] > 0:
+        guess = countsByCat['cat'][0]
     else:
         guess = None
     return guess
@@ -216,15 +234,16 @@ def runOneAttack(syndiffixPath,
                  nCategories,
                  nAids,
                  i,
-                 outlierCount):
+                 outlierCount,
+                 localOutlier):
     print(method, " for ", nCategories, "categories. Dataset:", i)
 
     np.random.seed(int(str(nCategories) + str(i)))
-    aids = generateAids(nCategories, nAids, outlierCount)
+    aids = generateAids(nCategories, nAids, outlierCount, localOutlier)
     dataset = generateDataset(aids)
 
     if method == 'syndiffix':
-        synthesizer = runSynDiffix(syndiffixPath, ['cat:s'])
+        synthesizer = runSynDiffix(syndiffixPath, ['cat:i'])
     elif method == 'original':
         def synthesizer(data): return data.copy()
     elif method == 'tvae':
@@ -242,7 +261,7 @@ def runOneAttack(syndiffixPath,
         synthAids, synthDataset = synthesizer(aids), synthesizer(dataset)
         elapsed = time.time() - start
 
-    guess = attack(synthAids, synthDataset)
+    guess = attack(synthAids, synthDataset, localOutlier, nCategories)
     guessCorrect = guess == aids.loc[0, 'cat']
 
     return {
