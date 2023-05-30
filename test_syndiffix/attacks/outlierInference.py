@@ -262,7 +262,7 @@ def runOneAttack(syndiffixPath,
         elapsed = time.time() - start
 
     guess = attack(synthAids, synthDataset, localOutlier, nCategories)
-    guessCorrect = guess == aids.loc[0, 'cat']
+    guessCorrect = 1 if guess == aids.loc[0, 'cat'] else 0
 
     return {
         'nCategories': nCategories,
