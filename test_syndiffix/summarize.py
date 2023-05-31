@@ -61,7 +61,7 @@ def summarize(measuresDir='measuresAb',
     print(f"Privacy plot")
     doPrivPlot(tu, dfAll, force)
     doMlPlot(tu, dfAll, force)
-    doPlots(tu, dfAll, ['syndiffix_focus', 'ctGan', 'mostly'], force=force)
+    #doPlots(tu, dfAll, ['syndiffix_focus', 'ctGan', 'mostly'], force=force)
     doPlots(tu, dfAll, ['syndiffix', 'ctGan', 'mostly'], force=force)
     doPlots(tu, dfAll, synMethods, force=force)
     doPlots(tu, dfAll, synMethods, apples=False, force=force)
@@ -69,7 +69,8 @@ def summarize(measuresDir='measuresAb',
     withoutMostly.remove('mostly')
     doPlots(tu, dfAll, withoutMostly, force=force)
     doPlots(tu, dfAll, ['mostly', 'ctGan'], force=force)
-    for compareMethod in ['syndiffix', 'syndiffix_focus']:
+    for compareMethod in ['syndiffix', ]:
+    #for compareMethod in ['syndiffix', 'syndiffix_focus']:
         for synMethod in synMethods:
             if synMethod == compareMethod:
                 continue
