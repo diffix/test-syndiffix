@@ -581,7 +581,7 @@ python3 {testPath} \\
 
     def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
-        testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py.py')
+        testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(self.mlJobsOrder)-1}
