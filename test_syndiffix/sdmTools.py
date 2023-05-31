@@ -562,6 +562,10 @@ class measuresConfig:
         self.goodMlJobs = None
         self.methods = None
 
+    def _makeLogsDir(self, name):
+        dirName = os.path.join(self.tu.runsDir, name)
+        os.makedirs(dirName, exist_ok=True)
+
     def getMlJobs(self):
         mlJobsOrderPath = os.path.join(self.tu.runsDir, 'mlJobs.json')
         with open(mlJobsOrderPath, 'r') as f:
@@ -570,9 +574,11 @@ class measuresConfig:
     def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneOrigMlJob.py')
+        self._makeLogsDir('logs_origml')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs-1}
+#SBATCH --output=logs_origml/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
@@ -587,9 +593,11 @@ python3 {testPath} \\
     def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
+        self._makeLogsDir('logs_synml')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(self.mlJobsOrder)-1}
+#SBATCH --output=logs_synml/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
@@ -641,9 +649,11 @@ python3 {testPath} \\
 
         batchScriptPath = os.path.join(self.tu.runsDir, "batchFocus")
         testPath = os.path.join(self.tu.pythonDir, 'oneModel.py')
+        self._makeLogsDir('logs_focus')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(self.focusJobs)-1}
+#SBATCH --output=logs_focus/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --dataSourceNum=$arrayNum \\
@@ -660,10 +670,12 @@ python3 {testPath} \\
     def makeQualJobsBatchScript(self, measuresDir, resultsDir, numJobs, synMethod):
         testPath = os.path.join(self.tu.pythonDir, 'oneQualityMeasure.py')
         batchScriptPath = os.path.join(self.tu.runsDir, "batchQual")
+        self._makeLogsDir('logs_qual')
         if synMethod:
             batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs}
+#SBATCH --output=logs_qual/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
@@ -676,6 +688,7 @@ python3 {testPath} \\
             batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs}
+#SBATCH --output=logs_qual/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
@@ -729,9 +742,11 @@ python3 {testPath} \\
         with open(privJobsPath, 'w') as f:
             json.dump(privJobs, f, indent=4)
         testPath = os.path.join(self.tu.pythonDir, 'onePrivMeasure.py')
+        self._makeLogsDir('logs_priv')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(privJobs)-1}
+#SBATCH --output=logs_priv/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
