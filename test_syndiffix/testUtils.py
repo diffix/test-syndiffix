@@ -113,6 +113,7 @@ class testUtilities:
         self.synResults = os.path.join(self.baseDir, 'synResults')
         self.controlDir = os.path.join(self.baseDir, 'csvAbHalf2')
         self.synMeasures = os.path.join(self.baseDir, 'synMeasures')
+        self.origMlDir = os.path.join(self.baseDir, 'origMlAb')
         self.runsDir = os.path.join(self.baseDir, 'runs')
         self.sdvMetaFiles = os.path.join(self.baseDir, 'sdvMetaFiles')
         self.tableBuildMetadataPath = os.path.join(self.baseDir, 'tables.json')
@@ -270,6 +271,10 @@ class testUtilities:
         files = [f for f in os.listdir(self.csvLib) if os.path.isfile(os.path.join(self.csvLib, f))]
         return sorted(files)
 
+    def getOrigMlFiles(self):
+        files = [f for f in os.listdir(self.origMlDir) if os.path.isfile(os.path.join(self.origMlDir, f))]
+        return sorted(files)
+
     def getResultsPaths(self, synMethod=None):
         allResults = []
         dirs = [f for f in os.listdir(self.synResults) if os.path.isdir(os.path.join(self.synResults, f))]
@@ -329,6 +334,10 @@ class testUtilities:
     def registerSynMeasure(self, name):
         self.synMeasures = os.path.join(self.baseDir, name)
         os.makedirs(self.synMeasures, exist_ok=True)
+
+    def registerOrigMlDir(self, name):
+        self.origMlDir = os.path.join(self.baseDir, name)
+        os.makedirs(self.origMlDir, exist_ok=True)
 
     def registerSummariesDir(self, name):
         self.summariesDir = os.path.join(self.summariesDirCore, name)

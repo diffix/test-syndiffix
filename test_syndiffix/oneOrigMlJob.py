@@ -13,14 +13,14 @@ determine which ML measures run well on the original data, so that we know which
 to run on the synthetic data later on.
 '''
 
-
-def oneOrigMlJob(jobNum=0, csvLib='csvAb', measuresDir='measuresAb'):
+def oneOrigMlJob(jobNum=0, csvLib='csvAb', measuresDir='measuresAb', origMlDir='origMlAb', force=False):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(csvLib)
     tu.registerSynMeasure(measuresDir)
+    tu.registerOrigMlDir(origMlDir)
     sdmt = sdmTools.sdmTools(tu)
     sdmt.enumerateOrigMlJobs()
-    sdmt.runOrigMlJob(jobNum)
+    sdmt.runOrigMlJob(jobNum, force)
 
 
 def main():

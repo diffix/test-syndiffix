@@ -21,17 +21,18 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeCsvOrder()
 
-    def makeOrigMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', runsDir='runAb'):
+    def makeOrigMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', runsDir='runAb', origMlDir='origMlAb'):
         tu = testUtils.testUtilities()
         tu.registerCsvLib(csvLib)
         tu.registerSynMeasure(measuresDir)
         tu.registerRunsDir(runsDir)
+        tu.registerOrigMlDir(origMlDir)
         sdmt = sdmTools.sdmTools(tu)
         sdmt.enumerateOrigMlJobs()
         mc = sdmTools.measuresConfig(tu)
-        mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, len(sdmt.origMlJobs))
+        mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs))
 
-    def makeMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', synMethod=None):
+    def makeMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
         runsDir/mlJobs.json, and puts the needed SLURM script in runsDir as runsDir/batchMl
         '''
@@ -42,6 +43,7 @@ class SdmManager(object):
         tu.registerSynMeasure(measuresDir)
         tu.registerRunsDir(runsDir)
         tu.registerSynResults(resultsDir)
+        tu.registerOrigMlDir(origMlDir)
         mc = sdmTools.measuresConfig(tu)
         mc.makeAndSaveMlJobsOrder(synMethod)
         mc.makeMlJobsBatchScript(csvLib, measuresDir, resultsDir, runsDir)

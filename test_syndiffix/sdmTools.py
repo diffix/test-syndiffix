@@ -425,11 +425,17 @@ class sdmTools:
             json.dump(myJob, f, indent=4)
         print("oneSynMLJob: SUCCESS")
 
-    def runOrigMlJob(self, jobNum):
+    def runOrigMlJob(self, jobNum, force):
         if jobNum >= len(self.origMlJobs):
             print(f"oneOrigMlJob: my jobNum {jobNum} is too large")
             return
         myJob = self.origMlJobs[jobNum]
+        origMlJobName = f"{myJob['csvFile']}.{myJob['column'].replace(' ','')}.{myJob['method']}.json"
+        origMlJobPath = os.path.join(self.tu.origMlDir, origMlJobName)
+        if not force and os.path.exists(origMlJobPath):
+            print(f"{origMlJobPath} exists, skipping")
+            print("oneSynMLJob: SUCCESS (skipped)")
+            return
         startTime = time.time()
         print(f"oneOrigMlJob: Starting job {myJob} at time {startTime}")
         df = self._readCsv(myJob['csvFile'])
@@ -443,11 +449,8 @@ class sdmTools:
         print(f"Score = {score}")
         myJob['score'] = score
         myJob['elapsed'] = endTime - startTime
-        jsonStr = json.dumps(myJob)
-        print(jsonStr)
-        origMlJobPath = os.path.join(self.tu.synMeasures, 'OrigMlJobs')
-        with open(origMlJobPath, 'a') as f:
-            f.write(jsonStr + '\n')
+        with open(origMlJobPath, 'w') as f:
+            json.dump(myJob, f, indent=4)
         print("oneOrigMlJob: SUCCESS")
 
     def _runOneMlMeasure(self, dfTest, dfTrain, metadata, column, method, csvFile):
@@ -564,9 +567,9 @@ class measuresConfig:
         with open(mlJobsOrderPath, 'r') as f:
             return json.load(f)
 
-    def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, numJobs):
+    def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
-        testPath = os.path.join(self.tu.pythonDir, 'oneOrgiMlJob.py')
+        testPath = os.path.join(self.tu.pythonDir, 'oneOrigMlJob.py')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs-1}
@@ -574,6 +577,8 @@ arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
     --csvLib={csvLib} \\
+    --origMlDir={origMlDir} \\
+    --force=False \\
     --measuresDir={measuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
@@ -809,24 +814,19 @@ python3 {testPath} \\
         ''' This computes the ML measure jobs that should be run on each datasource
         '''
         origMlJobsPath = os.path.join(self.tu.synMeasures, 'OrigMlJobs')
+        # Get all of the orig ml measures json files
+        mlFiles = self.tu.getOrigMlFiles()
         self.goodMlJobs = {}
-        with open(origMlJobsPath, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                try:
-                    job = json.loads(line)
-                except:
-                    # Not sure why this happens. Could be some race conditions in the file
-                    # append operations, though I didn't think that was supposed to happen
-                    # Anyway, it is relatively rare...  TODO: fix (low priority)
-                    print(f"Bad line: {line}")
-                    continue
-                if job['score'] is None or job['score'] < self.origMlScoreThreshold:
-                    continue
-                if job['csvFile'] in self.goodMlJobs:
-                    self.goodMlJobs[job['csvFile']].append(job)
-                else:
-                    self.goodMlJobs[job['csvFile']] = [job]
+        for mlFile in mlFiles:
+            mlPath = os.path.join(self.tu.origMlDir, mlFile)
+            with open(mlPath, 'r') as f:
+                job = json.load(f)
+            if job['score'] is None or job['score'] < self.origMlScoreThreshold:
+                continue
+            if job['csvFile'] in self.goodMlJobs:
+                self.goodMlJobs[job['csvFile']].append(job)
+            else:
+                self.goodMlJobs[job['csvFile']] = [job]
 
     def getCsvOrderInfo(self):
         csvOrderPath = os.path.join(self.tu.synMeasures, 'csvOrder.json')
