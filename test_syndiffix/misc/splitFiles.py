@@ -39,8 +39,8 @@ def splitFiles():
         print("After shuffle:")
         print(dfShuffled.head())
         half = int(dfShuffled.shape[0] / 2)
-        df1 = df.head(half)
-        df2 = df.head(-half)
+        df1 = df[:half]
+        df2 = df[half:]
         print(f"Length of two splits: {df1.shape[0]}, {df2.shape[0]}")
         name1 = csvFile[:-4] + '.half1.csv'
         path1 = os.path.join(outDir1, name1)
