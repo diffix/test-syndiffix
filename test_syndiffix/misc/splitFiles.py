@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pandas as pd
+import numpy as np
 import pprint
 import fire
 
@@ -35,12 +36,15 @@ def splitFiles():
         print(f"Number of rows: {df.shape[0]}")
         print("Before shuffle:")
         print(df.head())
+
+        np.random.seed(0)
         dfShuffled = df.sample(frac=1)
+
         print("After shuffle:")
         print(dfShuffled.head())
         half = int(dfShuffled.shape[0] / 2)
-        df1 = df[:half]
-        df2 = df[half:]
+        df1 = dfShuffled[:half]
+        df2 = dfShuffled[half:]
         print(f"Length of two splits: {df1.shape[0]}, {df2.shape[0]}")
         path1 = os.path.join(outDir1, csvFile)
         df1.to_csv(path1, index=False, header=df.columns)
