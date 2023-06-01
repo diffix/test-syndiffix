@@ -281,8 +281,8 @@ def setLabelSampleCount(s, labels):
     return newLabels
 
 def getBestSyndiffix(df):
-    dfNonFocus = df.query("csvFile == 'syndiffix'")
-    dfFocus = df.query("csvFile == 'syndiffix_focus'")
+    dfNonFocus = df.query("synMethod == 'syndiffix'")
+    dfFocus = df.query("synMethod == 'syndiffix_focus'")
     dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
     print(dfMerged.to_string())
     quit()
