@@ -121,15 +121,8 @@ class testUtilities:
         self.summariesDirCore = os.path.join(self.baseDir, 'summaries')
         self.summariesDir = os.path.join(self.baseDir, 'summaries')
         os.makedirs(self.summariesDir, exist_ok=True)
-        self.pNameInfoPath = os.path.join(self.baseDir, 'pNameInfo.json')
         self.configFilesDir = self.baseDir
         os.makedirs(self.configFilesDir, exist_ok=True)
-        if not os.path.exists(self.pNameInfoPath):
-            with open(self.pNameInfoPath, 'w') as f:
-                json.dump({}, f, indent=4)
-            pass
-        with open(self.pNameInfoPath, 'r') as f:
-            self.pNameInfo = json.load(f)
 
     def getColTypesFromDataframe(self, df):
         colTypes = []
@@ -353,120 +346,6 @@ class testUtilities:
         if os.path.exists(self.batchConfigFile):
             with open(self.batchConfigFile, 'r') as f:
                 self.batchConfig = json.load(f)
-
-    def makePnameLabels(self, forestPname, clusterPname, rg):
-        ''' forestPname and clusterPname are the base parameter group names
-        '''
-        forestBase = self.pNameInfo[forestPname]['info']
-        clusterBase = self.pNameInfo[clusterPname]['info']
-        baseQuerySnippet = f"(for_p == '{forestPname}' and clu_p == '{clusterPname}')"
-        # set base label
-        pNameToLabel = {}
-        clusters = []
-        forests = []
-        for pname, info in self.pNameInfo.items():
-            if pname == 'pName':
-                continue
-            if info['configType'] == 'cluster':
-                clusters.append(pname)
-            elif info['configType'] == 'forest':
-                forests.append(pname)
-        for f, c in itertools.product(forests, clusters):
-            # This is the default:
-            if f not in pNameToLabel:
-                pNameToLabel[f] = {c: {
-                    'shortColVal': f"{f}.{c}",
-                    'shortCol': f"{f}.{c}",
-                    'longCol': f"{f}.{c}",
-                    'longColVal': f"{f}.{c}",
-                    'diffs': []}}
-            else:
-                pNameToLabel[f][c] = {
-                    'shortColVal': f"{f}.{c}",
-                    'shortCol': f"{f}.{c}",
-                    'longCol': f"{f}.{c}",
-                    'longColVal': f"{f}.{c}",
-                    'diffs': []}
-            finfo = self.pNameInfo[f]['info']
-            cinfo = self.pNameInfo[c]['info']
-            diffs = []
-            for param, val in forestBase.items():
-                if param == 'pName':
-                    continue
-                if finfo[param] != val:
-                    diffs.append([param, finfo[param]])
-            for param, val in clusterBase.items():
-                if param == 'pName':
-                    continue
-                if cinfo[param] != val:
-                    diffs.append([param, cinfo[param]])
-            if len(diffs) == 0:
-                pNameToLabel[f][c] = {
-                    'shortColVal': 'Base',
-                    'shortCol': 'Base',
-                    'longCol': 'Base',
-                    'longColVal': 'Base',
-                    'diffs': []}
-            elif len(diffs) <= 2:
-                query = ''
-                shortColVal = ''
-                shortCol = ''
-                longColVal = ''
-                longCol = ''
-                for param, val in diffs:
-                    shortColVal += f"{rg.getColNameFromAlias(param)}_{val}."
-                    shortCol += f"{rg.getColNameFromAlias(param)}."
-                    longColVal += f"{param}_{val}."
-                    longCol += f"{param}."
-                    query += f"(for_p == '{f}' and clu_p == '{c}') and "
-                pNameToLabel[f][c] = {
-                    'shortColVal': shortColVal[:-1],
-                    'shortCol': shortCol[:-1],
-                    'longCol': longCol[:-1],
-                    'longColVal': longColVal[:-1],
-                    'diffs': diffs}
-        return pNameToLabel
-
-    def getPnameValuesFromConfig(self, config):
-        maxPnameVals = [-1, -1]
-        configTypes = ['cluster', 'forest']
-        configChar = ['c', 'f']
-        returnThing = {'cluster': None, 'forest': None}
-        for i in range(len(configTypes)):
-            configType = configTypes[i]
-            configInfo = config['tests'][configType]
-            for pname, info in self.pNameInfo.items():
-                match = True
-                if info['configType'] != configType:
-                    continue
-                maxPnameVals[i] = max(maxPnameVals[i], info['pNameVal'])
-                pnameInfo = info['info']
-                for config1, config2 in [[pnameInfo, configInfo], [configInfo, pnameInfo]]:
-                    for param, value in config1.items():
-                        if param == 'pName':
-                            continue
-                        if param not in config2 or config2[param] != value:
-                            match = False
-                            break
-                if match == True:
-                    returnThing[configType] = pname
-                    break
-        for i in range(len(configTypes)):
-            configType = configTypes[i]
-            if returnThing[configType] is None:
-                # didn't mind match, so need to make one up
-                pnameVal = maxPnameVals[i] + 1
-                pname = f"{configChar[i]}_{pnameVal:04d}"
-                returnThing[configType] = pname
-                config['tests'][configType]['pName'] = pname
-                self.pNameInfo[pname] = {
-                    'pNameVal': pnameVal,
-                    'configType': configType,
-                    'info': config['tests'][configType],
-                }
-                with open(self.pNameInfoPath, 'w') as f:
-                    json.dump(self.pNameInfo, f, indent=4)
-        return returnThing
 
     def synConfigFileName(self, cnt):
         return f"syn_{cnt:05d}.json"

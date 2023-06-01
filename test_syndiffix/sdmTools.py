@@ -222,6 +222,7 @@ class sdmTools:
         self._removeIdentifyingColumns()
         self.qualReports = self.getQualityReports()
         self.qualReports['metadata'] = self.metadata
+        self.qualReports['elapsedTime'] = results['elapsedTime']
         with open(self.qualPath, 'w') as f:
             json.dump(self.qualReports, f, indent=4)
 
@@ -367,7 +368,7 @@ class sdmTools:
             return
         myJob = mlJobs[jobNum]
         # Check if the job is already done
-        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'] + '.json'
+        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'] + '.ml.json'
         measuresDir = os.path.join(self.tu.synMeasures, myJob['synMethod'])
         os.makedirs(measuresDir, exist_ok=True)
         measuresPath = os.path.join(self.tu.synMeasures, myJob['synMethod'], measuresFile)

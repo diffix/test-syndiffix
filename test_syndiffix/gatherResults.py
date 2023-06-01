@@ -59,6 +59,11 @@ class resultsGather():
         row['rowValue'] = tr['properties']['Score'][0]
         self.tabData.append(row)
 
+        if 'elapsedTime' in tr:
+            # We do elapsed time in two places in case the qual scores
+            # is missing but the ML score is not
+            self.setElapsedTime(tr, tr['elapsedTime'])
+
         for i in range(len(tr['shapes']['Column'])):
             column = tr['shapes']['Column'][i]
             score = tr['shapes']['Quality Score'][i]
@@ -88,7 +93,7 @@ class resultsGather():
             row['targetColumn'] = tr['privJob']['secret']
         self.tabData.append(row)
 
-    def addMlScore(self, tr):
+    def setElapsedTime(self, tr, elapsedTime):
         if tr['synMethod'] not in self.elapsedDone:
             self.elapsedDone[tr['synMethod']] = {}
         if tr['csvFile'] not in self.elapsedDone[tr['synMethod']]:
@@ -96,8 +101,13 @@ class resultsGather():
             self.elapsedDone[tr['synMethod']][tr['csvFile']] = True
             row = self.initTabRow(tr)
             row['rowType'] = 'elapsedTime'
-            row['rowValue'] = tr['elapsed']
+            row['rowValue'] = elapsedTime
             self.tabData.append(row)
+        else:
+            pass
+
+    def addMlScore(self, tr):
+        self.setElapsedTime(tr, tr['elapsed'])
         row = self.initTabRow(tr)
         row['rowType'] = 'synMlScore'
         row['rowValue'] = tr['score']
