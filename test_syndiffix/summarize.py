@@ -296,7 +296,8 @@ def doMlPlot(tu, df, force, hueCol=None):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    dfTemp = df.query("rowType == 'synMlScore'")
+    #dfTemp = df.query("rowType == 'synMlScore'")
+    dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2 and numColumns != 8")
     dfTemp = getBestSyndiffix(dfTemp)
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
