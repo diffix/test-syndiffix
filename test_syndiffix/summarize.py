@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import gatherResults
 import fire
+import numpy as np
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
