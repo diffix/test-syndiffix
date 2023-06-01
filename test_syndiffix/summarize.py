@@ -287,7 +287,10 @@ def getBestSyndiffix(df):
     dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
     dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'], dfMerged['rowValue_x'], dfMerged['rowValue_y'])
     dfMerged['synMethod'] = 'syndiffix_best'
-    print(dfMerged.to_string())
+    df1 = df[['synMethod','rowValue']]
+    df2 = dfMerged[['synMethod','rowValue']]
+    dfConcat = pd.concat([df1, df2], axis=0)
+    print(dfConcat.to_string())
     quit()
 
 def doMlPlot(tu, df, force, hueCol=None):
