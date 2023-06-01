@@ -289,8 +289,7 @@ def getBestSyndiffix(df):
     dfMerged['synMethod'] = 'syndiffix_best'
     df1 = df[['synMethod','rowValue']]
     df2 = dfMerged[['synMethod','rowValue']]
-    dfConcat = pd.concat([df1, df2], axis=0)
-    print(dfConcat.to_string())
+    return pd.concat([df1, df2], axis=0)
 
 def doMlPlot(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'ml.png')
