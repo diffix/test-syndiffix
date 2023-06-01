@@ -284,6 +284,8 @@ def getBestSyndiffix(df):
     dfNonFocus = df.query("synMethod == 'syndiffix'")
     dfFocus = df.query("synMethod == 'syndiffix_focus'")
     dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
+    dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'], dfMerged['rowValue_x'], dfMerged['rowValue_y'])
+    dfMerged['synMethod'] = 'syndiffix_best'
     print(dfMerged.to_string())
     quit()
 
