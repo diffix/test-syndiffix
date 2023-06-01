@@ -59,6 +59,11 @@ class resultsGather():
         row['rowValue'] = tr['properties']['Score'][0]
         self.tabData.append(row)
 
+        row = self.initTabRow(tr)
+        row['rowType'] = 'elapsedTime'
+        row['rowValue'] = tr['elapsedTime']
+        self.tabData.append(row)
+
         for i in range(len(tr['shapes']['Column'])):
             column = tr['shapes']['Column'][i]
             score = tr['shapes']['Quality Score'][i]
