@@ -62,15 +62,7 @@ class resultsGather():
         if 'elapsedTime' in tr:
             # We do elapsed time in two places in case the qual scores
             # is missing but the ML score is not
-            if tr['synMethod'] not in self.elapsedDone:
-                self.elapsedDone[tr['synMethod']] = {}
-            if tr['csvFile'] not in self.elapsedDone[tr['synMethod']]:
-                # only need to do this once
-                self.elapsedDone[tr['synMethod']][tr['csvFile']] = True
-                row = self.initTabRow(tr)
-                row['rowType'] = 'elapsedTime'
-                row['rowValue'] = tr['elapsedTime']
-                self.tabData.append(row)
+            self.setElapsedTime(tr, tr['elapsedTime'])
 
         for i in range(len(tr['shapes']['Column'])):
             column = tr['shapes']['Column'][i]
@@ -101,16 +93,23 @@ class resultsGather():
             row['targetColumn'] = tr['privJob']['secret']
         self.tabData.append(row)
 
-    def addMlScore(self, tr):
+    def setElapsedTime(self, tr, elapsedTime):
         if tr['synMethod'] not in self.elapsedDone:
             self.elapsedDone[tr['synMethod']] = {}
+            print(f"add method {tr['synMethod']}")
         if tr['csvFile'] not in self.elapsedDone[tr['synMethod']]:
+            print(f"add file {tr['synMethod']}, {tr['csvFile']}")
             # only need to do this once
             self.elapsedDone[tr['synMethod']][tr['csvFile']] = True
             row = self.initTabRow(tr)
             row['rowType'] = 'elapsedTime'
-            row['rowValue'] = tr['elapsed']
+            row['rowValue'] = elapsedTime
             self.tabData.append(row)
+        else:
+            print(f"        skip file {tr['synMethod']}, {tr['csvFile']}")
+
+    def addMlScore(self, tr):
+        self.setElapsedTime(tr, tr['elapsed'])
         row = self.initTabRow(tr)
         row['rowType'] = 'synMlScore'
         row['rowValue'] = tr['score']
