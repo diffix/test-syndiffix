@@ -291,7 +291,6 @@ def getBestSyndiffix(df):
     df2 = dfMerged[['synMethod','rowValue']]
     dfConcat = pd.concat([df1, df2], axis=0)
     print(dfConcat.to_string())
-    quit()
 
 def doMlPlot(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'ml.png')
@@ -307,6 +306,7 @@ def doMlPlot(tu, df, force, hueCol=None):
     plt.xlabel(xaxis)
     plt.savefig(figPath)
     plt.close()
+    quit()
 
 
 def doPrivPlot(tu, df, force, hueCol=None):
