@@ -299,6 +299,8 @@ def doMlPlot(tu, df, force, hueCol=None):
     #dfTemp = df.query("rowType == 'synMlScore'")
     dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2 and numColumns != 8")
     dfTemp = getBestSyndiffix(dfTemp)
+    print("doMlPlot stats:")
+    print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
@@ -306,8 +308,6 @@ def doMlPlot(tu, df, force, hueCol=None):
     plt.xlabel(xaxis)
     plt.savefig(figPath)
     plt.close()
-    quit()
-
 
 def doPrivPlot(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'priv.png')
