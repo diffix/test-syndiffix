@@ -280,6 +280,12 @@ def setLabelSampleCount(s, labels):
         # newLabels.append(f"{label}")
     return newLabels
 
+def getBestSyndiffix(df):
+    dfNonFocus = df.query("csvFile == 'syndiffix'")
+    dfFocus = df.query("csvFile == 'syndiffix_focus'")
+    dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
+    print(dfMerged.to_string())
+    quit()
 
 def doMlPlot(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'ml.png')
@@ -287,6 +293,7 @@ def doMlPlot(tu, df, force, hueCol=None):
         print(f"Skipping {figPath}")
         return
     dfTemp = df.query("rowType == 'synMlScore'")
+    dfTemp = getBestSyndiffix(dfTemp)
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
