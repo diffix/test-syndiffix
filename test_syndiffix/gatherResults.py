@@ -96,9 +96,7 @@ class resultsGather():
     def setElapsedTime(self, tr, elapsedTime):
         if tr['synMethod'] not in self.elapsedDone:
             self.elapsedDone[tr['synMethod']] = {}
-            print(f"add method {tr['synMethod']}")
         if tr['csvFile'] not in self.elapsedDone[tr['synMethod']]:
-            print(f"add file {tr['synMethod']}, {tr['csvFile']}")
             # only need to do this once
             self.elapsedDone[tr['synMethod']][tr['csvFile']] = True
             row = self.initTabRow(tr)
@@ -106,7 +104,7 @@ class resultsGather():
             row['rowValue'] = elapsedTime
             self.tabData.append(row)
         else:
-            print(f"        skip file {tr['synMethod']}, {tr['csvFile']}")
+            pass
 
     def addMlScore(self, tr):
         self.setElapsedTime(tr, tr['elapsed'])

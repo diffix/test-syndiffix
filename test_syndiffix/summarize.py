@@ -41,7 +41,6 @@ def summarize(measuresDir='measuresAb',
         rg.gather()
         dfAll = rg.dfTab
         dfAll.to_parquet(dfPath)
-    quit()
 
     if dumpDataOnly:
         dumpMlData(dfAll)
