@@ -59,10 +59,13 @@ class resultsGather():
         row['rowValue'] = tr['properties']['Score'][0]
         self.tabData.append(row)
 
-        row = self.initTabRow(tr)
-        row['rowType'] = 'elapsedTime'
-        row['rowValue'] = tr['elapsedTime']
-        self.tabData.append(row)
+        if 'elapsedTime' not in tr:
+            print(f"Missing elapsedTime {tr['synMethod']}, {tr['csvFile']}")
+        else:
+            row = self.initTabRow(tr)
+            row['rowType'] = 'elapsedTime'
+            row['rowValue'] = tr['elapsedTime']
+            self.tabData.append(row)
 
         for i in range(len(tr['shapes']['Column'])):
             column = tr['shapes']['Column'][i]
