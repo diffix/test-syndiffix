@@ -14,6 +14,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 violinPlots = False
+setLabelCountsGlobal = False
 
 
 def swrite(f, wstr):
@@ -26,9 +27,11 @@ def summarize(measuresDir='measuresAb',
               withViolinPlots=False,
               doSkipMethods=True,
               dumpDataOnly=False,
+              setLabelCounts=False,
               flush=False,       # re-gather
               force=False):      # overwrite existing plot
     violinPlots = withViolinPlots
+    setLabelCountsGlobal = setLabelCounts
     tu = testUtils.testUtilities()
     tu.registerSummariesDirCore(outDir)
     os.makedirs(tu.summariesDir, exist_ok=True)
@@ -277,8 +280,10 @@ def setLabelSampleCount(s, labels):
         if label not in sCounts:
             continue
         count = sCounts[label]
-        newLabels.append(f"{label}  ({count})")
-        # newLabels.append(f"{label}")
+        if setLabelCountsGlobal:
+            newLabels.append(f"{label}  ({count})")
+        else:
+            newLabels.append(f"{label}")
     return newLabels
 
 def getBestSyndiffix(df):
