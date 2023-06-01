@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import gatherResults
 import fire
+import numpy as np
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -280,13 +281,26 @@ def setLabelSampleCount(s, labels):
         # newLabels.append(f"{label}")
     return newLabels
 
+def getBestSyndiffix(df):
+    dfNonFocus = df.query("synMethod == 'syndiffix'")
+    dfFocus = df.query("synMethod == 'syndiffix_focus'")
+    dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
+    dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'], dfMerged['rowValue_x'], dfMerged['rowValue_y'])
+    dfMerged['synMethod'] = 'syndiffix_best'
+    df1 = df[['synMethod','rowValue']]
+    df2 = dfMerged[['synMethod','rowValue']]
+    return pd.concat([df1, df2], axis=0)
 
 def doMlPlot(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'ml.png')
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    dfTemp = df.query("rowType == 'synMlScore'")
+    #dfTemp = df.query("rowType == 'synMlScore'")
+    dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2 and numColumns != 8")
+    dfTemp = getBestSyndiffix(dfTemp)
+    print("doMlPlot stats:")
+    print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
@@ -294,7 +308,6 @@ def doMlPlot(tu, df, force, hueCol=None):
     plt.xlabel(xaxis)
     plt.savefig(figPath)
     plt.close()
-
 
 def doPrivPlot(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'priv.png')
