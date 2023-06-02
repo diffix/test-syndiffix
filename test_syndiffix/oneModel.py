@@ -11,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import sdmetricsPlay
 import sdmTools
+import csv
 
 ''' This is used to run the SDMetrics synthetic data models in SLURM
 '''
@@ -18,7 +19,7 @@ import sdmTools
 pp = pprint.PrettyPrinter(indent=4)
 
 
-def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum):
+def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
     print("First row of data:")
     print(df.iloc[0])
     if runModel == 'gaussianCopula':
@@ -61,14 +62,16 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum):
     outJson = {}
     outJson['elapsedTime'] = end - start
     outJson['colNames'] = colNames
+    print(df.shape)
     outJson['originalTable'] = df.values.tolist()
     outJson['anonTable'] = synData.values.tolist()
+    outJson['testTable'] = testData
     print(f"Writing output to {outPath}")
     with open(outPath, 'w') as f:
         json.dump(outJson, f, indent=4)
 
 
-def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn):
+def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData):
     thisDir = os.path.dirname(os.path.abspath(__file__))
     abSharpDir = os.path.join(tu.abSharpDir, 'src', 'SynDiffix.Debug')
 
@@ -87,6 +90,7 @@ def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn):
     outJson = json.loads(abSharp.stdout.decode("utf-8"))
     outJson['originalTable'] = outJson.pop('originalRows')
     outJson['anonTable'] = outJson.pop('synRows')
+    outJson['testTable'] = testData
     if focusColumn:
         outJson['focusColumn'] = focusColumn
 
@@ -171,6 +175,10 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
     if not os.path.exists(dataSourcePath):
         print(f"ERROR: File {dataSourcePath} does not exist")
         quit()
+    testDataPath = os.path.join(tu.csvLibTest, sourceFileName)
+    if not os.path.exists(testDataPath):
+        print(f"ERROR: File {testDataPath} does not exist")
+        quit()
 
     label = model + '_' + suffix if suffix else model
     modelsDir = os.path.join(tu.synResults, label)
@@ -186,7 +194,15 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
     print(f"Model {label} for dataset {dataSourcePath}, focus column {focusColumn}")
 
     df = pd.read_csv(dataSourcePath, index_col=False, low_memory=False)
+    print(f"Training dataframe shape {df.shape}")
     colNames = list(df.columns.values)
+    # quick test to make sure that the test and train data match columns
+    dfTest = pd.read_csv(testDataPath, index_col=False, low_memory=False)
+    if colNames != list(dfTest.columns.values):
+        print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
+        quit()
+    # Pull in training data as list, to be stored in results file as is
+    testData = dfTest.values.tolist()
     print(f"Columns {colNames}")
     mls = testUtils.mlSupport(tu)
     metaData = makeMetadata(df)
@@ -202,9 +218,9 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         if withFocusColumn:
             abSharpArgs += f" --clustering-maincolumn '{focusColumn}' "
-        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn)
+        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData)
     else:
-        runTest(model, metaData['sdvMetaData'], df, colNames, outPath, dataSourceNum)
+        runTest(model, metaData['sdvMetaData'], df, colNames, outPath, dataSourceNum, testData)
 
     if doMeasures is False:
         print("oneModel:SUCCESS")

@@ -109,7 +109,8 @@ class testUtilities:
         self.pythonDir = os.environ['AB_PYTHON_DIR']
         self.abSharpDir = os.environ['AB_SHARP_DIR']
         # These are the default directories and config file locations
-        self.csvLib = os.path.join(self.baseDir, 'csvLib')
+        self.csvLib = os.path.join(self.baseDir, 'csvLib', 'train')
+        self.csvLibTest = os.path.join(self.baseDir, 'csvLib', 'test')
         self.synResults = os.path.join(self.baseDir, 'synResults')
         self.controlDir = os.path.join(self.baseDir, 'csvAbHalf2')
         self.synMeasures = os.path.join(self.baseDir, 'synMeasures')
@@ -260,8 +261,12 @@ class testUtilities:
         }
         return defaults
 
-    def getDataSources(self):
-        files = [f for f in os.listdir(self.csvLib) if os.path.isfile(os.path.join(self.csvLib, f))]
+    def getDataSources(self, sourceHalf='train'):
+        if sourceHalf == 'train':
+            csvDir = self.csvLib
+        else:
+            csvDir = self.csvLibTest
+        files = [f for f in os.listdir(csvDir) if os.path.isfile(os.path.join(csvDir, f))]
         return sorted(files)
 
     def getOrigMlFiles(self):
@@ -315,7 +320,8 @@ class testUtilities:
         self.runsDir = os.path.join(self.baseDir, name)
 
     def registerCsvLib(self, name):
-        self.csvLib = os.path.join(self.baseDir, name)
+        self.csvLib = os.path.join(self.baseDir, name, 'train')
+        self.csvLibTest = os.path.join(self.baseDir, name, 'test')
 
     def registerSynResults(self, name):
         self.synResults = os.path.join(self.baseDir, name)

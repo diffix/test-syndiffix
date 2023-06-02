@@ -10,7 +10,7 @@ These tests all assume a root directory whose location is defined by the environ
 
 There are six different types of directories under the root directory:
 
-* csv library: contains CSV datasets for testing. 
+* csv library: contains CSV datasets for testing. The datasets must be split into `train` and `test` files, each containing half of the data, randomly selected (see `misc/splitFile.py`). These two sets are in directories labeled `train` and `test`.
 * synthetic data building results: contains the results of building synthetic data. Has one sub-directory per method (or different set of method parameters).
 * measurement results: contains the results of measuring data quality from the synthetic data.
 * measurement summaries: contains graphs that summarize the measurements
@@ -56,6 +56,7 @@ To do measures on the SLURM cluster, we have the following workflow:
 * In the run commands directory, do `sbatch batchQual` to do the 1dim and 2dim quality measures.
 * Run `summarize.py` to summarize the performance measures and place them in various plots.
 
+    doPlots(tu, dfAll, ['syndiffix_multi', 'syndiffix', 'ctGan', 'mostly'], force=force)
 ## Measuring privacy
 
 We use the python package `anonymeter` to measure privacy. This requires that we split all of our data files in half, which by convention we call `datasource.half1.csv` and `datasource.half2.csv`. The basic idea is that half1 is anonymized, and then we use half2 as a control to test the effectiveness of attacks.
