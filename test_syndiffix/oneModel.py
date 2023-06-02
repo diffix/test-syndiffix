@@ -20,10 +20,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
-    print(f"Training dataframe shape {df.shape}")
     print("First row of data:")
     print(df.iloc[0])
-    quit()
     if runModel == 'gaussianCopula':
         from sdv.tabular import GaussianCopula
         model = GaussianCopula()
@@ -43,6 +41,8 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
     start = time.time()
     tries = 2
     origNumRows = df.shape[0]
+    print(origNumRows)
+    quit()
     while True:
         try:
             model.fit(df)
