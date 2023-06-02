@@ -63,6 +63,7 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
     outJson['elapsedTime'] = end - start
     outJson['colNames'] = colNames
     print(df.shape)
+    quit()
     outJson['originalTable'] = df.values.tolist()
     outJson['anonTable'] = synData.values.tolist()
     outJson['testTable'] = testData
