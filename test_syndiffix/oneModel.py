@@ -41,8 +41,6 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
     start = time.time()
     tries = 2
     origNumRows = df.shape[0]
-    print(origNumRows)
-    quit()
     while True:
         try:
             model.fit(df)
@@ -64,6 +62,7 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
     outJson = {}
     outJson['elapsedTime'] = end - start
     outJson['colNames'] = colNames
+    print(df.shape)
     outJson['originalTable'] = df.values.tolist()
     outJson['anonTable'] = synData.values.tolist()
     outJson['testTable'] = testData
