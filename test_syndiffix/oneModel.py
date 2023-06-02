@@ -20,8 +20,10 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
+    print(f"Training dataframe shape {df.shape}")
     print("First row of data:")
     print(df.iloc[0])
+    quit()
     if runModel == 'gaussianCopula':
         from sdv.tabular import GaussianCopula
         model = GaussianCopula()
@@ -193,8 +195,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
     print(f"Model {label} for dataset {dataSourcePath}, focus column {focusColumn}")
 
     df = pd.read_csv(dataSourcePath, index_col=False, low_memory=False)
-    print(f"Dataframe shape {df.shape}")
-    quit()
+    print(f"Training dataframe shape {df.shape}")
     colNames = list(df.columns.values)
     # quick test to make sure that the test and train data match columns
     dfTest = pd.read_csv(testDataPath, index_col=False, low_memory=False)
