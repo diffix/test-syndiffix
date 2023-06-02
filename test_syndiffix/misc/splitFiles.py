@@ -42,11 +42,9 @@ def splitFiles():
         df1 = df[:half]
         df2 = df[half:]
         print(f"Length of two splits: {df1.shape[0]}, {df2.shape[0]}")
-        name1 = csvFile[:-4] + '.half1.csv'
-        path1 = os.path.join(outDir1, name1)
+        path1 = os.path.join(outDir1, csvFile)
         df1.to_csv(path1, index=False, header=df.columns)
-        name2 = csvFile[:-4] + '.half2.csv'
-        path2 = os.path.join(outDir2, name2)
+        path2 = os.path.join(outDir2, csvFile)
         df2.to_csv(path2, index=False, header=df.columns)
 
 
