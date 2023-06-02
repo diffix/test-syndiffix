@@ -193,6 +193,8 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
     print(f"Model {label} for dataset {dataSourcePath}, focus column {focusColumn}")
 
     df = pd.read_csv(dataSourcePath, index_col=False, low_memory=False)
+    print(f"Dataframe shape {df.shape}")
+    quit()
     colNames = list(df.columns.values)
     # quick test to make sure that the test and train data match columns
     dfTest = pd.read_csv(testDataPath, index_col=False, low_memory=False)
