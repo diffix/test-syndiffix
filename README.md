@@ -10,7 +10,7 @@ These tests all assume a root directory whose location is defined by the environ
 
 There are six different types of directories under the root directory:
 
-* csv library: contains CSV datasets for testing. The datasets must be split into `train` and `test` files, each containing half of the data, randomly selected (see `misc/splitFile.py`). These two sets are in directories labeled `trains` and `test`.
+* csv library: contains CSV datasets for testing. The datasets must be split into `train` and `test` files, each containing half of the data, randomly selected (see `misc/splitFile.py`). These two sets are in directories labeled `train` and `test`.
 * synthetic data building results: contains the results of building synthetic data. Has one sub-directory per method (or different set of method parameters).
 * measurement results: contains the results of measuring data quality from the synthetic data.
 * measurement summaries: contains graphs that summarize the measurements
