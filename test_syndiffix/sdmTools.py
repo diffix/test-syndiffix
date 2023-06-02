@@ -398,18 +398,15 @@ class sdmTools:
         if 'originalTable' not in results:
             print(f"Missing 'originalTable' in {resultsPath}")
             return
-        dfOrig = pd.DataFrame(results['originalTable'], columns=results['colNames'])
         dfAnon = pd.DataFrame(results['anonTable'], columns=results['colNames'])
+        dfTest = pd.DataFrame(results['testTable'], columns=results['colNames'])
         startTime = time.time()
         print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
-        dfOrigTest, dfOrigTrain = self._getTestAndTrain(dfOrig)
-        print(f"    dfOrigTest shape {dfOrigTest.shape}, dfOrigTrain shape {dfOrigTrain.shape}")
-        dfAnonTest, dfAnonTrain = self._getTestAndTrain(dfAnon)
-        print(f"    dfAnonTest shape {dfAnonTest.shape}, dfAnonTrain shape {dfAnonTrain.shape}")
+        print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape}")
         metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
         print("Metadata:")
         pp.pprint(metadata)
-        score = self._runOneMlMeasure(dfOrigTest, dfAnonTrain, metadata,
+        score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                       myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
             print("Scores is None, quitting")
@@ -439,8 +436,10 @@ class sdmTools:
             return
         startTime = time.time()
         print(f"oneOrigMlJob: Starting job {myJob} at time {startTime}")
-        df = self._readCsv(myJob['csvFile'])
-        dfTest, dfTrain = self._getTestAndTrain(df)
+        csvPath = os.path.join(self.tu.csvLib, myJob['csvFile'])
+        dfTrain = pd.read_csv(csvPath, low_memory=False, skipinitialspace=True)
+        csvPath = os.path.join(self.tu.csvLibTest, myJob['csvFile'])
+        dfTest = pd.read_csv(csvPath, low_memory=False, skipinitialspace=True)
         print(f"    dfTest shape {dfTest.shape}, dfTrain shape {dfTrain.shape}")
         metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
         print("Metadata:")
