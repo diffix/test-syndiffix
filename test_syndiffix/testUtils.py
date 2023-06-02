@@ -320,7 +320,8 @@ class testUtilities:
         self.runsDir = os.path.join(self.baseDir, name)
 
     def registerCsvLib(self, name):
-        self.csvLib = os.path.join(self.baseDir, name)
+        self.csvLib = os.path.join(self.baseDir, name, 'train')
+        self.csvLibTest = os.path.join(self.baseDir, name, 'test')
 
     def registerSynResults(self, name):
         self.synResults = os.path.join(self.baseDir, name)
