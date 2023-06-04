@@ -59,8 +59,6 @@ def summarize(measuresDir='measuresAb',
     dfAll['2dimSizeTag'] = 'none'
     dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] < 10000)), 'small', dfAll['2dimSizeTag'])
     dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] > 10000)), 'big', dfAll['2dimSizeTag'])
-    print(dfAll.groupby(['2dimSizeTag'])['rowValue'].describe().to_string())
-    quit()
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     if doSkipMethods:
@@ -187,7 +185,9 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
         if len(synMethods) == 2:
             for hueCol in hueColsScatter:
                 makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"{numCol}col", title, force)
-        hueColsBasic = [None, 'mlMethodType',]
+        hueColsBasic = [None]
+        if numCol == 2:
+            hueColsBasic = [None, '2dimSizeTag',]
         for hueCol in hueColsBasic:
             makeBasicGraph(dfTemp, tu, hueCol, f"{numCol}col", title, force, apples=apples)
             makeBasicViolin(df, tu, f"{numCol}col", title)
