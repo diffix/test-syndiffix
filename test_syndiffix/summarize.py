@@ -54,6 +54,9 @@ def summarize(measuresDir='measuresAb',
     # which 1) we don't deal well with, and 2) we don't need such encodings in the first place
     print("Remove one hot encoded data (covtype.csv and mnist12.csv) from gathered data")
     dfAll = dfAll.query("csvFile != 'covtype.csv' and csvFile != 'mnist12.csv'")
+    # Make a column that tags large and small 2dim tables
+    print(dfAll.columns)
+    quit()
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     if doSkipMethods:
