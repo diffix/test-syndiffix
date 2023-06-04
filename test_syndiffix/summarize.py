@@ -312,7 +312,11 @@ def doMlPlot(tu, df, force, hueCol=None):
     dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2 and numColumns != 8")
     dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
-    print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+    if hueCol:
+        print(f"groupby {hueCol}")
+        print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+    else:
+        print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
@@ -361,7 +365,11 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+        if hueCol:
+            print(f"groupby {hueCol}")
+            print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+        else:
+            print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -382,7 +390,11 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+        if hueCol:
+            print(f"groupby {hueCol}")
+            print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+        else:
+            print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -404,7 +416,11 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+        if hueCol:
+            print(f"groupby {hueCol}")
+            print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+        else:
+            print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -424,7 +440,11 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+        if hueCol:
+            print(f"groupby {hueCol}")
+            print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+        else:
+            print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
