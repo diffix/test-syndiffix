@@ -58,6 +58,8 @@ def summarize(measuresDir='measuresAb',
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
     dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] < 10000)), 'small', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] > 10000)), 'big', dfAll['2dimSizeTag'])
+    print(dfAll.groupby(['2dimSizeTag'])['rowValue'].describe().to_string())
     quit()
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
