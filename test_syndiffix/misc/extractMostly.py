@@ -5,15 +5,11 @@ import pandas as pd
 import pprint
 
 '''
-After running tests at mostly.io, save the CSV and log files into a single directory
-`mostlyResults` under a directory `mostly`.
+After running tests at mostly.io, save the CSV and log files into a single directory `mostlyResults` under a directory `mostly`.
 
-Place the original csv files into the directlry `csvAb`. (Alternatively modify the directory
-names in the code to match the location of files.)
+This looks for the original csv files into the directory `csvAb/train`. (Alternatively modify the directory names in the code to match the location of files.)
 
-This routine scrubs the appropriate results (column names, elapsedTime, and original and
-synthetic data), and generates `.json` files that match the same format as the PPoC and
-abSharp outputs. These `.json` files can then be read in by the measurement software as normal.
+This routine scrubs the appropriate results (column names, elapsedTime, and original and synthetic data), and generates `.json` files that match the same format as the PPoC and abSharp outputs. These `.json` files can then be read in by the measurement software as normal.
 '''
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -68,7 +64,6 @@ for file in files:
 pp.pprint(dataSourceNames)
 for file in files:
     print(file)
-    print(file[:-25])
     for fileRoot in dataSourceNames.keys():
         if 'CSV' in file and file[:-25] == fileRoot:
             dataSourceNames[fileRoot]['csv'] = file
