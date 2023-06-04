@@ -57,7 +57,7 @@ def summarize(measuresDir='measuresAb',
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
-    dfAll['2dimSizeTag'] = np.where(dfAll['numColumns'] == 2 and dfAll['numRows'] < 10000, 'small', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(dfAll['numColumns'] == 2 & dfAll['numRows'] < 10000, 'small', dfAll['2dimSizeTag'])
     quit()
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
