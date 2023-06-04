@@ -320,6 +320,8 @@ def doPrivPlot(tu, df, force, hueCol=None):
         print(f"Skipping {figPath}")
         return
     dfTemp = df.query("rowType == 'privRisk'")
+    if dfTemp.shape[0] == 0:
+        return
     xaxis = 'Privacy Risk'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
