@@ -314,7 +314,7 @@ def doMlPlot(tu, df, force, hueCol=None):
     print("doMlPlot stats:")
     if hueCol:
         print(f"groupby {hueCol}")
-        print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+        print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
     else:
         print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
     xaxis = 'ML scores'
@@ -367,7 +367,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         if hueCol:
             print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+            print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
@@ -392,7 +392,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         if hueCol:
             print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+            print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
@@ -418,7 +418,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         if hueCol:
             print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+            print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
@@ -442,7 +442,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         if hueCol:
             print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod','hueCol'])['rowValue'].describe().to_string())
+            print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
