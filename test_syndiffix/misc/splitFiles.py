@@ -7,22 +7,26 @@ import pprint
 import fire
 
 '''
-This splits the given csv file into two halves, randomly selected. For use in
-measuring privacy.
+This splits the given csv file into training and test parts, according to the ration `trainRatio`.
+It assumes a directory structure with three directories:
+    `csvAb/original`
+    `csvAb/train`
+    `csvAb/test`
+`original` contains the original data as input, and `train` and `test` contain the train and test data as output.
 '''
 
 pp = pprint.PrettyPrinter(indent=4)
-
+trainRatio = 0.7
 
 def splitFiles():
     # dataSources = ['adult.data.csv', 'BankChurnersNoId.csv', 'census_small.csv']
     dataSources = []
     # Configure the following three directories
-    inDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAb')
-    outDir1 = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAbHalf1')
-    outDir2 = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAbHalf2')
-    os.makedirs(outDir1, exist_ok=True)
-    os.makedirs(outDir2, exist_ok=True)
+    inDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAb', 'original')
+    trainDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAb', 'train')
+    testDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAb', 'test')
+    os.makedirs(trainDir, exist_ok=True)
+    os.makedirs(testDir, exist_ok=True)
     csvFiles = [f for f in os.listdir(inDir) if os.path.isfile(os.path.join(inDir, f))]
     for csvFile in csvFiles:
         if csvFile[-4:] != '.csv':
@@ -42,14 +46,14 @@ def splitFiles():
 
         print("After shuffle:")
         print(dfShuffled.head())
-        half = int(dfShuffled.shape[0] / 2)
-        df1 = dfShuffled[:half]
-        df2 = dfShuffled[half:]
-        print(f"Length of two splits: {df1.shape[0]}, {df2.shape[0]}")
-        path1 = os.path.join(outDir1, csvFile)
-        df1.to_csv(path1, index=False, header=df.columns)
-        path2 = os.path.join(outDir2, csvFile)
-        df2.to_csv(path2, index=False, header=df.columns)
+        trainPart = int(dfShuffled.shape[0] * trainRatio)
+        dfTrain = dfShuffled[:trainPart]
+        dfTest = dfShuffled[trainPart:]
+        print(f"Length of two splits: {dfTrain.shape[0]}, {dfTest.shape[0]}")
+        pathTrain = os.path.join(trainDir, csvFile)
+        dfTrain.to_csv(pathTrain, index=False, header=df.columns)
+        pathTest = os.path.join(testDir, csvFile)
+        dfTest.to_csv(pathTest, index=False, header=df.columns)
 
 
 if __name__ == "__main__":
