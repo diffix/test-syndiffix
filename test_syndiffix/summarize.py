@@ -183,7 +183,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     hueColsScatter = [None]
     if len(synMethods) == 2:
         for hueCol in hueColsScatter:
-            makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"{numCol}col", title, force)
+            makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', "8col", title, force)
     hueColsBasic = [None]
     for hueCol in hueColsBasic:
         makeBasicGraph(dfTemp, tu, hueCol, f"8col", title, force, apples=apples)
@@ -195,7 +195,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     hueColsScatter = [None]
     if len(synMethods) == 2:
         for hueCol in hueColsScatter:
-            makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"{numCol}col", title, force)
+            makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"2col", title, force)
     hueColsBasic = [None, '2dimSizeTag',]
     for hueCol in hueColsBasic:
         makeBasicGraph(dfTemp, tu, hueCol, f"2col", title, force, apples=apples)
