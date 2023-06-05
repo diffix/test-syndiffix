@@ -31,6 +31,7 @@ def summarize(measuresDir='measuresAb',
               flush=False,       # re-gather
               force=False):      # overwrite existing plot
     violinPlots = withViolinPlots
+    global setLabelCountsGlobal
     setLabelCountsGlobal = setLabelCounts
     tu = testUtils.testUtilities()
     tu.registerSummariesDirCore(outDir)
