@@ -57,8 +57,8 @@ def summarize(measuresDir='measuresAb',
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] <= 10000)), 'small', dfAll['2dimSizeTag'])
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] > 10000)), 'big', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] == 5000)), '5k rows', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] > 20000)), '20k rows', dfAll['2dimSizeTag'])
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     if doSkipMethods:
@@ -177,20 +177,29 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
         makeBasicViolin(df, tu, 'all', title)
 
     # Now for just 2dim and 8dim (our generated datasets)
-    for numCol in [2, 8]:
-        title = f"Datasets with {numCol} columns"
-        print(title)
-        dfTemp = df.query(f"numColumns == {numCol}")
-        hueColsScatter = [None]
-        if len(synMethods) == 2:
-            for hueCol in hueColsScatter:
-                makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"{numCol}col", title, force)
-        hueColsBasic = [None]
-        if numCol == 2:
-            hueColsBasic = [None, '2dimSizeTag',]
-        for hueCol in hueColsBasic:
-            makeBasicGraph(dfTemp, tu, hueCol, f"{numCol}col", title, force, apples=apples)
-            makeBasicViolin(df, tu, f"{numCol}col", title)
+    title = f"Datasets with 8 columns"
+    print(title)
+    dfTemp = df.query(f"numColumns == 8")
+    hueColsScatter = [None]
+    if len(synMethods) == 2:
+        for hueCol in hueColsScatter:
+            makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"{numCol}col", title, force)
+    hueColsBasic = [None]
+    for hueCol in hueColsBasic:
+        makeBasicGraph(dfTemp, tu, hueCol, f"8col", title, force, apples=apples)
+        makeBasicViolin(df, tu, f"8col", title)
+
+    title = f"Datasets with 2 columns"
+    print(title)
+    dfTemp = df.query(f"numColumns == 2")
+    hueColsScatter = [None]
+    if len(synMethods) == 2:
+        for hueCol in hueColsScatter:
+            makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"{numCol}col", title, force)
+    hueColsBasic = [None, '2dimSizeTag',]
+    for hueCol in hueColsBasic:
+        makeBasicGraph(dfTemp, tu, hueCol, f"2col", title, force, apples=apples)
+        makeBasicViolin(df, tu, f"2col", title)
 
     # Now for only the real datasets
     title = "Real datasets only"
