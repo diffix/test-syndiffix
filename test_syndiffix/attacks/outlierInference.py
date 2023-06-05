@@ -20,6 +20,8 @@ class OutlierInference(object):
       - `syndiffix`
       - `tvae`
       - `ctGan`
+
+    For example results obtained see: https://github.com/diffix/test-syndiffix/issues/5
     """
 
     def one(self,
