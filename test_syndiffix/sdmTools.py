@@ -454,6 +454,13 @@ class sdmTools:
         print("oneOrigMlJob: SUCCESS")
 
     def _runOneMlMeasure(self, dfTest, dfTrain, metadata, column, method, csvFile):
+        # TODO: change this limit depending on memory limitations of measuring machine
+        print(f"Shape before reduction {dfTrain.shape}")
+        if dfTrain.shape[0] > 100000:
+            pass
+            print(f"Reducing training size from {dfTrain.shape[0]} rows to 100k rows")
+            dfTrain = dfTrain.sample(n=100000)
+        print(f"Shape after reduction {dfTrain.shape}")
         exec = self.exec[method]
         kwargs = self.kwargs[method]
         score = None
