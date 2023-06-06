@@ -59,7 +59,9 @@ def summarize(measuresDir='measuresAb',
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
     dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] < 8000)), '7k rows', dfAll['2dimSizeTag'])
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] > 2700)), '28k rows', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] > 27000)), '28k rows', dfAll['2dimSizeTag'])
+    print('boo boo')
+    print(dfAll.groupby(['2dimSizeTag'])['rowValue'].describe().to_string())
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     if doSkipMethods:
@@ -176,19 +178,6 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     for hueCol in hueColsBasic:
         makeBasicGraph(df, tu, hueCol, 'all', title, force, apples=apples)
         makeBasicViolin(df, tu, 'all', title)
-
-    # Now for just 2dim and 8dim (our generated datasets)
-    title = f"Datasets with 8 columns"
-    print(title)
-    dfTemp = df.query(f"numColumns == 8")
-    hueColsScatter = [None]
-    if len(synMethods) == 2:
-        for hueCol in hueColsScatter:
-            makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', "8col", title, force)
-    hueColsBasic = [None]
-    for hueCol in hueColsBasic:
-        makeBasicGraph(dfTemp, tu, hueCol, f"8col", title, force, apples=apples)
-        makeBasicViolin(df, tu, f"8col", title)
 
     title = f"Datasets with 2 columns"
     print(title)
