@@ -97,9 +97,7 @@ class sdmTools:
         print(f"runPrivMeasureJob: (force {force})")
         pp.pprint(privJob)
         self.privReport = None
-        if 'half1' not in privJob['csvName']:
-            print(f"ERROR: 'half1' not in filename {privJob}")
-            quit()
+        
         controlFileName = privJob['csvName'].replace('half1.csv', 'half2.csv')
         controlFilePath = os.path.join(self.tu.controlDir, controlFileName)
         resultsPath = os.path.join(self.tu.synResults, privJob['dirName'], privJob['fileName'])
@@ -739,6 +737,7 @@ python3 {testPath} \\
                 jobNum += 1
                 privJobs.append(privJob)
         privJobsPath = os.path.join(self.tu.runsDir, "privJobs.json")
+        os.makedirs(self.tu.runsDir, exist_ok=True)
         with open(privJobsPath, 'w') as f:
             json.dump(privJobs, f, indent=4)
         testPath = os.path.join(self.tu.pythonDir, 'onePrivMeasure.py')
@@ -746,6 +745,7 @@ python3 {testPath} \\
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(privJobs)-1}
+#SBATCH --cpus-per-task=2
 #SBATCH --output=logs_priv/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\

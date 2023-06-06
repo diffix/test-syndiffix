@@ -61,7 +61,7 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeQualJobsBatchScript(measuresDir, resultsDir, len(allResults) - 1, synMethod)
 
-    def makePrivRuns(self, measuresDir='measuresAb', resultsDir='resultsAbHalf1', controlDir='csvAbHalf2', runsDir='runAb', numAttacks=5000):
+    def makePrivRuns(self, measuresDir='measuresAb', resultsDir='resultsAb', controlDir='csvAb/test', runsDir='runAb', numAttacks=5000):
         ''' This creates a set of jobs that can be run by onePrivJob.py, and puts the needed
         SLURM script in runsDir as runsDir/batchPriv
         '''

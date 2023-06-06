@@ -59,11 +59,12 @@ To do measures on the SLURM cluster, we have the following workflow:
     doPlots(tu, dfAll, ['syndiffix_multi', 'syndiffix', 'ctGan', 'mostly'], force=force)
 ## Measuring privacy
 
-We use the python package `anonymeter` to measure privacy. This requires that we split all of our data files in half, which by convention we call `datasource.half1.csv` and `datasource.half2.csv`. The basic idea is that half1 is anonymized, and then we use half2 as a control to test the effectiveness of attacks.
+We use the python package `anonymeter` to measure privacy. This requires that we split all of our data files into `train` and `test` subsets. The basic idea is that `train` is synthesized, and then we use `test` as a control to test the effectiveness of attacks.
 
-* Run `evaluations/splitFiles.py` to generate the csv file halves. These are placed into directories, one for each half (e.g. if the csv directory is `csvFiles`, the halves might be `csvFilesHalf1` and `csvFilesHalf2`)
-* Generate synthesized data (e.g. using `oneModel.py`) from `csvFilesHalf1` and put them in some directory (e.g. `resultsHalf1`).
-* Run `sdmManager.py makePrivRuns` to create a jobs file `privJobs.json` and a batch script `batchPriv`, both placed in the `runs` directory. Do `sbatch batchPriv`. This places the privacy measures in the measurement results directory.
+* Run `misc/splitFiles.py` to generate the csv split files. These are placed into directories `train` and `test` under `csvAb` respectively
+* Generate synthesized data (e.g. using `oneModel.py`) from `train` and put them in some directory (`resultsAb` by default).
+* (Run `sdmManager.py updateCsvInfo` if you haven't before.)
+* Run `sdmManager.py makePrivRuns` to create a jobs file `privJobs.json` and a batch script `batchPriv`, both placed in the `runAb` directory. Do `sbatch batchPriv`. This places the privacy measures in the `measuresAb` directory.
 
 ## Summarizing quality and privacy
 
