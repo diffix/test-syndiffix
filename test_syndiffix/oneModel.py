@@ -143,7 +143,7 @@ def makeMetadata(df):
     return metadata
 
 
-def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', synResults='synResults', synMeasures='synMeasures', abSharpArgs='', runsDir='runsAb', doMeasures=False, withFocusColumn=False):
+def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', synResults='synResults', synMeasures='synMeasures', abSharpArgs='', runsDir='runsAb', doMeasures=False, withFocusColumn=False, force=False):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(dataDir)
     tu.registerSynResults(synResults)
@@ -187,7 +187,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         outPath = os.path.join(modelsDir, f"{sourceFileName}.json")
     else:
         outPath = os.path.join(modelsDir, f"{sourceFileName}.{focusColumn}.json")
-    if os.path.exists(outPath):
+    if not force and os.path.exists(outPath):
         print(f"Result {outPath} already exists, skipping")
         print("oneModel:SUCCESS (skipped)")
         return
@@ -207,7 +207,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
     mls = testUtils.mlSupport(tu)
     metaData = makeMetadata(df)
     if model == 'abSharp' or 'syndiffix' in model:
-        colTypeSymbols = {'text': 's', 'real': 'r', 'datetime': 't', 'int': 'i'}
+        colTypeSymbols = {'text': 's', 'real': 'r', 'datetime': 't', 'int': 'i', 'boolean': 'b'}
         colTypes = tu.getColTypesFromDataframe(df)
         columns = []
         for colName, colType in zip(colNames, colTypes):
