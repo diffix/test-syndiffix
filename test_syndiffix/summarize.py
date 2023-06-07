@@ -464,6 +464,7 @@ def getHueDf(dfTemp, hueCol):
     if hueCol is None:
         return None
     hues = list(pd.unique(dfTemp[hueCol]))
+    print(f"hues are {hues}")
     if len(hues) <= 1:
         return None
     return dfTemp[hueCol]
