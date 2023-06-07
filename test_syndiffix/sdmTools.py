@@ -97,11 +97,7 @@ class sdmTools:
         print(f"runPrivMeasureJob: (force {force})")
         pp.pprint(privJob)
         self.privReport = None
-        if 'half1' not in privJob['csvName']:
-            print(f"ERROR: 'half1' not in filename {privJob}")
-            quit()
-        controlFileName = privJob['csvName'].replace('half1.csv', 'half2.csv')
-        controlFilePath = os.path.join(self.tu.controlDir, controlFileName)
+
         resultsPath = os.path.join(self.tu.synResults, privJob['dirName'], privJob['fileName'])
         self.measuresDirPath = os.path.join(self.tu.synMeasures, privJob['dirName'])
         os.makedirs(self.measuresDirPath, exist_ok=True)
@@ -118,7 +114,7 @@ class sdmTools:
             quit()
         self.dfOrig = pd.DataFrame(results['originalTable'], columns=results['colNames'])
         self.dfAnon = pd.DataFrame(results['anonTable'], columns=results['colNames'])
-        self.dfControl = pd.read_csv(controlFilePath, low_memory=False, skipinitialspace=True)
+        self.dfControl = pd.DataFrame(results['testTable'], columns=results['colNames'])
         if privJob['task'] == 'singlingOut':
             if privJob['subtask'] == 'multivariate' and self.dfOrig.shape[1] <= 3:
                 # Cannot to a multivariate attack with 3 or fewer columns
@@ -706,7 +702,7 @@ python3 {testPath} \\
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def makePrivJobsBatchScript(self, runsDir, measuresDir, resultsDir, controlDir, numAttacks):
+    def makePrivJobsBatchScript(self, runsDir, measuresDir, resultsDir, numAttacks, numAttacksInference):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchPriv")
         allResults = self.tu.getResultsPaths()
         privJobs = []
@@ -739,13 +735,14 @@ python3 {testPath} \\
                 privJob['task'] = 'inference'
                 temp = column.split()
                 privJob['label'] = f"inf.{''.join(temp)}"
-                privJob['numAttacks'] = numAttacks
+                privJob['numAttacks'] = numAttacksInference
                 privJob['auxCols'] = [col for col in columns if col != column]
                 privJob['secret'] = column
                 privJob['jobNum'] = jobNum
                 jobNum += 1
                 privJobs.append(privJob)
         privJobsPath = os.path.join(self.tu.runsDir, "privJobs.json")
+        os.makedirs(self.tu.runsDir, exist_ok=True)
         with open(privJobsPath, 'w') as f:
             json.dump(privJobs, f, indent=4)
         testPath = os.path.join(self.tu.pythonDir, 'onePrivMeasure.py')
@@ -760,7 +757,6 @@ python3 {testPath} \\
     --runsDir={runsDir} \\
     --resultsDir={resultsDir} \\
     --measuresDir={measuresDir} \\
-    --controlDir={controlDir} \\
     --force=False
     '''
         with open(batchScriptPath, 'w') as f:
