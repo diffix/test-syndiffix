@@ -61,7 +61,9 @@ class mlSupport:
     def getColTypes(self, df):
         colTypes = []
         for colType in df.dtypes:
-            if pd.api.types.is_integer_dtype(colType):
+            if pd.api.types.is_bool_dtype(colType):
+                colTypes.append('boolean')
+            elif pd.api.types.is_integer_dtype(colType):
                 colTypes.append('integer')
             elif pd.api.types.is_float_dtype(colType) or pd.api.types.is_numeric_dtype(colType):
                 colTypes.append('float')
