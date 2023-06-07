@@ -97,9 +97,7 @@ class sdmTools:
         print(f"runPrivMeasureJob: (force {force})")
         pp.pprint(privJob)
         self.privReport = None
-        
-        controlFileName = privJob['csvName'].replace('half1.csv', 'half2.csv')
-        controlFilePath = os.path.join(self.tu.controlDir, controlFileName)
+
         resultsPath = os.path.join(self.tu.synResults, privJob['dirName'], privJob['fileName'])
         self.measuresDirPath = os.path.join(self.tu.synMeasures, privJob['dirName'])
         os.makedirs(self.measuresDirPath, exist_ok=True)
@@ -116,7 +114,7 @@ class sdmTools:
             quit()
         self.dfOrig = pd.DataFrame(results['originalTable'], columns=results['colNames'])
         self.dfAnon = pd.DataFrame(results['anonTable'], columns=results['colNames'])
-        self.dfControl = pd.read_csv(controlFilePath, low_memory=False, skipinitialspace=True)
+        self.dfControl = pd.DataFrame(results['testTable'], columns=results['colNames'])
         if privJob['task'] == 'singlingOut':
             if privJob['subtask'] == 'multivariate' and self.dfOrig.shape[1] <= 3:
                 # Cannot to a multivariate attack with 3 or fewer columns
@@ -697,7 +695,7 @@ python3 {testPath} \\
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def makePrivJobsBatchScript(self, runsDir, measuresDir, resultsDir, controlDir, numAttacks):
+    def makePrivJobsBatchScript(self, runsDir, measuresDir, resultsDir, numAttacks, numAttacksInference):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchPriv")
         allResults = self.tu.getResultsPaths()
         privJobs = []
@@ -730,7 +728,7 @@ python3 {testPath} \\
                 privJob['task'] = 'inference'
                 temp = column.split()
                 privJob['label'] = f"inf.{''.join(temp)}"
-                privJob['numAttacks'] = numAttacks
+                privJob['numAttacks'] = numAttacksInference
                 privJob['auxCols'] = [col for col in columns if col != column]
                 privJob['secret'] = column
                 privJob['jobNum'] = jobNum
@@ -745,7 +743,6 @@ python3 {testPath} \\
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{len(privJobs)-1}
-#SBATCH --cpus-per-task=2
 #SBATCH --output=logs_priv/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
@@ -753,7 +750,6 @@ python3 {testPath} \\
     --runsDir={runsDir} \\
     --resultsDir={resultsDir} \\
     --measuresDir={measuresDir} \\
-    --controlDir={controlDir} \\
     --force=False
     '''
         with open(batchScriptPath, 'w') as f:
