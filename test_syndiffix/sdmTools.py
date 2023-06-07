@@ -234,7 +234,7 @@ class sdmTools:
     def _removeIdentifyingColumns(self):
         newMetadata = copy.deepcopy(self.metadata)
         for colName, colInfo in newMetadata['columns'].items():
-            if colInfo['type'] == 'categorical' and self.dfOrig[colName].nunique() > 250:
+            if colInfo['sdtype'] == 'categorical' and self.dfOrig[colName].nunique() > 250:
                 print(f"Remove column {colName} with {self.dfOrig[colName].nunique()} distinct values")
                 self.dfOrig.drop(colName, axis=1, inplace=True)
                 self.dfAnon.drop(colName, axis=1, inplace=True)
