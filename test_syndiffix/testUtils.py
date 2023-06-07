@@ -136,7 +136,7 @@ class testUtilities:
                 pass  # ...so leave whole column as-is unconverted
         for colType in df.dtypes:
             if pd.api.types.is_bool_dtype(colType):
-                colTypes.append('text')
+                colTypes.append('boolean')
             elif pd.api.types.is_integer_dtype(colType):
                 colTypes.append('int')
             elif pd.api.types.is_float_dtype(colType) or pd.api.types.is_numeric_dtype(colType):
