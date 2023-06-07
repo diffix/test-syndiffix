@@ -199,5 +199,5 @@ The results file produced by `controller.py` has the following structure:
 Python code is formatted using:
 
 ```
-autopep8 --in-place --recursive .
+autopep8 --in-place --recursive test_syndiffix/
 ```
