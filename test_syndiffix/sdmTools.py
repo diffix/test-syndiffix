@@ -552,11 +552,11 @@ class sdmTools:
                             whatToDo = 'numeric'
                             subType = 'integer'
             if whatToDo == 'category':
-                metadata['columns'][colInfo['column']] = {"type": "categorical", }
+                metadata['columns'][colInfo['column']] = {"sdtype": "categorical", }
             elif whatToDo == 'boolean':
-                metadata['columns'][colInfo['column']] = {"type": "binary", }
+                metadata['columns'][colInfo['column']] = {"sdtype": "boolean", }
             else:
-                metadata['columns'][colInfo['column']] = {"type": "numerical", "subtype": subType}
+                metadata['columns'][colInfo['column']] = {"sdtype": "numerical", "computer_representation": subType}
         return metadata
 
 
