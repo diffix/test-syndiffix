@@ -192,7 +192,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     # Now for only the real datasets
     title = "Real datasets only"
     print(title)
-    dfTemp = df.query(f"numColumns != 2 and numColumns != 8")
+    dfTemp = df.query(f"numColumns != 2")
     hueColsScatter = [None, 'mlMethodType',]
     if len(synMethods) == 2:
         for hueCol in hueColsScatter:
@@ -306,7 +306,7 @@ def doMlPlot(tu, df, force, hueCol=None):
         print(f"Skipping {figPath}")
         return
     #dfTemp = df.query("rowType == 'synMlScore'")
-    dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2 and numColumns != 8")
+    dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2")
     dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
     if hueCol:
