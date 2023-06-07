@@ -554,7 +554,7 @@ class sdmTools:
             if whatToDo == 'category':
                 metadata['columns'][colInfo['column']] = {"sdtype": "categorical", }
             elif whatToDo == 'boolean':
-                metadata['columns'][colInfo['column']] = {"sdtype": "stink", }
+                metadata['columns'][colInfo['column']] = {"sdtype": "boolean", }
             else:
                 metadata['columns'][colInfo['column']] = {"sdtype": "numerical", "computer_representation": subType}
         return metadata
