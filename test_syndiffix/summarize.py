@@ -306,7 +306,7 @@ def doMlPlot(tu, df, force, hueCol=None):
         print(f"Skipping {figPath}")
         return
     #dfTemp = df.query("rowType == 'synMlScore'")
-    dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2")
+    dfTemp = df.query("rowType == 'synMlScore' and numColumns > 2")
     dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
     if hueCol:
@@ -314,7 +314,7 @@ def doMlPlot(tu, df, force, hueCol=None):
         print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
     else:
         print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-    pp.pprint(list(pd.unique(df['csvFile'])))
+    pp.pprint(list(pd.unique(dfTemp['csvFile'])))
     print('Num csv files:', len(list(pd.unique(df['csvFile']))))
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
@@ -369,7 +369,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-        pp.pprint(list(pd.unique(df['csvFile'])))
+        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
         print('Num csv files:', len(list(pd.unique(df['csvFile']))))
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
@@ -396,7 +396,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-        pp.pprint(list(pd.unique(df['csvFile'])))
+        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
         print('Num csv files:', len(list(pd.unique(df['csvFile']))))
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
@@ -424,7 +424,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-        pp.pprint(list(pd.unique(df['csvFile'])))
+        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
         print('Num csv files:', len(list(pd.unique(df['csvFile']))))
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
@@ -450,7 +450,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-        pp.pprint(list(pd.unique(df['csvFile'])))
+        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
         print('Num csv files:', len(list(pd.unique(df['csvFile']))))
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
