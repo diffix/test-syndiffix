@@ -58,8 +58,10 @@ def summarize(measuresDir='measuresAb',
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] == 5000)), '5k rows', dfAll['2dimSizeTag'])
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] == 20000)), '20k rows', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (
+        dfAll['numRows'] == 5000)), '5k rows', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (
+        dfAll['numRows'] == 20000)), '20k rows', dfAll['2dimSizeTag'])
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     if doSkipMethods:
@@ -77,7 +79,7 @@ def summarize(measuresDir='measuresAb',
     doPlots(tu, dfAll, synMethods, apples=False, force=force)
     withoutMostly = synMethods.copy()
     withoutMostly.remove('mostly')
-    #doPlots(tu, dfAll, withoutMostly, force=force)
+    # doPlots(tu, dfAll, withoutMostly, force=force)
     doPlots(tu, dfAll, ['mostly', 'ctGan'], force=force)
     for compareMethod in ['syndiffix', 'syndiffix_focus']:
         for synMethod in synMethods:
@@ -245,16 +247,16 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit
     legendDone = False
     dfMerged = pd.merge(dfBase, dfOther, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
     # Let's count the number of times that X is greater than Y
-    countX = len(dfMerged[dfMerged['rowValue_x']>dfMerged['rowValue_y']])
-    countY = len(dfMerged[dfMerged['rowValue_x']<dfMerged['rowValue_y']])
+    countX = len(dfMerged[dfMerged['rowValue_x'] > dfMerged['rowValue_y']])
+    countY = len(dfMerged[dfMerged['rowValue_x'] < dfMerged['rowValue_y']])
     print(f"    All models with X>Y = {countX}, with Y>X = {countY}")
     # And for top-scoring models only:
-    countX = len(dfMerged[(dfMerged['rowValue_x']>dfMerged['rowValue_y']) & 
-                  ((dfMerged['rowValue_x']>=0.8) |
-                   (dfMerged['rowValue_y']>=0.8))])
-    countY = len(dfMerged[(dfMerged['rowValue_x']<dfMerged['rowValue_y']) & 
-                  ((dfMerged['rowValue_x']>=0.8) |
-                   (dfMerged['rowValue_y']>=0.8))])
+    countX = len(dfMerged[(dfMerged['rowValue_x'] > dfMerged['rowValue_y']) &
+                          ((dfMerged['rowValue_x'] >= 0.8) |
+                           (dfMerged['rowValue_y'] >= 0.8))])
+    countY = len(dfMerged[(dfMerged['rowValue_x'] < dfMerged['rowValue_y']) &
+                          ((dfMerged['rowValue_x'] >= 0.8) |
+                           (dfMerged['rowValue_y'] >= 0.8))])
     print(f"    >0.8 models with X>Y = {countX}, with Y>X = {countY}")
     # The columns get renamed after merging, so hueCol needs to be modified (to either
     # hueCol_x or hueCol_y). So long as the hueCol applies identically to the base and the other
@@ -303,28 +305,31 @@ def setLabelSampleCount(s, labels):
             newLabels.append(f"{label}")
     return newLabels
 
+
 def getBestSyndiffix(df):
     dfNonFocus = df.query("synMethod == 'syndiffix'")
     dfFocus = df.query("synMethod == 'syndiffix_focus'")
     dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
-    dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'], dfMerged['rowValue_x'], dfMerged['rowValue_y'])
+    dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
+                                    dfMerged['rowValue_x'], dfMerged['rowValue_y'])
     dfMerged['synMethod'] = 'syndiffix_best'
-    df1 = df[['synMethod','rowValue']]
-    df2 = dfMerged[['synMethod','rowValue']]
+    df1 = df[['synMethod', 'rowValue']]
+    df2 = dfMerged[['synMethod', 'rowValue']]
     return pd.concat([df1, df2], axis=0)
+
 
 def doMlPlot(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'ml.png')
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    #dfTemp = df.query("rowType == 'synMlScore'")
+    # dfTemp = df.query("rowType == 'synMlScore'")
     dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2 and numColumns != 8")
     dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
     if hueCol:
         print(f"groupby {hueCol}")
-        print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
+        print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
     else:
         print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
     xaxis = 'ML scores'
@@ -334,6 +339,7 @@ def doMlPlot(tu, df, force, hueCol=None):
     plt.xlabel(xaxis)
     plt.savefig(figPath)
     plt.close()
+
 
 def doPrivPlot(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'priv.png')
@@ -377,7 +383,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         if hueCol:
             print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
+            print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
@@ -402,7 +408,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         if hueCol:
             print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
+            print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
@@ -428,7 +434,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         if hueCol:
             print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
+            print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
@@ -452,7 +458,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         if hueCol:
             print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod',hueCol])['rowValue'].describe().to_string())
+            print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])

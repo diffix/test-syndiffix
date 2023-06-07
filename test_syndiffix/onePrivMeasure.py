@@ -13,11 +13,10 @@ pp = pprint.PrettyPrinter(indent=4)
 '''
 
 
-def onePrivMeasure(jobNum=0, runsDir='runAb', measuresDir='measuresAb', resultsDir='resultsAbHalf1', controlDir='csvAbHalf2', force=False):
+def onePrivMeasure(jobNum=0, runsDir='runAb', measuresDir='measuresAb', resultsDir='resultsAb', force=False):
     tu = testUtils.testUtilities()
     tu.registerSynMeasure(measuresDir)
     tu.registerSynResults(resultsDir)
-    tu.registerControlDir(controlDir)
     tu.registerRunsDir(runsDir)
     privJobsPath = os.path.join(tu.runsDir, 'privJobs.json')
     with open(privJobsPath, 'r') as f:

@@ -18,6 +18,7 @@ It assumes a directory structure with three directories:
 pp = pprint.PrettyPrinter(indent=4)
 trainRatio = 0.7
 
+
 def splitFiles():
     # dataSources = ['adult.data.csv', 'BankChurnersNoId.csv', 'census_small.csv']
     dataSources = []
