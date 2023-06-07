@@ -554,7 +554,7 @@ class sdmTools:
             if whatToDo == 'category':
                 metadata['columns'][colInfo['column']] = {"type": "categorical", }
             elif whatToDo == 'boolean':
-                metadata['columns'][colInfo['column']] = {"type": "categorical", }
+                metadata['columns'][colInfo['column']] = {"type": "binary", }
             else:
                 metadata['columns'][colInfo['column']] = {"type": "numerical", "subtype": subType}
         return metadata
