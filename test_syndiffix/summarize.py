@@ -58,10 +58,8 @@ def summarize(measuresDir='measuresAb',
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (
-        dfAll['numRows'] == 5000)), '5k rows', dfAll['2dimSizeTag'])
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (
-        dfAll['numRows'] == 20000)), '20k rows', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] < 8000)), '7k rows', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] > 27000)), '28k rows', dfAll['2dimSizeTag'])
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     if doSkipMethods:
@@ -179,19 +177,6 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
         makeBasicGraph(df, tu, hueCol, 'all', title, force, apples=apples)
         makeBasicViolin(df, tu, 'all', title)
 
-    # Now for just 2dim and 8dim (our generated datasets)
-    title = f"Datasets with 8 columns"
-    print(title)
-    dfTemp = df.query(f"numColumns == 8")
-    hueColsScatter = [None]
-    if len(synMethods) == 2:
-        for hueCol in hueColsScatter:
-            makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', "8col", title, force)
-    hueColsBasic = [None]
-    for hueCol in hueColsBasic:
-        makeBasicGraph(dfTemp, tu, hueCol, f"8col", title, force, apples=apples)
-        makeBasicViolin(df, tu, f"8col", title)
-
     title = f"Datasets with 2 columns"
     print(title)
     dfTemp = df.query(f"numColumns == 2")
@@ -207,7 +192,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     # Now for only the real datasets
     title = "Real datasets only"
     print(title)
-    dfTemp = df.query(f"numColumns != 2 and numColumns != 8")
+    dfTemp = df.query(f"numColumns != 2")
     hueColsScatter = [None, 'mlMethodType',]
     if len(synMethods) == 2:
         for hueCol in hueColsScatter:
@@ -323,8 +308,10 @@ def doMlPlot(tu, df, force, hueCol=None):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    # dfTemp = df.query("rowType == 'synMlScore'")
-    dfTemp = df.query("rowType == 'synMlScore' and numColumns != 2 and numColumns != 8")
+
+    #dfTemp = df.query("rowType == 'synMlScore'")
+    dfTemp = df.query("rowType == 'synMlScore' and numColumns > 2")
+
     dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
     if hueCol:
@@ -332,6 +319,8 @@ def doMlPlot(tu, df, force, hueCol=None):
         print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
     else:
         print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+    pp.pprint(list(pd.unique(dfTemp['csvFile'])))
+    print('Num csv files:', len(list(pd.unique(df['csvFile']))))
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
@@ -386,6 +375,8 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
+        print('Num csv files:', len(list(pd.unique(df['csvFile']))))
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -411,6 +402,8 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
+        print('Num csv files:', len(list(pd.unique(df['csvFile']))))
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -437,6 +430,8 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
+        print('Num csv files:', len(list(pd.unique(df['csvFile']))))
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -461,6 +456,8 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
         else:
             print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
+        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
+        print('Num csv files:', len(list(pd.unique(df['csvFile']))))
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
