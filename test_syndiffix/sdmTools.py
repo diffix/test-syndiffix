@@ -539,6 +539,8 @@ class sdmTools:
             if colInfo['colType'] == 'float':
                 whatToDo = 'numeric'
                 subType = 'float'
+            if colInfo['colType'] == 'boolean':
+                whatToDo = 'boolean'
             else:
                 for mlInfo in self.mlConfig:
                     if (colInfo['colType'] == mlInfo['type'] and
@@ -551,6 +553,8 @@ class sdmTools:
                             subType = 'integer'
             if whatToDo == 'category':
                 metadata['columns'][colInfo['column']] = {"type": "categorical", }
+            elif whatToDo == 'boolean':
+                metadata['columns'][colInfo['column']] = {"type": "boolean", }
             else:
                 metadata['columns'][colInfo['column']] = {"type": "numerical", "subtype": subType}
         return metadata
