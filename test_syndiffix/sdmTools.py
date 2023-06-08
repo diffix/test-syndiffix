@@ -296,7 +296,7 @@ class sdmTools:
                         colLabel = f"{', '.join(combs)} score = {pairsScore:.3f}"
                     else:
                         colLabel = f"{', '.join(combs)}"
-                    if fields[baseColumns[j]]['type'] == 'categorical' and fields[baseColumns[i]]['type'] == 'categorical':
+                    if fields[baseColumns[j]]['sdtype'] == 'categorical' and fields[baseColumns[i]]['sdtype'] == 'categorical':
                         # For two categorical cols, the fig from sdmetrics is a subplot itself.
                         # We need to decompose it into two separate traces and add separately as two
                         # cells in our final subplot
