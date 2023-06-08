@@ -297,6 +297,8 @@ def setLabelSampleCount(s, labels):
 def getBestSyndiffix(df):
     dfNonFocus = df.query("synMethod == 'syndiffix'")
     dfFocus = df.query("synMethod == 'syndiffix_focus'")
+    if dfNonFocus.shape[0] == 0 or dfFocus.shape[0] == 0:
+        return df
     dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
     dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['rowValue_x'], dfMerged['rowValue_y'])
