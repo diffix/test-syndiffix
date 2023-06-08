@@ -71,22 +71,25 @@ def summarize(measuresDir='measuresAb',
     print(f"Privacy plot")
     doPrivPlot(tu, dfAll, force)
     doMlPlot(tu, dfAll, force)
-    doPlots(tu, dfAll, ['syndiffix_focus', 'ctGan', 'mostly'], force=force)
-    doPlots(tu, dfAll, ['syndiffix', 'ctGan', 'mostly'], force=force)
+    if 'syndiffix_focus' in synMethods:
+        doPlots(tu, dfAll, ['syndiffix_focus', 'ctGan', 'mostly'], force=force)
+    if 'syndiffix' in synMethods:
+        doPlots(tu, dfAll, ['syndiffix', 'ctGan', 'mostly'], force=force)
     doPlots(tu, dfAll, synMethods, force=force)
     doPlots(tu, dfAll, synMethods, apples=False, force=force)
     withoutMostly = synMethods.copy()
     withoutMostly.remove('mostly')
     # doPlots(tu, dfAll, withoutMostly, force=force)
-    doPlots(tu, dfAll, ['mostly', 'ctGan'], force=force)
-    for compareMethod in ['syndiffix', 'syndiffix_focus']:
-        for synMethod in synMethods:
-            if synMethod == compareMethod:
-                continue
-            doPlots(tu, dfAll, [compareMethod, synMethod], force=force)
+    if 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
+        for compareMethod in ['syndiffix', 'syndiffix_focus']:
+            for synMethod in synMethods:
+                if synMethod == compareMethod:
+                    continue
+                doPlots(tu, dfAll, [compareMethod, synMethod], force=force)
     dfBadPriv = dfAll.query("rowType == 'privRisk' and rowValue > 0.5")
-    print("Bad privacy scores:")
-    print(dfBadPriv[['rowValue', 'privMethod', 'targetColumn', 'csvFile', 'synMethod']].to_string)
+    if dfBadPriv.shape[0] > 0:
+        print("Bad privacy scores:")
+        print(dfBadPriv[['rowValue', 'privMethod', 'targetColumn', 'csvFile', 'synMethod']].to_string)
 
 
 def dumpMlData(dfAll):
@@ -294,6 +297,8 @@ def setLabelSampleCount(s, labels):
 def getBestSyndiffix(df):
     dfNonFocus = df.query("synMethod == 'syndiffix'")
     dfFocus = df.query("synMethod == 'syndiffix_focus'")
+    if dfNonFocus.shape[0] == 0 or dfFocus.shape[0] == 0:
+        return df
     dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
     dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['rowValue_x'], dfMerged['rowValue_y'])
