@@ -324,7 +324,6 @@ def doMlPlot(tu, df, force, hueCol=None):
         print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
     else:
         print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-    pp.pprint(list(pd.unique(dfTemp['csvFile'])))
     print('Num csv files:', len(list(pd.unique(df['csvFile']))))
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
