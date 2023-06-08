@@ -234,7 +234,7 @@ class sdmTools:
     def _removeIdentifyingColumns(self):
         newMetadata = copy.deepcopy(self.metadata)
         for colName, colInfo in newMetadata['columns'].items():
-            if colInfo['type'] == 'categorical' and self.dfOrig[colName].nunique() > 250:
+            if colInfo['sdtype'] == 'categorical' and self.dfOrig[colName].nunique() > 250:
                 print(f"Remove column {colName} with {self.dfOrig[colName].nunique()} distinct values")
                 self.dfOrig.drop(colName, axis=1, inplace=True)
                 self.dfAnon.drop(colName, axis=1, inplace=True)
@@ -296,7 +296,7 @@ class sdmTools:
                         colLabel = f"{', '.join(combs)} score = {pairsScore:.3f}"
                     else:
                         colLabel = f"{', '.join(combs)}"
-                    if fields[baseColumns[j]]['type'] == 'categorical' and fields[baseColumns[i]]['type'] == 'categorical':
+                    if fields[baseColumns[j]]['sdtype'] == 'categorical' and fields[baseColumns[i]]['sdtype'] == 'categorical':
                         # For two categorical cols, the fig from sdmetrics is a subplot itself.
                         # We need to decompose it into two separate traces and add separately as two
                         # cells in our final subplot
@@ -539,6 +539,8 @@ class sdmTools:
             if colInfo['colType'] == 'float':
                 whatToDo = 'numeric'
                 subType = 'float'
+            if colInfo['colType'] == 'boolean':
+                whatToDo = 'boolean'
             else:
                 for mlInfo in self.mlConfig:
                     if (colInfo['colType'] == mlInfo['type'] and
@@ -550,9 +552,11 @@ class sdmTools:
                             whatToDo = 'numeric'
                             subType = 'integer'
             if whatToDo == 'category':
-                metadata['columns'][colInfo['column']] = {"type": "categorical", }
+                metadata['columns'][colInfo['column']] = {"sdtype": "categorical", }
+            elif whatToDo == 'boolean':
+                metadata['columns'][colInfo['column']] = {"sdtype": "boolean", }
             else:
-                metadata['columns'][colInfo['column']] = {"type": "numerical", "subtype": subType}
+                metadata['columns'][colInfo['column']] = {"sdtype": "numerical", "computer_representation": subType}
         return metadata
 
 
