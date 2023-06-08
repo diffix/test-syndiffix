@@ -13,7 +13,7 @@ for filename in files:
         lines = file.readlines()
 
     for line in lines:
-        if 'SUCCEED' in line:
+        if 'SUCCESS' in line:
             deleteFiles.append(filename)
             break
 
