@@ -319,7 +319,7 @@ def doMlPlot(tu, df, force, hueCol=None):
 
     #dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
-    printStats(dfTemp, hueCol)
+    printStats(dfTemp, hueCol, "quality")
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
@@ -369,7 +369,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        printStats(dfTemp, hueCol)
+        printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -390,7 +390,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        printStats(dfTemp, hueCol)
+        printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -412,7 +412,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        printStats(dfTemp, hueCol)
+        printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -432,7 +432,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        printStats(dfTemp, hueCol)
+        printStats(dfTemp, hueCol, "time")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -448,7 +448,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.savefig(figPath)
     plt.close()
 
-def computeImprovements(dfTemp):
+def computeImprovements(dfTemp, measureType):
     targets = []
     methods = []
     for synMethod in list(pd.unique(dfTemp['synMethod'])):
@@ -458,21 +458,29 @@ def computeImprovements(dfTemp):
             methods.append(synMethod)
     for target in targets:
         for method in methods:
-            targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
-            methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
-            if targetErr > methodErr:
-                improvement = round(targetErr / methodErr,2) * -1
+            if measureType == 'quality':
+                targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
+                methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                if targetErr > methodErr:
+                    improvement = round(targetErr / methodErr,2) * -1
+                else:
+                    improvement = round(methodErr / targetErr,2)
             else:
-                improvement = round(methodErr / targetErr,2)
+                targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
+                methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                if targetTime > methodTime:
+                    improvement = round(targetTime / methodTime,2) * -1
+                else:
+                    improvement = round(methodTime / targetTime,2)
             print(f"Improvement of {target} over {method} = {improvement}")
 
-def printStats(dfTemp, hueCol):
+def printStats(dfTemp, hueCol, measureType):
     if hueCol:
         dfGroupby = dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe()
         print(f"groupby {hueCol}")
     else:
         dfGroupby = dfTemp.groupby(['synMethod'])['rowValue'].describe()
-        computeImprovements(dfTemp)
+        computeImprovements(dfTemp, measureType)
     if dfGroupby.shape[0] == 0:
         return
     print(dfGroupby.to_string())
