@@ -448,14 +448,31 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.savefig(figPath)
     plt.close()
 
+def computeImprovements(dfTemp):
+    targets = []
+    methods = []
+    for synMethod in list(pd.unique(dfTemp['synMethod'])):
+        if 'syndiffix' in synMethod:
+            targets.append(synMethod)
+        else:
+            methods.append(synMethod)
+    for target in targets:
+        for method in methods:
+            targetMedian = dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
+            methodMedian = dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+            if targetMedian > methodMedian:
+                improvement = round(targetMedian / methodMedian,2)
+            else:
+                improvement = round(methodMedian / targetMedian,2) * -1
+            print(f"Improvement of {target} over {method} = {improvement}")
+
 def printStats(dfTemp, hueCol):
     if hueCol:
         dfGroupby = dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe()
         print(f"groupby {hueCol}")
     else:
         dfGroupby = dfTemp.groupby(['synMethod'])['rowValue'].describe()
-        for synMethod in list(pd.unique(dfTemp['synMethod'])):
-            print(f"{synMethod}: {dfTemp[dfTemp['synMethod'] == synMethod]['rowValue'].median()}")
+        computeImprovements(dfTemp)
     if dfGroupby.shape[0] == 0:
         return
     print(dfGroupby.to_string())
