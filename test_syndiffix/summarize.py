@@ -454,17 +454,11 @@ def printStats(dfTemp, hueCol):
         print(f"groupby {hueCol}")
     else:
         dfGroupby = dfTemp.groupby(['synMethod'])['rowValue'].describe()
+        for synMethod in list(pd.unique(dfTemp['synMethod'])):
+            print(synMethod)
     if dfGroupby.shape[0] == 0:
         return
     print(dfGroupby.to_string())
-    print(dfGroupby.columns)
-    print(dfGroupby['50%'])
-    print(type(dfGroupby['50%']))
-    synMethods = list(pd.unique(dfGroupby['synMethod']))
-    print(f"synMethods: {synMethods}")
-    for synMethod in list(pd.unique(dfGroupby['synMethod'])):
-        continue
-        print(f"{synMethod}: {dfGroupby[dfGroupby['synMethod'] == synMethod]['50%']}")
     pp.pprint(list(pd.unique(dfTemp['csvFile'])))
     print('Num csv files:', len(list(pd.unique(dfTemp['csvFile']))))
 
