@@ -457,9 +457,9 @@ def printStats(dfTemp, hueCol):
     if dfGroupby.shape[0] == 0:
         return
     print(dfGroupby.to_string())
+    print(dfGroupby.columns)
     synMethods = list(pd.unique(dfGroupby['synMethod']))
     print(f"synMethods: {synMethods}")
-    print(dfGroupby.columns)
     for synMethod in list(pd.unique(dfGroupby['synMethod'])):
         continue
         print(f"{synMethod}: {dfGroupby[dfGroupby['synMethod'] == synMethod]['50%']}")
