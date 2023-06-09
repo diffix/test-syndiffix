@@ -450,13 +450,13 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
 
 def printStats(dfTemp, hueCol):
     if hueCol:
-        dfGroupby = dfTemp.groupby(['synMethod', hueCol])['rowValue']
+        dfGroupby = dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe()
         print(f"groupby {hueCol}")
     else:
-        dfGroupby = dfTemp.groupby(['synMethod'])['rowValue']
+        dfGroupby = dfTemp.groupby(['synMethod'])['rowValue'].describe()
     if dfGroupby.shape[0] == 0:
         return
-    print(dfGroupby.describe().to_string())
+    print(dfGroupby.to_string())
     print(dfTemp.columns)
     pp.pprint(list(pd.unique(dfTemp['csvFile'])))
     print('Num csv files:', len(list(pd.unique(dfTemp['csvFile']))))
