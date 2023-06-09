@@ -456,6 +456,7 @@ def printStats(dfTemp, hueCol):
         dfGroupby = dfTemp.groupby(['synMethod'])['rowValue'].describe()
     if dfGroupby.shape[0] == 0:
         return
+    print(dfGroupby.type())
     print(dfGroupby.to_string())
     print(dfTemp.columns)
     pp.pprint(list(pd.unique(dfTemp['csvFile'])))
