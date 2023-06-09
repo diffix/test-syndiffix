@@ -458,12 +458,12 @@ def computeImprovements(dfTemp):
             methods.append(synMethod)
     for target in targets:
         for method in methods:
-            targetMedian = dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
-            methodMedian = dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
-            if targetMedian > methodMedian:
-                improvement = round(targetMedian / methodMedian,2)
+            targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
+            methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+            if targetErr > methodErr:
+                improvement = round(targetErr / methodErr,2) * -1
             else:
-                improvement = round(methodMedian / targetMedian,2) * -1
+                improvement = round(methodErr / targetErr,2)
             print(f"Improvement of {target} over {method} = {improvement}")
 
 def printStats(dfTemp, hueCol):
