@@ -457,8 +457,9 @@ def printStats(dfTemp, hueCol):
     if dfGroupby.shape[0] == 0:
         return
     print(dfGroupby.to_string())
-    print(dfTemp.columns)
-    print(f"min column: {dfGroupby['min']}")
+    for synMethod in list(pd.unique(dfGroupby['synMethod'])):
+        print(f"{synMethod}: {dfGroupby[dfGroupby['synMethod'] == synMethod]['50%']}")
+        pass
     pp.pprint(list(pd.unique(dfTemp['csvFile'])))
     print('Num csv files:', len(list(pd.unique(dfTemp['csvFile']))))
 
