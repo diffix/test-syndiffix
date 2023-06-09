@@ -317,15 +317,9 @@ def doMlPlot(tu, df, force, hueCol=None):
     #dfTemp = df.query("rowType == 'synMlScore'")
     dfTemp = df.query("rowType == 'synMlScore' and numColumns > 2")
 
-    dfTemp = getBestSyndiffix(dfTemp)
+    #dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
-    if hueCol:
-        print(f"groupby {hueCol}")
-        print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
-    else:
-        print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-    pp.pprint(list(pd.unique(dfTemp['csvFile'])))
-    print('Num csv files:', len(list(pd.unique(df['csvFile']))))
+    printStats(dfTemp, hueCol, "quality")
     xaxis = 'ML scores'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
@@ -375,13 +369,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        if hueCol:
-            print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
-        else:
-            print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
-        print('Num csv files:', len(list(pd.unique(df['csvFile']))))
+        printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -402,13 +390,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        if hueCol:
-            print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
-        else:
-            print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
-        print('Num csv files:', len(list(pd.unique(df['csvFile']))))
+        printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -430,13 +412,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        if hueCol:
-            print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
-        else:
-            print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
-        print('Num csv files:', len(list(pd.unique(df['csvFile']))))
+        printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -456,13 +432,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        if hueCol:
-            print(f"groupby {hueCol}")
-            print(dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe().to_string())
-        else:
-            print(dfTemp.groupby(['synMethod'])['rowValue'].describe().to_string())
-        pp.pprint(list(pd.unique(dfTemp['csvFile'])))
-        print('Num csv files:', len(list(pd.unique(df['csvFile']))))
+        printStats(dfTemp, hueCol, "time")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -478,6 +448,56 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.savefig(figPath)
     plt.close()
 
+def computeImprovements(dfTemp, measureType):
+    targets = []
+    methods = []
+    for synMethod in list(pd.unique(dfTemp['synMethod'])):
+        if 'syndiffix' in synMethod:
+            targets.append(synMethod)
+        else:
+            methods.append(synMethod)
+    for statType in ['median', 'average']:
+        computeImprovementsWork(dfTemp, measureType, targets, methods, statType)
+
+def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
+    for target in targets:
+        for method in methods:
+            if measureType == 'quality':
+                if statType == 'median':
+                    targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
+                    methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                else:
+                    targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
+                    methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
+                if targetErr > methodErr:
+                    improvement = round(targetErr / methodErr,2) * -1
+                else:
+                    improvement = round(methodErr / targetErr,2)
+            else:
+                if statType == 'median':
+                    targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
+                    methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                else:
+                    targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
+                    methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
+                if targetTime > methodTime:
+                    improvement = round(targetTime / methodTime,2) * -1
+                else:
+                    improvement = round(methodTime / targetTime,2)
+            print(f"Improvement for {statType} of {target} over {method} = {improvement}")
+
+def printStats(dfTemp, hueCol, measureType):
+    if hueCol:
+        dfGroupby = dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe()
+        print(f"groupby {hueCol}")
+    else:
+        dfGroupby = dfTemp.groupby(['synMethod'])['rowValue'].describe()
+        computeImprovements(dfTemp, measureType)
+    if dfGroupby.shape[0] == 0:
+        return
+    print(dfGroupby.to_string())
+    pp.pprint(list(pd.unique(dfTemp['csvFile'])))
+    print('Num csv files:', len(list(pd.unique(dfTemp['csvFile']))))
 
 def getHueDf(dfTemp, hueCol):
     if hueCol is None:
