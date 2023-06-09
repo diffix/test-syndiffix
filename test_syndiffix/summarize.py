@@ -455,7 +455,7 @@ def printStats(dfTemp, hueCol):
     else:
         dfGroupby = dfTemp.groupby(['synMethod'])['rowValue'].describe()
         for synMethod in list(pd.unique(dfTemp['synMethod'])):
-            print(f"{synMethod}: {dfTemp['synMethod'].median()}")
+            print(f"{synMethod}: {dfTemp[dfTemp['synMethod'] == synMethod]['rowValue'].median()}")
     if dfGroupby.shape[0] == 0:
         return
     print(dfGroupby.to_string())
