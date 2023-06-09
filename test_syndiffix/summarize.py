@@ -317,7 +317,7 @@ def doMlPlot(tu, df, force, hueCol=None):
     #dfTemp = df.query("rowType == 'synMlScore'")
     dfTemp = df.query("rowType == 'synMlScore' and numColumns > 2")
 
-    dfTemp = getBestSyndiffix(dfTemp)
+    #dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
     printStats(dfTemp, hueCol)
     xaxis = 'ML scores'
