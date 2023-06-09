@@ -456,23 +456,35 @@ def computeImprovements(dfTemp, measureType):
             targets.append(synMethod)
         else:
             methods.append(synMethod)
+    for statType in ['median', 'average']:
+        computeImprovementsWork(dfTemp, measureType, targets, methods, statType)
+
+def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
     for target in targets:
         for method in methods:
             if measureType == 'quality':
-                targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
-                methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                if statType == 'median':
+                    targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
+                    methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                else:
+                    targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
+                    methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
                 if targetErr > methodErr:
                     improvement = round(targetErr / methodErr,2) * -1
                 else:
                     improvement = round(methodErr / targetErr,2)
             else:
-                targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
-                methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                if statType == 'median':
+                    targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
+                    methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                else:
+                    targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
+                    methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
                 if targetTime > methodTime:
                     improvement = round(targetTime / methodTime,2) * -1
                 else:
                     improvement = round(methodTime / targetTime,2)
-            print(f"Improvement of {target} over {method} = {improvement}")
+            print(f"Improvement for {statType} of {target} over {method} = {improvement}")
 
 def printStats(dfTemp, hueCol, measureType):
     if hueCol:
