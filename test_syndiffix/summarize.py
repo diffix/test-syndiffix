@@ -458,6 +458,7 @@ def printStats(dfTemp, hueCol):
         return
     print(dfGroupby.to_string())
     print(dfGroupby.columns)
+    print(dfGroupby['50%'])
     synMethods = list(pd.unique(dfGroupby['synMethod']))
     print(f"synMethods: {synMethods}")
     for synMethod in list(pd.unique(dfGroupby['synMethod'])):
