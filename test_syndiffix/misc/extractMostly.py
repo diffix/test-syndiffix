@@ -1,8 +1,10 @@
 import os
 import json
 import zipfile
-import pandas as pd
 import pprint
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from misc.csvUtils import readCsv
 
 '''
 After running tests at mostly.io, save the CSV and log files into a single directory `mostlyResults` under a directory `mostly`.
@@ -87,9 +89,9 @@ for fileRoot, paths in dataSourceNames.items():
 for fileRoot in dataSourceNames.keys():
     results = {}
     csvPath = os.path.join(csvInPath, fileRoot + '.csv')
-    dfOrigCsv = pd.read_csv(csvPath, index_col=False, low_memory=False)
+    dfOrigCsv = readCsv(csvPath)
     testPath = os.path.join(csvTestPath, fileRoot + '.csv')
-    dfTestCsv = pd.read_csv(testPath, index_col=False, low_memory=False)
+    dfTestCsv = readCsv(testPath)
     results['colNames'] = list(dfOrigCsv.columns)
 
     elapsedTime = 0
@@ -103,7 +105,7 @@ for fileRoot in dataSourceNames.keys():
     results['elapsedTime'] = elapsedTime
 
     synCsvPath = os.path.join(resultsDir, fileRoot, fileRoot + '.csv')
-    dfSynCsv = pd.read_csv(synCsvPath, index_col=False)
+    dfSynCsv = readCsv(synCsvPath)
     if list(dfSynCsv.columns) != results['colNames']:
         print("FAIL columns")
         print(dfSynCsv.columns)

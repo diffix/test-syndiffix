@@ -2,12 +2,14 @@ import json
 import os
 import time
 import tempfile
-import csv
 import subprocess
 import fire
 import pandas as pd
 import numpy as np
 from sdv.tabular import TVAE, CTGAN
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from misc.csvUtils import readCsv
 
 
 class OutlierInference(object):
@@ -125,14 +127,8 @@ class OutlierInference(object):
         print(attackResults.round(3).to_string())
 
 
-def _csvread(csvfile):
-    # TODO: copied from csvUtils.py (x2). Is there a way we can avoid copying?
-    return pd.read_csv(csvfile, index_col=False, sep=',', quotechar='\'', quoting=csv.QUOTE_MINIMAL)
-
-
 def _csvwrite(rows, csvfile):
-    return rows.to_csv(csvfile, index=False, sep=',', quotechar='\'', quoting=csv.QUOTE_MINIMAL,
-                       header=True)
+    return rows.to_csv(csvfile, index=False, sep=',', header=True)
 
 
 def runSynDiffix(syndiffixPath, columns, syndiffixArgs=[]):
@@ -150,7 +146,7 @@ def runSynDiffix(syndiffixPath, columns, syndiffixArgs=[]):
             if errors:
                 print(errors)
 
-            outCsv = _csvread(outFile.name)
+            outCsv = readCsv(outFile.name)
 
         if syndiffix.returncode == 0:
             return outCsv
@@ -257,7 +253,7 @@ def runOneAttack(syndiffixPath,
     if method == 'mostly':
         fileCode = f'mostly.{nCategories:03d}.{i:03d}'
         with open(f'data/aids.{fileCode}.csv') as aidsFile, open(f'data/dataset{fileCode}.csv') as datasetFile:
-            synthAids, synthDataset = _csvread(aidsFile), _csvread(datasetFile)
+            synthAids, synthDataset = readCsv(aidsFile), readCsv(datasetFile)
     else:
         start = time.time()
         synthAids, synthDataset = synthesizer(aids), synthesizer(dataset)

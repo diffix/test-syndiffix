@@ -15,6 +15,7 @@ from anonymeter.evaluators import InferenceEvaluator
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import pprint
+from misc.csvUtils import readCsv
 pp = pprint.PrettyPrinter(indent=4)
 
 
@@ -433,9 +434,9 @@ class sdmTools:
         startTime = time.time()
         print(f"oneOrigMlJob: Starting job {myJob} at time {startTime}")
         csvPath = os.path.join(self.tu.csvLib, myJob['csvFile'])
-        dfTrain = pd.read_csv(csvPath, low_memory=False, skipinitialspace=True)
+        dfTrain = readCsv(csvPath)
         csvPath = os.path.join(self.tu.csvLibTest, myJob['csvFile'])
-        dfTest = pd.read_csv(csvPath, low_memory=False, skipinitialspace=True)
+        dfTest = readCsv(csvPath)
         print(f"    dfTest shape {dfTest.shape}, dfTrain shape {dfTrain.shape}")
         metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
         print("Metadata:")
@@ -485,10 +486,6 @@ class sdmTools:
         dfTrain = dfShuffled[:trainSize]
         dfTest = dfShuffled[trainSize:]
         return dfTest, dfTrain
-
-    def _readCsv(self, csvFile):
-        csvPath = os.path.join(self.tu.csvLib, csvFile)
-        return pd.read_csv(csvPath, low_memory=False, skipinitialspace=True)
 
     def enumerateSynMlJobs(self):
         self.synMlJobs = []
@@ -891,7 +888,7 @@ python3 {testPath} \\
                 continue
             # Append csv file information
             csvPath = os.path.join(self.tu.csvLib, csvFile)
-            df = pd.read_csv(csvPath, low_memory=False, skipinitialspace=True)
+            df = readCsv(csvPath)
             mlClassInfo = mls.makeMlClassInfo(df, csvFile)
             csvOrderInfo.append([csvFile, mlClassInfo])
             print(f"Adding datasource {csvFile}")

@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import pandas as pd
+from misc.csvUtils import readCsv
 import numpy as np
 import pprint
 import fire
@@ -37,7 +37,7 @@ def splitFiles():
         print("-----------------------------------------")
         print(f"Datasource: {csvFile}")
         fullPath = os.path.join(inDir, csvFile)
-        df = pd.read_csv(fullPath, index_col=False)
+        df = readCsv(fullPath)
         print(f"Number of rows: {df.shape[0]}")
         print("Before shuffle:")
         print(df.head())

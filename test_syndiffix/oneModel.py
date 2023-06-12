@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import sdmetricsPlay
 import sdmTools
-import csv
+from misc.csvUtils import readCsv
 
 ''' This is used to run the SDMetrics synthetic data models in SLURM
 '''
@@ -193,11 +193,11 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         return
     print(f"Model {label} for dataset {dataSourcePath}, focus column {focusColumn}")
 
-    df = pd.read_csv(dataSourcePath, index_col=False, low_memory=False)
+    df = readCsv(dataSourcePath)
     print(f"Training dataframe shape {df.shape}")
     colNames = list(df.columns.values)
     # quick test to make sure that the test and train data match columns
-    dfTest = pd.read_csv(testDataPath, index_col=False, low_memory=False)
+    dfTest = readCsv(testDataPath)
     if colNames != list(dfTest.columns.values):
         print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
         quit()
