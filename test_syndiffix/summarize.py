@@ -337,7 +337,7 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
         printStats(dfTemp, hueCol, "priv high confidence")
         figPath = os.path.join(tu.summariesDir, 'priv.png')
     else:
-        dfTemp = df.query("rowType == 'privRisk' or rowType == 'privRiskHigh")
+        dfTemp = df.query("rowType == 'privRisk' or rowType == 'privRiskHigh'")
         xaxis = 'Privacy Risk (including low confidence scores)'
         printStats(dfTemp, hueCol, "priv high and low confidence")
         figPath = os.path.join(tu.summariesDir, 'privLowConf.png')
