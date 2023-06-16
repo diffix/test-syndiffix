@@ -331,9 +331,6 @@ def doMlPlot(tu, df, force, hueCol=None):
 
 
 def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
-    if not force and os.path.exists(figPath):
-        print(f"Skipping {figPath}")
-        return
     if what == 'lowBounds':
         dfTemp = df.query("rowType == 'privRisk'")
         xaxis = 'Privacy Risk'
