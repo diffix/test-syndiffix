@@ -340,6 +340,8 @@ def doPrivPlot(tu, df, force, hueCol=None):
     xaxis = 'Privacy Risk'
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
+    plt.tight_layout()
+    plt.xlim(0,1)
     plt.xscale('symlog')
     plt.xlabel(xaxis)
     plt.savefig(figPath)
