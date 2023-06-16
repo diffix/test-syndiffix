@@ -37,6 +37,7 @@ class resultsGather():
                     # This is an ML score file
                     self.addMlScore(testRes)
                 elif 'privRisk' in testRes:
+                    continue
                     self.addPrivScore(testRes)
                 else:
                     print(f"gather: don't understand file {inPath}")
