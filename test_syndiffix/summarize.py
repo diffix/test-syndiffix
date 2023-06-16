@@ -324,6 +324,7 @@ def doMlPlot(tu, df, force, hueCol=None):
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
     plt.xlim(0, 1)
+    plt.xticks([0,0.01,0.1, 0.2, 0.5, 1.0])
     plt.xlabel(xaxis)
     plt.savefig(figPath)
     plt.close()
