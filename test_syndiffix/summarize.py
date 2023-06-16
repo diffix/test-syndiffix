@@ -343,7 +343,7 @@ def doPrivPlot(tu, df, force, hueCol=None):
     plt.tight_layout()
     plt.xlim(0,1)
     plt.xticks([0.01,0.1,0.2,0.5],['0.01','0.1','0.2','0.5'])
-    plt.xscale('symlog')
+    #plt.xscale('symlog')
     plt.xlabel(xaxis)
     plt.savefig(figPath)
     plt.close()
