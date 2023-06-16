@@ -343,8 +343,9 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
         figPath = os.path.join(tu.summariesDir, 'privLowConf.png')
     if dfTemp.shape[0] == 0:
         return
+    synMethods = sorted(list(pd.unique(dfTemp['synMethod'])))
     hueDf = getHueDf(dfTemp, hueCol)
-    sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
+    sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods)
     plt.tight_layout()
     plt.xlim(0,1)
     plt.xticks([0.01,0.1,0.2,0.5,1.0],['0.01','0.1','0.2','0.5','1.0'])
