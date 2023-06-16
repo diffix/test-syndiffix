@@ -331,7 +331,6 @@ def doMlPlot(tu, df, force, hueCol=None):
 
 
 def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
-    figPath = os.path.join(tu.summariesDir, 'priv.png')
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
@@ -339,10 +338,12 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
         dfTemp = df.query("rowType == 'privRisk'")
         xaxis = 'Privacy Risk'
         printStats(dfTemp, hueCol, "priv high confidence")
+        figPath = os.path.join(tu.summariesDir, 'priv.png')
     else:
         dfTemp = df.query("rowType == 'privRisk' or rowType == 'privRiskHigh")
         xaxis = 'Privacy Risk (including low confidence scores)'
         printStats(dfTemp, hueCol, "priv high and low confidence")
+        figPath = os.path.join(tu.summariesDir, 'privLowConf.png')
     if dfTemp.shape[0] == 0:
         return
     hueDf = getHueDf(dfTemp, hueCol)
