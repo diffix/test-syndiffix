@@ -86,7 +86,10 @@ class resultsGather():
 
     def addPrivScore(self, tr):
         row = self.initTabRow(tr)
-        row['rowType'] = 'privRisk'
+        if tr['privRisk'][1][1] - tr['privRisk'][1][0] < 0.2:
+            row['rowType'] = 'privRisk'
+        else:
+            row['rowType'] = 'privRiskHigh'
         row['rowValue'] = tr['privRisk'][0]
         row['privMethod'] = tr['privJob']['task']
         if row['privMethod'] == 'inference':
