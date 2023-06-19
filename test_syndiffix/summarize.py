@@ -58,8 +58,10 @@ def summarize(measuresDir='measuresAb',
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] < 8000)), '7k rows', dfAll['2dimSizeTag'])
-    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (dfAll['numRows'] > 27000)), '28k rows', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (
+        dfAll['numRows'] < 8000)), '7k rows', dfAll['2dimSizeTag'])
+    dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (
+        dfAll['numRows'] > 27000)), '28k rows', dfAll['2dimSizeTag'])
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     if doSkipMethods:
@@ -314,10 +316,10 @@ def doMlPlot(tu, df, force, hueCol=None):
         print(f"Skipping {figPath}")
         return
 
-    #dfTemp = df.query("rowType == 'synMlScore'")
+    # dfTemp = df.query("rowType == 'synMlScore'")
     dfTemp = df.query("rowType == 'synMlScore' and numColumns > 2")
 
-    #dfTemp = getBestSyndiffix(dfTemp)
+    # dfTemp = getBestSyndiffix(dfTemp)
     print("doMlPlot stats:")
     printStats(dfTemp, hueCol, "quality")
     xaxis = 'ML scores'
@@ -453,6 +455,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.savefig(figPath)
     plt.close()
 
+
 def computeImprovements(dfTemp, measureType):
     targets = []
     methods = []
@@ -463,6 +466,7 @@ def computeImprovements(dfTemp, measureType):
             methods.append(synMethod)
     for statType in ['median', 'average']:
         computeImprovementsWork(dfTemp, measureType, targets, methods, statType)
+
 
 def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
     for target in targets:
@@ -475,9 +479,9 @@ def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
                     targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
                     methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
                 if targetErr > methodErr:
-                    improvement = round(targetErr / methodErr,2) * -1
+                    improvement = round(targetErr / methodErr, 2) * -1
                 else:
-                    improvement = round(methodErr / targetErr,2)
+                    improvement = round(methodErr / targetErr, 2)
             else:
                 if statType == 'median':
                     targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
@@ -486,10 +490,11 @@ def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
                     targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
                     methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
                 if targetTime > methodTime:
-                    improvement = round(targetTime / methodTime,2) * -1
+                    improvement = round(targetTime / methodTime, 2) * -1
                 else:
-                    improvement = round(methodTime / targetTime,2)
+                    improvement = round(methodTime / targetTime, 2)
             print(f"Improvement for {statType} of {target} over {method} = {improvement}")
+
 
 def printStats(dfTemp, hueCol, measureType):
     if hueCol:
@@ -503,6 +508,7 @@ def printStats(dfTemp, hueCol, measureType):
     print(dfGroupby.to_string())
     pp.pprint(list(pd.unique(dfTemp['csvFile'])))
     print('Num csv files:', len(list(pd.unique(dfTemp['csvFile']))))
+
 
 def getHueDf(dfTemp, hueCol):
     if hueCol is None:

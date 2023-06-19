@@ -1,8 +1,9 @@
 import os
 import json
-import zipfile
-import pandas as pd
 import pprint
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from misc.csvUtils import readCsv
 
 '''
 This routine creates results files for the case of no anonymization
@@ -25,12 +26,12 @@ for csvFile in files:
         print(f"{csvFile} is not a csv file")
         continue
     trainPath = os.path.join(csvTrainDir, csvFile)
-    dfTrain = pd.read_csv(trainPath, index_col=False, low_memory=False)
+    dfTrain = readCsv(trainPath)
     testPath = os.path.join(csvTestDir, csvFile)
     if not os.path.exists(testPath):
         print(f"ERROR: Missing {testPath}!")
         quit()
-    dfTest = pd.read_csv(testPath, index_col=False, low_memory=False)
+    dfTest = readCsv(testPath)
     results = {}
     results['colNames'] = list(dfTrain.columns)
     # Not 0 to avoid log issues

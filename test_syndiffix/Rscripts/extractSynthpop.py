@@ -1,7 +1,9 @@
 import os
 import json
-import pandas as pd
 import pprint
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from misc.csvUtils import readCsv
 
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -23,7 +25,7 @@ for file in files:
 for fileRoot in dataSourceNames.keys():
     results = {}
     csvPath = os.path.join(csvInPath, fileRoot)
-    dfOrigCsv = pd.read_csv(csvPath, index_col=False)
+    dfOrigCsv = readCsv(csvPath)
     results['colNames'] = list(dfOrigCsv.columns)
 
     elapsedPath = os.path.join(synthpopInPath, fileRoot + '.json')
@@ -33,7 +35,7 @@ for fileRoot in dataSourceNames.keys():
     results['elapsedTime'] = elapsedTime
 
     synCsvPath = os.path.join(synthpopInPath, fileRoot + '.csv')
-    dfSynCsv = pd.read_csv(synCsvPath, index_col=False)
+    dfSynCsv = readCsv(synCsvPath)
     # synthpop for some reasons changed ':' to '.' in column names
     renamer = {}
     for cOrig, cAnon in zip(results['colNames'], list(dfSynCsv.columns)):

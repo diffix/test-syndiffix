@@ -6,6 +6,7 @@ import sdmTools
 import pandas as pd
 import json
 import pprint
+from misc.csvUtils import readCsv
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -139,7 +140,7 @@ class resultsGather():
             csvName = csvName.replace('.half1', '')
         if csvName not in self.csvCounts:
             sourcePath = os.path.join(self.tu.csvLib, csvName)
-            df = pd.read_csv(sourcePath, index_col=False, low_memory=False)
+            df = readCsv(sourcePath)
             self.csvCounts[csvName] = {'rows': df.shape[0], 'cols': df.shape[1]}
             colProfile = {}
             for colName in list(df.columns):
