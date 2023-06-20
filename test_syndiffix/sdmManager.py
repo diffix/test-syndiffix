@@ -45,7 +45,7 @@ class SdmManager(object):
         tu.registerSynResults(resultsDir)
         tu.registerOrigMlDir(origMlDir)
         mc = sdmTools.measuresConfig(tu)
-        mc.makeFeaturesJobOrder(featuresType)
+        mc.makeAndSaveFeaturesJobOrder(featuresType)
         #mc.makeMlJobsBatchScript(csvLib, measuresDir, resultsDir, runsDir)
 
     def makeMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):

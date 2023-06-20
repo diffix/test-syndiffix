@@ -763,7 +763,7 @@ python3 {testPath} \\
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def makeFeaturesJobOrder(self, featureType):
+    def makeAndSaveFeaturesJobOrder(self, featureType):
         self.initGoodMlJobs()
         goodTableTargetCombs = {}
         for csvFile in self.goodMlJobs.keys():
@@ -775,12 +775,14 @@ python3 {testPath} \\
         self.featuresJobs = []
         for csvFile in goodTableTargetCombs.keys():
             for targetColumn in goodTableTargetCombs[csvFile].keys():
-                print(csvFile, targetColumn)
-        quit()
-
-        mlJobsOrderPath = os.path.join(self.tu.runsDir, 'mlJobs.json')
-        with open(mlJobsOrderPath, 'w') as f:
-            json.dump(self.mlJobsOrder, f, indent=4)
+                self.featuresJobs.append({'csvFile':csvFile,
+                                          'targetColumn':targetColumn,
+                                          'featureType':featureType,
+                                          })
+        featuresOrderFile = f"{featureType}Jobs.json"
+        featuresOrderPath = os.path.join(self.tu.runsDir, featuresOrderFile)
+        with open(featuresOrderPath, 'w') as f:
+            json.dump(self.featuresJobs, f, indent=4)
 
     def makeAndSaveMlJobsOrder(self, synMethod):
         self.initGoodMlJobs()
