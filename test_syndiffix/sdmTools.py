@@ -575,6 +575,11 @@ class measuresConfig:
         with open(mlJobsOrderPath, 'r') as f:
             return json.load(f)
 
+    def getFeaturesJobs(self):
+        featuresJobsPath = os.path.join(self.tu.runsDir, 'featuresJobs.json')
+        with open(featuresJobsPath, 'r') as f:
+            return json.load(f)
+
     def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneOrigMlJob.py')
