@@ -12,10 +12,11 @@ pp = pprint.PrettyPrinter(indent=4)
 '''
 
 
-def oneFeaturesJob(jobNum=0, csvLib='csvAb', runsDir='runAb', featuresType='univariate', featuresDir='uniFeatAb', force=False):
+def oneFeaturesJob(jobNum=0, csvLib='csvAb', runsDir='runAb', featuresType='univariate', featuresDir='featuresAb', force=False):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(csvLib)
     tu.registerFeaturesDir(featuresDir)
+    tu.registerFeaturesType(featuresType)
     tu.registerRunsDir(runsDir)
     mc = sdmTools.measuresConfig(tu)
     featuresJobs = mc.getFeaturesJobs()
@@ -24,7 +25,7 @@ def oneFeaturesJob(jobNum=0, csvLib='csvAb', runsDir='runAb', featuresType='univ
         quit()
     job = featuresJobs[jobNum]
     featuresFileName = f"{featuresType}.{job['csvFile']}.{job['targetColumn']}.json"
-    featuresPath = os.path.join(tu.featuresDir, featuresFileName)
+    featuresPath = os.path.join(tu.featuresTypeDir, featuresFileName)
     csvPath = os.path.join(tu.csvLib, job['csvFile'])
     jobInfo = {
         'featuresPath':featuresPath,
