@@ -233,7 +233,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
             print(f"ERROR: duplicates in newColNames {newColNames}")
             quit()
         for origCol in origColNames:
-            if origCol not in colNames:
+            if origCol not in newColNames:
                 df.drop(origCol, axis=1, inplace=True)
                 dfTest.drop(origCol, axis=1, inplace=True)
         # Now we need to make a csv out of df to later give to abSharp
@@ -243,7 +243,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         print(df.columns)
         colNames = df.columns
         print("New columns")
-        print(newColNames)
+        print(colNames)
         import uuid
         sourceFileName = sourceFileName + str(uuid.uuid4()) + '.csv'
         tempFilesDir = os.path.join(tu.csvLib, 'temp')
