@@ -41,6 +41,12 @@ Other than this, one can put any CSV dataset they wish.
 
 To build synthetic data with focus columns, it is necessary to first run `sdmManager.py makeFocusRuns`. This will build the files `focusBuildJobs.json` and `batchFocus` in the run directory. Then run `sbatch batchFocus`. This will place the resulting output in the directory `syndiffix_focus` in the results directory. (Note that prior to running `sdmManager.py makeFocusRuns`, you must have already run `sdmManager.py makeMlRuns`. This is because `makeFocusRuns` requires the file `mlJobs.json`.)
 
+### Running syndiffix with features measures
+
+This is currently just test software (prior to integrating features measure into syndiffix).
+
+Run `sdmManager.py makeFeatures --featuresDir=featuresDir --featuresType=featuresType` where <featuresDir> is the directory holding the features json files, and <featuresType> is 'univariate' or 'ml' or whatever else we decide. This creates the featuresDir, a file called `featuresJobs.json` in the runs directory, a SLURM batchfile called `batch_<featuresType>` in the runs directory, and a directory `logs_<featuresType>` in the runs directory.
+
 ## Measuring quality
 
 `quicktester.py` can measure quality.

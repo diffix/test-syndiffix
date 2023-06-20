@@ -576,7 +576,7 @@ class measuresConfig:
             return json.load(f)
 
     def makeFeaturesJobsBatchScript(self, csvLib, featuresDir, featuresType, numJobs):
-        batchFileName = f"batch{featuresType}"
+        batchFileName = f"batch_{featuresType}"
         batchScriptPath = os.path.join(self.tu.runsDir, batchFileName)
         testPath = os.path.join(self.tu.pythonDir, 'oneFeaturesJob.py')
         self._makeLogsDir(f'logs_{featuresType}')
