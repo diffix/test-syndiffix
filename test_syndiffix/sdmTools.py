@@ -765,7 +765,7 @@ python3 {testPath} \\
 
     def makeFeaturesJobOrder(self, featureType):
         self.initGoodMlJobs()
-        #pp.pprint(self.goodMlJobs)
+        pp.pprint(self.goodMlJobs)
         goodTableTargetCombs = {}
         self.featuresJobs = []
         for mlJob in self.goodMlJobs:
