@@ -580,6 +580,27 @@ class measuresConfig:
         with open(featuresJobsPath, 'r') as f:
             return json.load(f)
 
+    def makeFeaturesJobsBatchScript(self, csvLib, runsDir, featuresDir, featuresType, numJobs):
+        batchFileName = f"batch_{featuresType}"
+        batchScriptPath = os.path.join(self.tu.runsDir, batchFileName)
+        testPath = os.path.join(self.tu.pythonDir, 'oneFeaturesJob.py')
+        self._makeLogsDir(f'logs_{featuresType}')
+        batchScript = f'''#!/bin/sh
+#SBATCH --time=7-0
+#SBATCH --array=0-{numJobs-1}
+#SBATCH --output=logs_origml/slurm-%A_%a.out
+arrayNum="${{SLURM_ARRAY_TASK_ID}}"
+python3 {testPath} \\
+    --jobNum=$arrayNum \\
+    --csvLib={csvLib} \\
+    --runsDir={runsDir} \\
+    --featuresType={featuresType} \\
+    --force=False \\
+    --featuresDir={featuresDir}
+    '''
+        with open(batchScriptPath, 'w') as f:
+            f.write(batchScript)
+
     def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneOrigMlJob.py')
@@ -767,6 +788,26 @@ python3 {testPath} \\
     '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
+
+    def makeAndSaveFeaturesJobOrder(self):
+        self.initGoodMlJobs()
+        goodTableTargetCombs = {}
+        for csvFile in self.goodMlJobs.keys():
+            for mlJob in self.goodMlJobs[csvFile]:
+                if mlJob['csvFile'] not in goodTableTargetCombs:
+                    goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:True}
+                if mlJob['column'] not in goodTableTargetCombs[mlJob['csvFile']]:
+                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = True
+        self.featuresJobs = []
+        for csvFile in goodTableTargetCombs.keys():
+            for targetColumn in goodTableTargetCombs[csvFile].keys():
+                self.featuresJobs.append({'csvFile':csvFile,
+                                          'targetColumn':targetColumn,
+                                          })
+        featuresOrderPath = os.path.join(self.tu.runsDir, 'featuresJobs.json')
+        print(f"Writing file {featuresOrderPath}")
+        with open(featuresOrderPath, 'w') as f:
+            json.dump(self.featuresJobs, f, indent=4)
 
     def makeAndSaveMlJobsOrder(self, synMethod):
         self.initGoodMlJobs()
