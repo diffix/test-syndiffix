@@ -766,8 +766,15 @@ python3 {testPath} \\
     def makeFeaturesJobOrder(self, featureType):
         self.initGoodMlJobs()
         pp.pprint(self.goodMlJobs)
-        quit()
+        goodTableTargetCombs = {}
         self.featuresJobs = []
+        for mlJob in self.goodMlJobs:
+            if mlJob['csvFile'] not in goodTableTargetCombs:
+                goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:True}
+            if mlJob['column'] not in goodTableTargetCombs[mlJob['csvFile']]:
+                goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = True
+        pp.pprint(goodTableTargetCombs)
+        quit()
 
         mlJobsOrderPath = os.path.join(self.tu.runsDir, 'mlJobs.json')
         with open(mlJobsOrderPath, 'w') as f:
