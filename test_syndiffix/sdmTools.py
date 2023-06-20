@@ -768,12 +768,13 @@ python3 {testPath} \\
         pp.pprint(self.goodMlJobs)
         goodTableTargetCombs = {}
         self.featuresJobs = []
-        for mlJob in self.goodMlJobs:
-            pp.pprint(mlJob)
-            if mlJob['csvFile'] not in goodTableTargetCombs:
-                goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:True}
-            if mlJob['column'] not in goodTableTargetCombs[mlJob['csvFile']]:
-                goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = True
+        for csvFile in self.goodMlJobs:
+            for mlJob in self.goodMlJobs[csvFile]:
+                pp.pprint(mlJob)
+                if mlJob['csvFile'] not in goodTableTargetCombs:
+                    goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:True}
+                if mlJob['column'] not in goodTableTargetCombs[mlJob['csvFile']]:
+                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = True
         pp.pprint(goodTableTargetCombs)
         quit()
 
