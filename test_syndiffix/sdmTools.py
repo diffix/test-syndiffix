@@ -575,6 +575,27 @@ class measuresConfig:
         with open(mlJobsOrderPath, 'r') as f:
             return json.load(f)
 
+    def makeFeaturesJobsBatchScript(self, csvLib, featuresDir, featuresType, numJobs):
+        batchFileName = f"batch{featuresType}"
+        batchScriptPath = os.path.join(self.tu.runsDir, batchFileName)
+        testPath = os.path.join(self.tu.pythonDir, 'oneFeaturesJob.py')
+        self._makeLogsDir(f'logs_{featuresType}')
+        batchScript = f'''#!/bin/sh
+#SBATCH --time=7-0
+#SBATCH --array=0-{numJobs-1}
+#SBATCH --output=logs_origml/slurm-%A_%a.out
+arrayNum="${{SLURM_ARRAY_TASK_ID}}"
+python3 {testPath} \\
+    --jobNum=$arrayNum \\
+    --csvLib={csvLib} \\
+    --featuresType={featuresType} \\
+    --force=False \\
+    --featuresDir={featuresDir}
+    '''
+        with open(batchScriptPath, 'w') as f:
+            f.write(batchScript)
+
+
     def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneOrigMlJob.py')

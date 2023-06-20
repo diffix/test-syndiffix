@@ -46,7 +46,7 @@ class SdmManager(object):
         tu.registerOrigMlDir(origMlDir)
         mc = sdmTools.measuresConfig(tu)
         mc.makeAndSaveFeaturesJobOrder()
-        #mc.makeMlJobsBatchScript(csvLib, measuresDir, resultsDir, runsDir)
+        mc.makeFeaturesJobsBatchScript(csvLib, featuresDir, featuresType, len(mc.featuresJobs))
 
     def makeMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
