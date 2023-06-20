@@ -32,7 +32,7 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs))
 
-    def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='uniFeatAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
+    def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
         runsDir/mlJobs.json, and puts the needed SLURM script in runsDir as runsDir/batchMl
         '''
