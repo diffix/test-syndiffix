@@ -763,7 +763,7 @@ python3 {testPath} \\
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def fakeFeaturesJobOrder(self, featureType):
+    def makeFeaturesJobOrder(self, featureType):
         self.initGoodMlJobs()
         pp.pprint(self.goodMlJobs)
         quit()
