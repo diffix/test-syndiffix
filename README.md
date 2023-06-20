@@ -47,6 +47,8 @@ This is currently just test software (prior to integrating features measure into
 
 Run `sdmManager.py makeFeatures --featuresDir=featuresDir --featuresType=featuresType` where <featuresDir> is the directory holding the features json files, and <featuresType> is 'univariate' or 'ml' or whatever else we decide. This creates the featuresDir, a file called `featuresJobs.json` in the runs directory, a SLURM batchfile called `batch_<featuresType>` in the runs directory, and a directory `logs_<featuresType>` in the runs directory.
 
+Run `sbatch batch_<featuresType>`. This creates the SLURM jobs with `oneFeaturesJob.py`
+
 ## Measuring quality
 
 `quicktester.py` can measure quality.
