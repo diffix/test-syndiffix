@@ -588,6 +588,7 @@ arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
     --csvLib={csvLib} \\
+    --runsDir={self.tu.runsDir} \\
     --featuresType={featuresType} \\
     --force=False \\
     --featuresDir={featuresDir}
