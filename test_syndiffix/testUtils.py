@@ -328,6 +328,10 @@ class testUtilities:
         self.synResults = os.path.join(self.baseDir, name)
         os.makedirs(self.synResults, exist_ok=True)
 
+    def registerFeaturesDir(self, name):
+        self.featuresDir = os.path.join(self.baseDir, name)
+        os.makedirs(self.featuresDir, exist_ok=True)
+
     def registerSynMeasure(self, name):
         self.synMeasures = os.path.join(self.baseDir, name)
         os.makedirs(self.synMeasures, exist_ok=True)

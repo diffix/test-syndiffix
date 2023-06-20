@@ -763,6 +763,16 @@ python3 {testPath} \\
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
+    def fakeFeaturesJobOrder(self, featureType):
+        self.initGoodMlJobs()
+        pp.pprint(self.goodMlJobs)
+        quit()
+        self.featuresJobs = []
+
+        mlJobsOrderPath = os.path.join(self.tu.runsDir, 'mlJobs.json')
+        with open(mlJobsOrderPath, 'w') as f:
+            json.dump(self.mlJobsOrder, f, indent=4)
+
     def makeAndSaveMlJobsOrder(self, synMethod):
         self.initGoodMlJobs()
         self.findMlMethods()
