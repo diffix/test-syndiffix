@@ -71,7 +71,7 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
         json.dump(outJson, f, indent=4)
 
 
-def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData):
+def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob):
     thisDir = os.path.dirname(os.path.abspath(__file__))
     abSharpDir = os.path.join(tu.abSharpDir, 'src', 'SynDiffix.Debug')
 
@@ -142,15 +142,18 @@ def makeMetadata(df):
                 metadata['classifications']['numeric'] = [colName]
     return metadata
 
+def getTopFeatures(featuresJob, numFeatures):
+    return featuresJob['features'][:numFeatures]
 
-def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', synResults='synResults', synMeasures='synMeasures', abSharpArgs='', runsDir='runsAb', doMeasures=False, withFocusColumn=False, force=False):
+def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', synResults='synResults', synMeasures='synMeasures', abSharpArgs='', runsDir='runsAb', doMeasures=False, withFocusColumn=False, featuresType=None, featuresDir=None, numFeatures=None, force=False):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(dataDir)
     tu.registerSynResults(synResults)
     if len(abSharpArgs) > 0:
         print(f"abSharpArgs: {abSharpArgs}")
     focusColumn = None
-    if not withFocusColumn:
+    featuresJob = None
+    if not withFocusColumn and not featuresType:
         inFiles = [f for f in os.listdir(
             tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
         dataSources = []
@@ -164,13 +167,32 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         sourceFileName = dataSources[dataSourceNum]
         baseFileName = sourceFileName[:-4]
         print(f"Using source file {sourceFileName}")
-    else:
+    elif withFocusColumn:
         tu.registerRunsDir(runsDir)
         mc = sdmTools.measuresConfig(tu)
         sourceFileName, focusColumn = mc.getFocusFromJobNumber(dataSourceNum)
         if sourceFileName is None:
             print(f"ERROR: Couldn't find focus job")
             quit()
+    else:
+        tu.registerFeaturesDir(featuresDir)
+        tu.registerFeaturesType(featuresType)
+        featuresFiles = tu.getSortedFeaturesFiles()
+        if dataSourceNum >= len(featuresFiles):
+            print(f"ERROR: dataSourceNum too big {dataSourceNum}")
+            quit()
+        featuresFile = featuresFiles[dataSourceNum]
+        if featuresFile[-5:] != '.json':
+            print(f"ERROR: features file not json ({featuresFile})")
+            quit()
+        # use featuresType
+        featuresPath = os.path.join(tu.featuresTypeDir, featuresFile)
+        with open(featuresPath, 'r') as f:
+            featuresJob = json.load(f)
+        sourceFileName = featuresJob['csvFile']      #TODO
+        focusColumn = featuresJob['targetColumn']
+        pp.pprint(featuresJob)
+        quit()
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
     if not os.path.exists(dataSourcePath):
         print(f"ERROR: File {dataSourcePath} does not exist")
@@ -183,21 +205,43 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
     label = model + '_' + suffix if suffix else model
     modelsDir = os.path.join(tu.synResults, label)
     os.makedirs(modelsDir, exist_ok=True)
-    if not withFocusColumn:
+    if not withFocusColumn and not featuresType:
         outPath = os.path.join(modelsDir, f"{sourceFileName}.json")
     else:
+        # We do this whether we have featuresType or not. If we do, then we expect
+        # the model name to reflect the featureType...
         outPath = os.path.join(modelsDir, f"{sourceFileName}.{focusColumn}.json")
     if not force and os.path.exists(outPath):
         print(f"Result {outPath} already exists, skipping")
         print("oneModel:SUCCESS (skipped)")
-        return
     print(f"Model {label} for dataset {dataSourcePath}, focus column {focusColumn}")
 
     df = readCsv(dataSourcePath)
-    print(f"Training dataframe shape {df.shape}")
+    print(f"Training dataframe shape (before features) {df.shape}")
     colNames = list(df.columns.values)
     # quick test to make sure that the test and train data match columns
     dfTest = readCsv(testDataPath)
+    if featuresJob:
+        # Remove columns not in the features set or target column
+        # From here on out, we will be working with so-truncated data
+        origColNames = colNames.copy()
+        featuresColumns = getTopFeatures(featuresJob, numFeatures)
+        colNames = featuresColumns + [featuresJob['targetColumn']]
+        if len(colNames) != len(list(set(colNames))):
+            print(f"ERROR: duplicates in colNames {colNames}")
+            quit()
+        for origCol in origColNames:
+            if origCol not in colNames:
+                df.drop(origCol, axis=1, inplace=True)
+                dfTest.drop(origCol, axis=1, inplace=True)
+        # Now we need to make a csv out of df to later give to abSharp
+        dataSourcePath
+        import uuid
+        sourceFileName = sourceFileName + uuid.uuid4() + '.csv'
+        tempFilesDir = os.path.join(tu.csvLib, 'temp')
+        os.makedirs(tempFilesDir, exist_ok=True)
+        dataSourcePath = os.path.join(tempFilesDir, sourceFileName)
+        df.to_csv(dataSourcePath, index=False, header=df.columns)
     if colNames != list(dfTest.columns.values):
         print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
         quit()
@@ -218,7 +262,11 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         if withFocusColumn:
             abSharpArgs += f" --clustering-maincolumn '{focusColumn}' "
-        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData)
+        elif featuresJob:
+            abSharpArgs += " --no-clustering "
+        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob)
+        if featuresJob:
+            os.remove(dataSourcePath)
     else:
         runTest(model, metaData['sdvMetaData'], df, colNames, outPath, dataSourceNum, testData)
 
