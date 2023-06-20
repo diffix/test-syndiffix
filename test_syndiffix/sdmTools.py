@@ -575,7 +575,7 @@ class measuresConfig:
         with open(mlJobsOrderPath, 'r') as f:
             return json.load(f)
 
-    def makeFeaturesJobsBatchScript(self, csvLib, featuresDir, featuresType, numJobs):
+    def makeFeaturesJobsBatchScript(self, csvLib, runsDir, featuresDir, featuresType, numJobs):
         batchFileName = f"batch_{featuresType}"
         batchScriptPath = os.path.join(self.tu.runsDir, batchFileName)
         testPath = os.path.join(self.tu.pythonDir, 'oneFeaturesJob.py')
@@ -588,7 +588,7 @@ arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
     --csvLib={csvLib} \\
-    --runsDir={self.tu.runsDir} \\
+    --runsDir={runsDir} \\
     --featuresType={featuresType} \\
     --force=False \\
     --featuresDir={featuresDir}
