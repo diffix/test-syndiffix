@@ -584,11 +584,12 @@ class measuresConfig:
         batchFileName = f"batch_{featuresType}"
         batchScriptPath = os.path.join(self.tu.runsDir, batchFileName)
         testPath = os.path.join(self.tu.pythonDir, 'oneFeaturesJob.py')
+        batchLogDir = f"logs_{featuresType}"
         self._makeLogsDir(f'logs_{featuresType}')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs-1}
-#SBATCH --output=logs_origml/slurm-%A_%a.out
+#SBATCH --output={batchLogDir}/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
