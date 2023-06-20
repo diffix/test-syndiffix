@@ -72,6 +72,7 @@ def summarize(measuresDir='measuresAb',
     print(f"synMethods after skips: {synMethods}")
     print(f"Privacy plot")
     doPrivPlot(tu, dfAll, force)
+    doPrivPlot(tu, dfAll, force, what='all')
     doMlPlot(tu, dfAll, force)
     if 'syndiffix_focus' in synMethods:
         doPlots(tu, dfAll, ['syndiffix_focus', 'ctGan', 'mostly'], force=force)
@@ -331,18 +332,22 @@ def doMlPlot(tu, df, force, hueCol=None):
     plt.close()
 
 
-def doPrivPlot(tu, df, force, hueCol=None):
-    figPath = os.path.join(tu.summariesDir, 'priv.png')
-    if not force and os.path.exists(figPath):
-        print(f"Skipping {figPath}")
-        return
-    dfTemp = df.query("rowType == 'privRisk'")
+def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
+    if what == 'lowBounds':
+        dfTemp = df.query("rowType == 'privRisk'")
+        xaxis = 'Privacy Risk'
+        printStats(dfTemp, hueCol, "priv high confidence")
+        figPath = os.path.join(tu.summariesDir, 'priv.png')
+    else:
+        dfTemp = df.query("rowType == 'privRisk' or rowType == 'privRiskHigh'")
+        xaxis = 'Privacy Risk (including low confidence scores)'
+        printStats(dfTemp, hueCol, "priv high and low confidence")
+        figPath = os.path.join(tu.summariesDir, 'privLowConf.png')
     if dfTemp.shape[0] == 0:
         return
-    printStats(dfTemp, hueCol, "priv")
-    xaxis = 'Privacy Risk'
+    synMethods = sorted(list(pd.unique(dfTemp['synMethod'])))
     hueDf = getHueDf(dfTemp, hueCol)
-    sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
+    sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods)
     plt.tight_layout()
     plt.xlim(0,1)
     plt.xticks([0.01,0.1,0.2,0.5,1.0],['0.01','0.1','0.2','0.5','1.0'])
