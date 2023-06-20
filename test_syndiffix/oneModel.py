@@ -191,8 +191,6 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
             featuresJob = json.load(f)
         sourceFileName = featuresJob['csvFile']      #TODO
         focusColumn = featuresJob['targetColumn']
-        pp.pprint(featuresJob)
-        quit()
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
     if not os.path.exists(dataSourcePath):
         print(f"ERROR: File {dataSourcePath} does not exist")
@@ -225,8 +223,14 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         # Remove columns not in the features set or target column
         # From here on out, we will be working with so-truncated data
         origColNames = colNames.copy()
+        print("Original columns")
+        print(origColNames)
         featuresColumns = getTopFeatures(featuresJob, numFeatures)
+        print("Feature columns")
+        print(featuresColumns)
         colNames = featuresColumns + [featuresJob['targetColumn']]
+        print("New columns")
+        print(colNames)
         if len(colNames) != len(list(set(colNames))):
             print(f"ERROR: duplicates in colNames {colNames}")
             quit()
@@ -235,13 +239,18 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
                 df.drop(origCol, axis=1, inplace=True)
                 dfTest.drop(origCol, axis=1, inplace=True)
         # Now we need to make a csv out of df to later give to abSharp
-        dataSourcePath
+        print("columns in dfTest")
+        print(dfTest.columns)
+        print("columns in df")
+        print(df.columns)
         import uuid
         sourceFileName = sourceFileName + uuid.uuid4() + '.csv'
         tempFilesDir = os.path.join(tu.csvLib, 'temp')
         os.makedirs(tempFilesDir, exist_ok=True)
         dataSourcePath = os.path.join(tempFilesDir, sourceFileName)
         df.to_csv(dataSourcePath, index=False, header=df.columns)
+        print(dataSourcePath)
+        quit()
     if colNames != list(dfTest.columns.values):
         print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
         quit()
