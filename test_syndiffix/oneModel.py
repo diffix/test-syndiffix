@@ -241,7 +241,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         print(dfTest.columns)
         print("columns in df")
         print(df.columns)
-        colNames = df.columns
+        colNames = list(df.columns.values)
         print("New columns")
         print(colNames)
         import uuid
