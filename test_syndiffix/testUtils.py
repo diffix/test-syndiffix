@@ -117,6 +117,8 @@ class testUtilities:
         self.synMeasures = os.path.join(self.baseDir, 'synMeasures')
         self.origMlDir = os.path.join(self.baseDir, 'origMlAb')
         self.runsDir = os.path.join(self.baseDir, 'runs')
+        self.featuresDir = os.path.join(self.baseDir, 'featuresAb')
+        self.featuresTypeDir = os.path.join(self.featuresDir, 'univariate')
         self.sdvMetaFiles = os.path.join(self.baseDir, 'sdvMetaFiles')
         self.tableBuildMetadataPath = os.path.join(self.baseDir, 'tables.json')
         self.tableBuildMetadata = None
@@ -331,6 +333,10 @@ class testUtilities:
     def registerFeaturesDir(self, name):
         self.featuresDir = os.path.join(self.baseDir, name)
         os.makedirs(self.featuresDir, exist_ok=True)
+
+    def registerFeaturesType(self, name):
+        self.featuresTypeDir = os.path.join(self.featuresDir, name)
+        os.makedirs(self.featuresTypeDir, exist_ok=True)
 
     def registerSynMeasure(self, name):
         self.synMeasures = os.path.join(self.baseDir, name)

@@ -41,6 +41,7 @@ class SdmManager(object):
         tu = testUtils.testUtilities()
         tu.registerCsvLib(csvLib)
         tu.registerFeaturesDir(featuresDir)
+        tu.registerFeaturesType(featuresType)
         tu.registerRunsDir(runsDir)
         tu.registerSynResults(resultsDir)
         tu.registerOrigMlDir(origMlDir)
