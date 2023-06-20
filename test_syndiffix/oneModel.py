@@ -245,7 +245,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         print("New columns")
         print(colNames)
         import uuid
-        sourceFileName = sourceFileName + str(uuid.uuid4()) + '.csv'
+        sourceFileName = sourceFileName + '.' + str(uuid.uuid4()) + '.csv'
         tempFilesDir = os.path.join(tu.csvLib, 'temp')
         os.makedirs(tempFilesDir, exist_ok=True)
         dataSourcePath = os.path.join(tempFilesDir, sourceFileName)
