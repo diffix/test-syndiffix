@@ -228,11 +228,9 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         featuresColumns = getTopFeatures(featuresJob, numFeatures)
         print("Feature columns")
         print(featuresColumns)
-        colNames = featuresColumns + [featuresJob['targetColumn']]
-        print("New columns")
-        print(colNames)
-        if len(colNames) != len(list(set(colNames))):
-            print(f"ERROR: duplicates in colNames {colNames}")
+        newColNames = featuresColumns + [featuresJob['targetColumn']]
+        if len(newColNames) != len(list(set(newColNames))):
+            print(f"ERROR: duplicates in newColNames {newColNames}")
             quit()
         for origCol in origColNames:
             if origCol not in colNames:
@@ -243,6 +241,9 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         print(dfTest.columns)
         print("columns in df")
         print(df.columns)
+        colNames = df.columns
+        print("New columns")
+        print(newColNames)
         import uuid
         sourceFileName = sourceFileName + str(uuid.uuid4()) + '.csv'
         tempFilesDir = os.path.join(tu.csvLib, 'temp')
