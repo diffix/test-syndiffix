@@ -251,6 +251,7 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         dataSourcePath = os.path.join(tempFilesDir, sourceFileName)
         df.to_csv(dataSourcePath, index=False, header=df.columns)
         print(dataSourcePath)
+    print(list(dfTest.columns.values))
     if colNames != list(dfTest.columns.values):
         print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
         quit()
