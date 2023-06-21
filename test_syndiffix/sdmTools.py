@@ -404,7 +404,7 @@ class sdmTools:
         print("FROM mlClassInfo:")
         pp.pprint(mlClassInfo)
         # zzzz
-        metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
+        metadata = self._getMetadataFrommlInfo(mlClassInfo)
         print("Metadata:")
         pp.pprint(metadata)
         quit()
