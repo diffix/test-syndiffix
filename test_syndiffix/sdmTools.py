@@ -401,12 +401,13 @@ class sdmTools:
         print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape}")
         mls = testUtils.mlSupport(self.tu)
         mlClassInfo = mls.makeMlClassInfo(dfTest, None)
+        print("FROM mlClassInfo:")
         pp.pprint(mlClassInfo)
         # zzzz
         metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
+        quit()
         print("Metadata:")
         pp.pprint(metadata)
-        quit()
         score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                       myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
@@ -534,6 +535,8 @@ class sdmTools:
         # Find mlInfo
         mc = measuresConfig(self.tu)
         mlInfo = mc.getMlInfoFromCsvOrder(csvFile)
+        print("FROM mlInfo")
+        pp.pprint(mlInfo)
         metadata = {'METADATA_SPEC_VERSION': 'SINGLE_TABLE_V1', 'columns': {}}
         for colInfo in mlInfo['colInfo']:
             whatToDo = 'category'
