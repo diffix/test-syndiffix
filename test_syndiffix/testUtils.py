@@ -276,6 +276,10 @@ class testUtilities:
         files = [f for f in os.listdir(self.origMlDir) if os.path.isfile(os.path.join(self.origMlDir, f))]
         return sorted(files)
 
+    def getSortedFeaturesFiles(self):
+        files = [f for f in os.listdir(self.featuresTypeDir) if os.path.isfile(os.path.join(self.featuresTypeDir, f))]
+        return sorted(files)
+
     def getResultsPaths(self, synMethod=None):
         allResults = []
         dirs = [f for f in os.listdir(self.synResults) if os.path.isdir(os.path.join(self.synResults, f))]
