@@ -7,6 +7,7 @@ import sdmetrics
 import sdmetrics.single_table
 import sdmetrics.reports.single_table
 import sdmetrics.reports
+from sdv.metadata import SingleTableMetadata
 import pandas as pd
 import cufflinks as cf
 import plotly.graph_objects as go
@@ -17,7 +18,6 @@ import testUtils
 import pprint
 from misc.csvUtils import readCsv
 pp = pprint.PrettyPrinter(indent=4)
-
 
 class sdmTools:
     def __init__(self, tu):
@@ -401,8 +401,10 @@ class sdmTools:
         print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
         print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape}")
         metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
+        metadata = SingleTableMetadata()
         print("Metadata:")
         pp.pprint(metadata)
+        quit()
         score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                       myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
