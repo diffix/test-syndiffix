@@ -93,6 +93,10 @@ def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, t
     outJson['testTable'] = testData
     if focusColumn:
         outJson['focusColumn'] = focusColumn
+    if featuresJob:
+        outJson['features'] = featuresJob
+    print("featuresJob:")
+    pp.pprint(featuresJob)
 
     print(f"Writing output to {outPath}")
     with open(outPath, 'w') as f:
