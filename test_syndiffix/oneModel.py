@@ -261,12 +261,14 @@ def oneModel(dataDir='csvGeneral',
         if 'kFeatures' in featuresJob:
             # simplest thing is to just use the K features
             featuresColumns = featuresJob['kFeatures']
+            print(f"There are {len(featuresJob['kFeatures'])} K features")
         else:
             if numFeatures:
                 featuresColumns = getTopFeatures(featuresJob, numFeatures)
             if featureThreshold:
                 featuresColumns = getFeaturesByThreshold(featuresJob, featureThreshold)
         if len(featuresColumns) > maxFeatures:
+            print(f"Truncating to {maxFeatures} features due to maxFeatures")
             featuresColumns = featuresColumns[:maxFeatures-1]
         print("Feature columns")
         print(featuresColumns)
