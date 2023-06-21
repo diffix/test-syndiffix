@@ -417,6 +417,8 @@ class sdmTools:
         myJob['elapsedSyn'] = endTime - startTime
         myJob['elapsed'] = results['elapsedTime']
         myJob['focusColumn'] = focusColumn
+        if 'features' in results:
+            myJob['features'] = results['features']
         print("Job Information")
         pp.pprint(myJob)
         with open(measuresPath, 'w') as f:
