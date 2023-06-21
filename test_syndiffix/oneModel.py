@@ -149,7 +149,35 @@ def makeMetadata(df):
 def getTopFeatures(featuresJob, numFeatures):
     return featuresJob['features'][:numFeatures]
 
-def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', synResults='synResults', synMeasures='synMeasures', abSharpArgs='', runsDir='runsAb', doMeasures=False, withFocusColumn=False, featuresType=None, featuresDir=None, numFeatures=None, force=False):
+def getFeaturesByThreshold(featuresJob, featureThreshold):
+    # We always include the top feature
+    features = [featuresJob['features'][0]]
+    topScore = featuresJob['scores'][0]
+    if topScore == 0:
+        # Don't expect this, but you never know
+        return features
+    for index in range(1,len(featuresJob['features'])):
+        if (featuresJob['scores'][index]/topScore) > featureThreshold:
+            features.append(featuresJob['features'][index])
+        else:
+            break
+    return features
+
+def oneModel(dataDir='csvGeneral',
+             dataSourceNum=0,
+             model='fastMl',
+             suffix='',
+             synResults='synResults',
+             synMeasures='synMeasures',
+             abSharpArgs='',
+             runsDir='runsAb',
+             doMeasures=False,
+             withFocusColumn=False,
+             featuresType=None,
+             featuresDir=None,
+             numFeatures=None,
+             featureThreshold=None,
+             force=False):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(dataDir)
     tu.registerSynResults(synResults)
@@ -229,7 +257,10 @@ def oneModel(dataDir='csvGeneral', dataSourceNum=0, model='fastMl', suffix='', s
         origColNames = colNames.copy()
         print("Original columns")
         print(origColNames)
-        featuresColumns = getTopFeatures(featuresJob, numFeatures)
+        if numFeatures:
+            featuresColumns = getTopFeatures(featuresJob, numFeatures)
+        if featureThreshold:
+            featuresColumns = getFeaturesByThreshold(featuresJob, featureThreshold)
         print("Feature columns")
         print(featuresColumns)
         newColNames = featuresColumns + [featuresJob['targetColumn']]
