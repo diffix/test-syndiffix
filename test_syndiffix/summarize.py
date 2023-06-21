@@ -28,6 +28,8 @@ def summarize(measuresDir='measuresAb',
               doSkipMethods=True,
               dumpDataOnly=False,
               setLabelCounts=False,
+              applesToApplesOnly=True,
+              whatToDo='general',    # 'synDiffix'
               flush=False,       # re-gather
               force=False):      # overwrite existing plot
     violinPlots = withViolinPlots
@@ -74,21 +76,34 @@ def summarize(measuresDir='measuresAb',
     doPrivPlot(tu, dfAll, force)
     doPrivPlot(tu, dfAll, force, what='all')
     doMlPlot(tu, dfAll, force)
-    if 'syndiffix_focus' in synMethods:
-        doPlots(tu, dfAll, ['syndiffix_focus', 'ctGan', 'mostly'], force=force)
-    if 'syndiffix' in synMethods:
-        doPlots(tu, dfAll, ['syndiffix', 'ctGan', 'mostly'], force=force)
     doPlots(tu, dfAll, synMethods, force=force)
-    doPlots(tu, dfAll, synMethods, apples=False, force=force)
+    if whatToDo == 'general':
+        if 'syndiffix_focus' in synMethods:
+            doPlots(tu, dfAll, ['syndiffix_focus', 'ctGan', 'mostly'], force=force)
+        if 'syndiffix' in synMethods:
+            doPlots(tu, dfAll, ['syndiffix', 'ctGan', 'mostly'], force=force)
+    if not applesToApplesOnly:
+        doPlots(tu, dfAll, synMethods, apples=False, force=force)
     withoutMostly = synMethods.copy()
     withoutMostly.remove('mostly')
     # doPlots(tu, dfAll, withoutMostly, force=force)
-    if 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
+    if whatToDo == 'general' and 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
         for compareMethod in ['syndiffix', 'syndiffix_focus']:
             for synMethod in synMethods:
                 if synMethod == compareMethod:
                     continue
                 doPlots(tu, dfAll, [compareMethod, synMethod], force=force)
+    if whatToDo == 'synDiffix' and ('syndiffix' in synMethods or 'syndiffix_focus' in synMethods):
+        if 'syndiffix_focus' in synMethods:
+            compareMethod = 'syndiffix_focus'
+        else:
+            compareMethod = 'syndiffix'
+        for synMethod in synMethods:
+            if synMethod == compareMethod:
+                continue
+            if 'syndiffix' not in synMethod:
+                continue
+            doPlots(tu, dfAll, [compareMethod, synMethod], force=force)
     dfBadPriv = dfAll.query("rowType == 'privRisk' and rowValue > 0.5")
     if dfBadPriv.shape[0] > 0:
         print("Bad privacy scores:")
