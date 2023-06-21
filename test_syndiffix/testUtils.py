@@ -20,22 +20,23 @@ class mlSupport:
         # First check to see if there is a metadata file for this dataSource
         mlClassInfo = None
         metadataDir = self.tu.sdvMetaFiles
-        if '.csv' in dataSource:
-            dataSource = dataSource[:-4]
-        if os.path.exists(metadataDir):
-            metaFiles = [f for f in os.listdir(
-                metadataDir) if os.path.isfile(os.path.join(metadataDir, f))]
-            for metaFile in metaFiles:
-                if dataSource not in metaFile:
-                    continue
-                if metaFile[-5:] != '.json':
-                    continue
-                metadataPath = os.path.join(metadataDir, metaFile)
-                f = open(metadataPath, 'r')
-                metadata = json.load(f)
-                f.close()
-                if 'classifications' in metadata:
-                    return metadata['classifications']
+        if dataSource:
+            if '.csv' in dataSource:
+                dataSource = dataSource[:-4]
+            if os.path.exists(metadataDir):
+                metaFiles = [f for f in os.listdir(
+                    metadataDir) if os.path.isfile(os.path.join(metadataDir, f))]
+                for metaFile in metaFiles:
+                    if dataSource not in metaFile:
+                        continue
+                    if metaFile[-5:] != '.json':
+                        continue
+                    metadataPath = os.path.join(metadataDir, metaFile)
+                    f = open(metadataPath, 'r')
+                    metadata = json.load(f)
+                    f.close()
+                    if 'classifications' in metadata:
+                        return metadata['classifications']
         # If we get here, we couldn't find a metafile for the data source,
         # so we derive one as best we can
         if columns is None:

@@ -18,7 +18,6 @@ import pprint
 from misc.csvUtils import readCsv
 pp = pprint.PrettyPrinter(indent=4)
 
-
 class sdmTools:
     def __init__(self, tu):
         self.maxEvalsPerType = 20
@@ -138,7 +137,9 @@ class sdmTools:
             numAttacks = min(privJob['numAttacks'] + 1, self.dfOrig.shape[0],
                              self.dfAnon.shape[0], self.dfControl.shape[0]) - 1
             origFileName = privJob['csvName'].replace('half1.', '')
-            metadata = self._getMetadataFromCsvFile(origFileName)
+            mls = testUtils.mlSupport(self.tu)
+            mlClassInfo = mls.makeMlClassInfo(self.dfControl, None)
+            metadata = self._getMetadataFromMlInfo(mlClassInfo)
             if metadata['columns'][privJob['secret']]['type'] == 'numerical':
                 regression = True
             else:
@@ -400,9 +401,9 @@ class sdmTools:
         startTime = time.time()
         print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
         print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape}")
-        metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
-        print("Metadata:")
-        pp.pprint(metadata)
+        mls = testUtils.mlSupport(self.tu)
+        mlClassInfo = mls.makeMlClassInfo(dfTest, None)
+        metadata = self._getMetadataFromMlInfo(mlClassInfo)
         score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                       myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
@@ -438,7 +439,9 @@ class sdmTools:
         csvPath = os.path.join(self.tu.csvLibTest, myJob['csvFile'])
         dfTest = readCsv(csvPath)
         print(f"    dfTest shape {dfTest.shape}, dfTrain shape {dfTrain.shape}")
-        metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
+        mls = testUtils.mlSupport(self.tu)
+        mlClassInfo = mls.makeMlClassInfo(dfTest, None)
+        metadata = self._getMetadataFromMlInfo(mlClassInfo)
         print("Metadata:")
         pp.pprint(metadata)
         score = self._runOneMlMeasure(dfTest, dfTrain, metadata, myJob['column'], myJob['method'], myJob['csvFile'])
@@ -530,6 +533,9 @@ class sdmTools:
         # Find mlInfo
         mc = measuresConfig(self.tu)
         mlInfo = mc.getMlInfoFromCsvOrder(csvFile)
+        return self._getMetadataFromMlInfo(mlInfo)
+    
+    def _getMetadataFromMlInfo(self, mlInfo):
         metadata = {'METADATA_SPEC_VERSION': 'SINGLE_TABLE_V1', 'columns': {}}
         for colInfo in mlInfo['colInfo']:
             whatToDo = 'category'
