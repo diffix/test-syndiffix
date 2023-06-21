@@ -404,7 +404,7 @@ class sdmTools:
         print("FROM mlClassInfo:")
         pp.pprint(mlClassInfo)
         # zzzz
-        metadata = self._getMetadataFromlInfo(mlClassInfo)
+        metadata = self._getMetadataFromMlInfo(mlClassInfo)
         print("Metadata:")
         pp.pprint(metadata)
         quit()
