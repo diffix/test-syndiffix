@@ -484,8 +484,10 @@ def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
                     targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
                     methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
                 if targetErr > methodErr:
+                    if methodErr == 0: methodErr = 0.001
                     improvement = round(targetErr / methodErr, 2) * -1
                 else:
+                    if targetErr == 0: targetErr = 0.001
                     improvement = round(methodErr / targetErr, 2)
             else:
                 if statType == 'median':
@@ -495,8 +497,10 @@ def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
                     targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
                     methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
                 if targetTime > methodTime:
+                    if methodTime == 0: methodTime = 0.001
                     improvement = round(targetTime / methodTime, 2) * -1
                 else:
+                    if targetTime == 0: targetTime = 0.001
                     improvement = round(methodTime / targetTime, 2)
             print(f"Improvement for {statType} of {target} over {method} = {improvement}")
 
