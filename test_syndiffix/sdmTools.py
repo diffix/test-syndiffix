@@ -7,7 +7,6 @@ import sdmetrics
 import sdmetrics.single_table
 import sdmetrics.reports.single_table
 import sdmetrics.reports
-from sdv.metadata import SingleTableMetadata
 import pandas as pd
 import cufflinks as cf
 import plotly.graph_objects as go
@@ -400,8 +399,11 @@ class sdmTools:
         startTime = time.time()
         print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
         print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape}")
+        mls = testUtils.mlSupport(self.tu)
+        mlClassInfo = mls.makeMlClassInfo(dfTest, None)
+        pp.pprint(mlClassInfo)
+        # zzzz
         metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
-        metadata = SingleTableMetadata()
         print("Metadata:")
         pp.pprint(metadata)
         quit()
