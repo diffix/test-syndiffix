@@ -212,7 +212,9 @@ class sdmTools:
         self.dfOrig = pd.DataFrame(results['originalTable'], columns=results['colNames'])
         self.dfAnon = pd.DataFrame(results['anonTable'], columns=results['colNames'])
         print(f"orig shape {self.dfOrig.shape}, anon shape {self.dfAnon.shape}")
-        self.metadata = self._getMetadataFromCsvFile(self.resultsInfo['csvName'])
+        mls = testUtils.mlSupport(self.tu)
+        mlClassInfo = mls.makeMlClassInfo(self.dfOrig, None)
+        self.metadata = self._getMetadataFromMlInfo(mlClassInfo)
         print("Metadata:")
         pp.pprint(self.metadata)
         # Quality of text columns with lots of unique values should always be poor, so we
