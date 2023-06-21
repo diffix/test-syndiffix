@@ -258,10 +258,14 @@ def oneModel(dataDir='csvGeneral',
         origColNames = colNames.copy()
         print("Original columns")
         print(origColNames)
-        if numFeatures:
-            featuresColumns = getTopFeatures(featuresJob, numFeatures)
-        if featureThreshold:
-            featuresColumns = getFeaturesByThreshold(featuresJob, featureThreshold)
+        if 'kFeatures' in featuresJob:
+            # simplest thing is to just use the K features
+            featuresColumns = featuresJob['kFeatures']
+        else:
+            if numFeatures:
+                featuresColumns = getTopFeatures(featuresJob, numFeatures)
+            if featureThreshold:
+                featuresColumns = getFeaturesByThreshold(featuresJob, featureThreshold)
         if len(featuresColumns) > maxFeatures:
             featuresColumns = featuresColumns[:maxFeatures-1]
         print("Feature columns")
