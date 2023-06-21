@@ -9,6 +9,7 @@ import testUtils
 import gatherResults
 import fire
 import numpy as np
+import json
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -87,6 +88,11 @@ def summarize(measuresDir='measuresAb',
     withoutMostly = synMethods.copy()
     withoutMostly.remove('mostly')
     # doPlots(tu, dfAll, withoutMostly, force=force)
+    if os.path.exists('summarize.json'):
+        with open('summarize.json', 'r') as f:
+            combs = json.load(f)
+        for comb in combs:
+            doPlots(tu, dfAll, comb, force=force)
     if whatToDo == 'general' and 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
         for compareMethod in ['syndiffix', 'syndiffix_focus']:
             for synMethod in synMethods:
