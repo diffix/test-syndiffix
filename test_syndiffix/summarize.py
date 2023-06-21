@@ -90,9 +90,9 @@ def summarize(measuresDir='measuresAb',
     # doPlots(tu, dfAll, withoutMostly, force=force)
     if os.path.exists('summarize.json'):
         with open('summarize.json', 'r') as f:
-            combs = json.load(f)
-        for comb in combs:
-            doPlots(tu, dfAll, comb, force=force)
+            jobs = json.load(f)
+        for job in jobs:
+            doPlots(tu, dfAll, job['columns'], force=force)
     if whatToDo == 'general' and 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
         for compareMethod in ['syndiffix', 'syndiffix_focus']:
             for synMethod in synMethods:
