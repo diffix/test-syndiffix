@@ -405,9 +405,9 @@ class sdmTools:
         pp.pprint(mlClassInfo)
         # zzzz
         metadata = self._getMetadataFromCsvFile(myJob['csvFile'])
-        quit()
         print("Metadata:")
         pp.pprint(metadata)
+        quit()
         score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                       myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
@@ -535,6 +535,9 @@ class sdmTools:
         # Find mlInfo
         mc = measuresConfig(self.tu)
         mlInfo = mc.getMlInfoFromCsvOrder(csvFile)
+        return self._getMetadataFromMlInfo(mlInfo)
+    
+    def _getMetadataFromMlInfo(self, mlInfo):
         print("FROM mlInfo")
         pp.pprint(mlInfo)
         metadata = {'METADATA_SPEC_VERSION': 'SINGLE_TABLE_V1', 'columns': {}}
