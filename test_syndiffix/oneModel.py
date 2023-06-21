@@ -176,6 +176,7 @@ def oneModel(dataDir='csvGeneral',
              featuresType=None,
              featuresDir=None,
              numFeatures=None,
+             maxFeatures=6,
              featureThreshold=None,
              force=False):
     tu = testUtils.testUtilities()
@@ -261,6 +262,8 @@ def oneModel(dataDir='csvGeneral',
             featuresColumns = getTopFeatures(featuresJob, numFeatures)
         if featureThreshold:
             featuresColumns = getFeaturesByThreshold(featuresJob, featureThreshold)
+        if len(featuresColumns) > maxFeatures:
+            featuresColumns = featuresColumns[:maxFeatures-1]
         print("Feature columns")
         print(featuresColumns)
         newColNames = featuresColumns + [featuresJob['targetColumn']]
