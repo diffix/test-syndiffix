@@ -812,6 +812,8 @@ python3 {testPath} \\
                 if mlJob['method'] not in goodTableTargetCombs[mlJob['csvFile']][mlJob['column']]:
                     goodTableTargetCombs[mlJob['csvFile']][mlJob['column']][mlJob['method']] = mlJob['method']
         self.featuresJobs = []
+        pp.pprint(goodTableTargetCombs)
+        quit()
         for csvFile in goodTableTargetCombs.keys():
             for targetColumn in goodTableTargetCombs[csvFile].keys():
                 self.featuresJobs.append({'csvFile':csvFile,
