@@ -149,7 +149,23 @@ def makeMetadata(df):
 def getTopFeatures(featuresJob, numFeatures):
     return featuresJob['features'][:numFeatures]
 
-def getFeaturesByThreshold(featuresJob, featureThreshold):
+def getMlFeaturesByThreshold(featuresJob, featureThreshold):
+    # We always include the top feature
+    features = [featuresJob['features'][0]]
+    topScore = featuresJob['scores'][0]
+    if topScore == 0:
+        # Don't expect this, but you never know
+        return features
+    for index in range(1,len(featuresJob['features'])):
+        priorScore = featuresJob['scores'][index-1]
+        thisScore = featuresJob['scores'][index]
+        if thisScore - priorScore > featureThreshold:
+            features.append(featuresJob['features'][index])
+        else:
+            break
+    return features
+
+def getUniFeaturesByThreshold(featuresJob, featureThreshold):
     # We always include the top feature
     features = [featuresJob['features'][0]]
     topScore = featuresJob['scores'][0]
@@ -266,7 +282,7 @@ def oneModel(dataDir='csvGeneral',
             if numFeatures:
                 featuresColumns = getTopFeatures(featuresJob, numFeatures)
             if featureThreshold:
-                featuresColumns = getFeaturesByThreshold(featuresJob, featureThreshold)
+                featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         if len(featuresColumns) > maxFeatures:
             print(f"Truncating to {maxFeatures} features due to maxFeatures")
             featuresColumns = featuresColumns[:maxFeatures-1]
