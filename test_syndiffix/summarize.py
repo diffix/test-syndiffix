@@ -244,9 +244,7 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
     fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 10))
     for ax0, ax1, score, doLog, limit in zip([0, 0, 1, 1], [0, 1, 0, 1], ['columnScore', 'pairScore', 'synMlScore', 'elapsedTime', ], [False, False, False, True, ], [None, None, [0, 1], None, ]):
         dfTemp = df.query(f"rowType == '{score}'")
-        print(f"Score {score}")
-        print(dfTemp.to_string())
-        if dfTemp.shape[0] > 0:
+        if dfTemp.shape[0] > 0 and len(list(pd.unique(dfTemp['synMethod']))) == 2:
             dfBase = dfTemp.query(f"synMethod == '{synMethods[0]}'")
             dfOther = dfTemp.query(f"synMethod == '{synMethods[1]}'")
             print(f"Methods {synMethods}, score {score}:")
