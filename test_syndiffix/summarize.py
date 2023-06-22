@@ -207,6 +207,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     title = f"Datasets with 2 columns"
     print(title)
     dfTemp = df.query(f"numColumns == 2")
+    print(f"Shape of dfTemp {dfTemp.shape}")
     hueColsScatter = [None]
     if len(synMethods) == 2:
         for hueCol in hueColsScatter:
