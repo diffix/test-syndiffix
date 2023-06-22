@@ -813,12 +813,15 @@ python3 {testPath} \\
                     goodTableTargetCombs[mlJob['csvFile']][mlJob['column']].append({'alg':mlJob['method'], 'score':mlJob['score']})
         self.featuresJobs = []
         pp.pprint(goodTableTargetCombs)
-        quit()
+        jobNum = 0
         for csvFile in goodTableTargetCombs.keys():
-            for targetColumn in goodTableTargetCombs[csvFile].keys():
-                self.featuresJobs.append({'csvFile':csvFile,
+            for targetColumn,algInfo in goodTableTargetCombs[csvFile].items():
+                self.featuresJobs.append({'jobNum':jobNum,
+                                          'csvFile':csvFile,
                                           'targetColumn':targetColumn,
+                                          'algInfo':algInfo,
                                           })
+                jobNum += 1
         featuresOrderPath = os.path.join(self.tu.runsDir, 'featuresJobs.json')
         print(f"Writing file {featuresOrderPath}")
         with open(featuresOrderPath, 'w') as f:
