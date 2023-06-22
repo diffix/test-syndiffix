@@ -150,18 +150,24 @@ def getTopFeatures(featuresJob, numFeatures):
     return featuresJob['features'][:numFeatures]
 
 def getMlFeaturesByThreshold(featuresJob, featureThreshold):
+    pp.pprint(featuresJob)
+    k = featuresJob['k']
+    if k == 0:
+        print("SUCCESS: (skipped because not enough features)")
+        quit()
     # We always include the top feature
     features = [featuresJob['features'][0]]
-    topScore = featuresJob['cumulativeScore'][0]
+    topScore = featuresJob['cumulativeScore'][k-1]
+    print(f"topScore {topScore} for k = {k}")
     if topScore == 0:
-        # Don't expect this, but you never know
-        return features
+        print("SUCCESS: (skipped because zero score)")
+        quit()
     for index in range(1,len(featuresJob['features'])):
-        priorScore = featuresJob['cumulativeScore'][index-1]
         thisScore = featuresJob['cumulativeScore'][index]
-        if thisScore - priorScore > featureThreshold:
+        if abs(thisScore - topScore) > featureThreshold:
             features.append(featuresJob['features'][index])
         else:
+            print(f"Index {index} with score {thisScore} under thresh")
             break
     return features
 
