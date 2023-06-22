@@ -806,9 +806,11 @@ python3 {testPath} \\
         for csvFile in self.goodMlJobs.keys():
             for mlJob in self.goodMlJobs[csvFile]:
                 if mlJob['csvFile'] not in goodTableTargetCombs:
-                    goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:True}
+                    goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:{'alg':mlJob['method']}}
                 if mlJob['column'] not in goodTableTargetCombs[mlJob['csvFile']]:
-                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = True
+                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = {'alg':mlJob['method']}
+                if mlJob['method'] not in goodTableTargetCombs[mlJob['csvFile']][mlJob['column']]:
+                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']][mlJob['method']] = mlJob['method']
         self.featuresJobs = []
         for csvFile in goodTableTargetCombs.keys():
             for targetColumn in goodTableTargetCombs[csvFile].keys():
