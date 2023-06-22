@@ -152,13 +152,13 @@ def getTopFeatures(featuresJob, numFeatures):
 def getMlFeaturesByThreshold(featuresJob, featureThreshold):
     # We always include the top feature
     features = [featuresJob['features'][0]]
-    topScore = featuresJob['scores'][0]
+    topScore = featuresJob['cumulativeScore'][0]
     if topScore == 0:
         # Don't expect this, but you never know
         return features
     for index in range(1,len(featuresJob['features'])):
-        priorScore = featuresJob['scores'][index-1]
-        thisScore = featuresJob['scores'][index]
+        priorScore = featuresJob['cumulativeScore'][index-1]
+        thisScore = featuresJob['cumulativeScore'][index]
         if thisScore - priorScore > featureThreshold:
             features.append(featuresJob['features'][index])
         else:
