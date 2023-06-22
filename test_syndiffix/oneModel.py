@@ -275,9 +275,11 @@ def oneModel(dataDir='csvGeneral',
         print("Original columns")
         print(origColNames)
         if 'kFeatures' in featuresJob:
-            # simplest thing is to just use the K features
-            featuresColumns = featuresJob['kFeatures']
-            print(f"There are {len(featuresJob['kFeatures'])} K features")
+            if featureThreshold:
+                featuresColumns = getMlFeaturesByThreshold(featuresJob, featureThreshold)
+            else:
+                featuresColumns = featuresJob['kFeatures']
+                print(f"There are {len(featuresJob['kFeatures'])} K features")
         else:
             if numFeatures:
                 featuresColumns = getTopFeatures(featuresJob, numFeatures)
