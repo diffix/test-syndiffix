@@ -31,7 +31,35 @@ def oneFeaturesJob(jobNum=0, csvLib='csvAb', runsDir='runAb', featuresType='univ
         'featuresPath':featuresPath,
         'csvPath':csvPath,
         'targetColumn':job['targetColumn'],
+        'algInfo':job['algInfo']
     }
+    # algInfo is a list of dicts with {'alg':mlAlg, 'score':score}
+    # Here is an example `jobInfo` dict:
+    '''
+        {
+        "jobNum": 125,
+        "csvFile": "intrusion.csv",
+        "targetColumn": "srv_serror_rate",
+        "algInfo": [
+            {
+                "alg": "BinaryAdaBoostClassifier",
+                "score": 0.99956057392866
+            },
+            {
+                "alg": "BinaryAdaBoostClassifier",
+                "score": 0.99956057392866
+            },
+            {
+                "alg": "BinaryLogisticRegression",
+                "score": 0.9986998087954111
+            },
+            {
+                "alg": "BinaryMLPClassifier",
+                "score": 0.9969720199310081
+            }
+        ]
+    },
+    '''
     # TODO: Edon your code gets called here with the info in `jobInfo`
     print(jobInfo)
     

@@ -806,15 +806,22 @@ python3 {testPath} \\
         for csvFile in self.goodMlJobs.keys():
             for mlJob in self.goodMlJobs[csvFile]:
                 if mlJob['csvFile'] not in goodTableTargetCombs:
-                    goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:True}
+                    goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:[{'alg':mlJob['method'], 'score':mlJob['score']}]}
                 if mlJob['column'] not in goodTableTargetCombs[mlJob['csvFile']]:
-                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = True
+                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = [{'alg':mlJob['method'], 'score':mlJob['score']}]
+                if mlJob['method'] not in goodTableTargetCombs[mlJob['csvFile']][mlJob['column']]:
+                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']].append({'alg':mlJob['method'], 'score':mlJob['score']})
         self.featuresJobs = []
+        pp.pprint(goodTableTargetCombs)
+        jobNum = 0
         for csvFile in goodTableTargetCombs.keys():
-            for targetColumn in goodTableTargetCombs[csvFile].keys():
-                self.featuresJobs.append({'csvFile':csvFile,
+            for targetColumn,algInfo in goodTableTargetCombs[csvFile].items():
+                self.featuresJobs.append({'jobNum':jobNum,
+                                          'csvFile':csvFile,
                                           'targetColumn':targetColumn,
+                                          'algInfo':algInfo,
                                           })
+                jobNum += 1
         featuresOrderPath = os.path.join(self.tu.runsDir, 'featuresJobs.json')
         print(f"Writing file {featuresOrderPath}")
         with open(featuresOrderPath, 'w') as f:
