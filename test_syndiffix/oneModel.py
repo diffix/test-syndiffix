@@ -149,7 +149,23 @@ def makeMetadata(df):
 def getTopFeatures(featuresJob, numFeatures):
     return featuresJob['features'][:numFeatures]
 
-def getFeaturesByThreshold(featuresJob, featureThreshold):
+def getMlFeaturesByThreshold(featuresJob, featureThreshold):
+    # We always include the top feature
+    features = [featuresJob['features'][0]]
+    topScore = featuresJob['cumulativeScore'][0]
+    if topScore == 0:
+        # Don't expect this, but you never know
+        return features
+    for index in range(1,len(featuresJob['features'])):
+        priorScore = featuresJob['cumulativeScore'][index-1]
+        thisScore = featuresJob['cumulativeScore'][index]
+        if thisScore - priorScore > featureThreshold:
+            features.append(featuresJob['features'][index])
+        else:
+            break
+    return features
+
+def getUniFeaturesByThreshold(featuresJob, featureThreshold):
     # We always include the top feature
     features = [featuresJob['features'][0]]
     topScore = featuresJob['scores'][0]
@@ -258,11 +274,19 @@ def oneModel(dataDir='csvGeneral',
         origColNames = colNames.copy()
         print("Original columns")
         print(origColNames)
-        if numFeatures:
-            featuresColumns = getTopFeatures(featuresJob, numFeatures)
-        if featureThreshold:
-            featuresColumns = getFeaturesByThreshold(featuresJob, featureThreshold)
+        if 'kFeatures' in featuresJob:
+            if featureThreshold:
+                featuresColumns = getMlFeaturesByThreshold(featuresJob, featureThreshold)
+            else:
+                featuresColumns = featuresJob['kFeatures']
+                print(f"There are {len(featuresJob['kFeatures'])} K features")
+        else:
+            if numFeatures:
+                featuresColumns = getTopFeatures(featuresJob, numFeatures)
+            if featureThreshold:
+                featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         if len(featuresColumns) > maxFeatures:
+            print(f"Truncating to {maxFeatures} features due to maxFeatures")
             featuresColumns = featuresColumns[:maxFeatures-1]
         print("Feature columns")
         print(featuresColumns)
