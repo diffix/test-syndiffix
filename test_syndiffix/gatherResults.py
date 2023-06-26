@@ -158,13 +158,13 @@ class resultsGather():
         self.setElapsedTime(tr, tr['elapsed'])
         row = self.initTabRow(tr)
         row['rowType'] = 'synMlScore'
-        row['rowValue'] = tr['score']
+        row['rowValue'] = max(tr['score'],0)
         row['targetColumn'] = tr['column']
         if tr['column'] in self.csvCounts[row['csvFile']]['nunique']:
             row['targetCardinality'] = self.csvCounts[row['csvFile']]['nunique'][tr['column']]
         row['mlMethod'] = tr['method']
         row['mlMethodType'] = self.sdmt.getMethodTypeFromMethod(tr['method'])
-        row['origMlScore'] = tr['scoreOrig']
+        row['origMlScore'] = max(tr['scoreOrig'],0)
         row['mlPenalty'] = self.computeMlPenality(tr['score'], tr['scoreOrig'])
         if 'features' in tr and 'params' in tr['features']:
             params = tr['features']['params']
