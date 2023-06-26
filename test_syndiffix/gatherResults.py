@@ -111,6 +111,8 @@ class resultsGather():
             pass
 
     def computeMlPenality(self, synScore, origScore):
+        origScore = max(origScore,0)
+        synScore = max(synScore,0)
         return (origScore-synScore)/max(origScore,synScore)
 
     def computeFeaturesWithoutMax(self, featuresJob, featureThreshold):
