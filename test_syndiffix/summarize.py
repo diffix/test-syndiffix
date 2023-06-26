@@ -74,6 +74,7 @@ def summarize(measuresDir='measuresAb',
                 synMethods.remove(skipMethod)
     print(f"synMethods after skips: {synMethods}")
     print(f"Privacy plot")
+    makeCsvFiles(dfAll, tu)
     doPrivPlot(tu, dfAll, force)
     doPrivPlot(tu, dfAll, force, what='all')
     doMlPlot(tu, dfAll, force)
@@ -181,6 +182,15 @@ def removeExtras(df):
             df = df.query(f"csvFile != '{csv}'")
     return df
 
+def makeCsvFiles(df, tu):
+    for scoreType in ['columnScore', 'pairScore', 'synMlScore', 'elapsedTime', ]:
+        dfTemp = df.query(f"rowType == '{scoreType}'")
+        for column in dfTemp.columns:
+            if dfTemp[column].isnull().all():
+                dfTemp.drop(column, axis=1, inplace=True)
+        csvPath = os.path.join(tu.summariesDir, f"{scoreType}.csv")
+        print(f"Writing {csvPath}")
+        dfTemp.to_csv(csvPath, index=False, header=dfTemp.columns)
 
 def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     print(f"-------- doPlots for synMethods '{synMethods}'")

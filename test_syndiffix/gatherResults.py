@@ -110,26 +110,71 @@ class resultsGather():
         else:
             pass
 
+    def computeMlPenality(self, synScore, origScore):
+        origScore = max(origScore,0)
+        synScore = max(synScore,0)
+        return (origScore-synScore)/max(origScore,synScore)
+
+    def computeFeaturesWithoutMax(self, featuresJob, featureThreshold):
+        if 'kFeatures' in featuresJob:
+            if featureThreshold:
+                featuresColumns = self.getMlFeaturesByThreshold(featuresJob, featureThreshold)
+            else:
+                featuresColumns = featuresJob['kFeatures']
+                print(f"There are {len(featuresJob['kFeatures'])} K features")
+        else:
+            if featureThreshold:
+                featuresColumns = self.getUniFeaturesByThreshold(featuresJob, featureThreshold)
+        return len(featuresColumns)
+
+    def getMlFeaturesByThreshold(self, featuresJob, featureThreshold):
+        k = featuresJob['k']
+        # We always include the top feature
+        features = [featuresJob['features'][0]]
+        topScore = featuresJob['cumulativeScore'][k-1]
+        for index in range(1,len(featuresJob['features'])):
+            thisScore = featuresJob['cumulativeScore'][index]
+            if abs(thisScore - topScore) > featureThreshold:
+                features.append(featuresJob['features'][index])
+            else:
+                break
+        return features
+
+    def getUniFeaturesByThreshold(self, featuresJob, featureThreshold):
+        # We always include the top feature
+        features = [featuresJob['features'][0]]
+        topScore = featuresJob['scores'][0]
+        if topScore == 0:
+            # Don't expect this, but you never know
+            return features
+        for index in range(1,len(featuresJob['features'])):
+            if (featuresJob['scores'][index]/topScore) > featureThreshold:
+                features.append(featuresJob['features'][index])
+            else:
+                break
+        return features
+
     def addMlScore(self, tr):
         self.setElapsedTime(tr, tr['elapsed'])
         row = self.initTabRow(tr)
         row['rowType'] = 'synMlScore'
-        row['rowValue'] = tr['score']
+        row['rowValue'] = max(tr['score'],0)
         row['targetColumn'] = tr['column']
         if tr['column'] in self.csvCounts[row['csvFile']]['nunique']:
             row['targetCardinality'] = self.csvCounts[row['csvFile']]['nunique'][tr['column']]
         row['mlMethod'] = tr['method']
         row['mlMethodType'] = self.sdmt.getMethodTypeFromMethod(tr['method'])
-        self.tabData.append(row)
-
-        row = self.initTabRow(tr)
-        row['rowType'] = 'origMlScore'
-        row['rowValue'] = tr['scoreOrig']
-        row['targetColumn'] = tr['column']
-        if tr['column'] in self.csvCounts[row['csvFile']]['nunique']:
-            row['targetCardinality'] = self.csvCounts[row['csvFile']]['nunique'][tr['column']]
-        row['mlMethod'] = tr['method']
-        row['mlMethodType'] = self.sdmt.getMethodTypeFromMethod(tr['method'])
+        row['origMlScore'] = max(tr['scoreOrig'],0)
+        row['mlPenalty'] = self.computeMlPenality(tr['score'], tr['scoreOrig'])
+        if 'features' in tr and 'params' in tr['features']:
+            params = tr['features']['params']
+            row['maxFeatures'] = params['maxFeatures']
+            row['featureThreshold'] = params['featureThreshold']
+            row['usedFeatures'] = len(params['usedFeatures'])
+            if 'featuresWithoutMax' in params:
+                row['featuresWithoutMax'] = params['featuresWithoutMax']
+            else:
+                row['featuresWithoutMax'] = self.computeFeaturesWithoutMax(tr['features'], params['featureThreshold'])
         self.tabData.append(row)
 
     def initTabRow(self, tr):
@@ -156,6 +201,12 @@ class resultsGather():
                     'targetCardinality': None,
                     'mlMethod': None,
                     'mlMethodType': None,
+                    'origMlScore': None,
+                    'maxFeatures': None,
+                    'featureThreshold': None,
+                    'usedFeatures': None,
+                    'featuresWithoutMax': None,
+                    'mlPenalty': None,
                     'privMethod': None,
                     'csvFile': None,
                     'numRows': None,
@@ -170,6 +221,12 @@ class resultsGather():
                     'targetCardinality': None,
                     'mlMethod': None,
                     'mlMethodType': None,
+                    'origMlScore': None,
+                    'maxFeatures': None,
+                    'featureThreshold': None,
+                    'usedFeatures': None,
+                    'featuresWithoutMax': None,
+                    'mlPenalty': None,
                     'privMethod': None,
                     'csvFile': csvName,
                     'numRows': self.csvCounts[csvName]['rows'],
@@ -187,6 +244,12 @@ class resultsGather():
                 'targetCardinality': None,
                 'mlMethod': None,
                 'mlMethodType': None,
+                'origMlScore': None,
+                'maxFeatures': None,
+                'featureThreshold': None,
+                'usedFeatures': None,
+                'featuresWithoutMax': None,
+                'mlPenalty': None,
                 'privMethod': None,
                 'csvFile': csvName,
                 'numRows': self.csvCounts[csvName]['rows'],
