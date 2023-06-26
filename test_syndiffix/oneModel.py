@@ -312,6 +312,11 @@ def oneModel(dataDir='csvGeneral',
         colNames = list(df.columns.values)
         print("New columns")
         print(colNames)
+        featuresJob['params'] = {
+            'maxFeatures':maxFeatures,
+            'featureThreshold':featureThreshold,
+            'usedFeatures':colNames,
+        }
         import uuid
         sourceFileName = sourceFileName + '.' + str(uuid.uuid4()) + '.csv'
         tempFilesDir = os.path.join(tu.baseDir, 'tempCsvFiles')
