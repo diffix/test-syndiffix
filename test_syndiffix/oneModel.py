@@ -291,6 +291,7 @@ def oneModel(dataDir='csvGeneral',
                 featuresColumns = getTopFeatures(featuresJob, numFeatures)
             if featureThreshold:
                 featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
+        featuresWithoutMax = len(featuresColumns)
         if len(featuresColumns) > maxFeatures:
             print(f"Truncating to {maxFeatures} features due to maxFeatures")
             featuresColumns = featuresColumns[:maxFeatures-1]
@@ -316,6 +317,7 @@ def oneModel(dataDir='csvGeneral',
             'maxFeatures':maxFeatures,
             'featureThreshold':featureThreshold,
             'usedFeatures':colNames,
+            'featuresWithoutMax':featuresWithoutMax,
         }
         import uuid
         sourceFileName = sourceFileName + '.' + str(uuid.uuid4()) + '.csv'
