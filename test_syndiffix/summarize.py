@@ -624,7 +624,10 @@ def makeBasicViolin(df, tu, fileTag, title):
 
 def getFilePath(tu, synMethods, part1, part2):
     localSorted = sorted(synMethods)
-    init = "_".join([str(x) for x in localSorted])
+    if len(localSorted) > 6:
+        init = "all_synMeasures"
+    else:
+        init = "_".join([str(x) for x in localSorted])
     if part2:
         return os.path.join(tu.summariesDir, f"{init}.{part1.replace(' ','_')}.by.{part2.replace(' ','_')}.png")
     else:
