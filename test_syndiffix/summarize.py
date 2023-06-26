@@ -189,6 +189,7 @@ def makeCsvFiles(df, tu):
             if dfTemp[column].isnull().all():
                 dfTemp.drop(column, axis=1, inplace=True)
         csvPath = os.path.join(tu.summariesDir, f"{scoreType}.csv")
+        print(f"Writing {csvPath}")
         dfTemp.to_csv(csvPath, index=False, header=dfTemp.columns)
 
 def doPlots(tu, dfIn, synMethods, apples=True, force=False):
