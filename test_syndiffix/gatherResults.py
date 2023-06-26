@@ -130,13 +130,11 @@ class resultsGather():
         # We always include the top feature
         features = [featuresJob['features'][0]]
         topScore = featuresJob['cumulativeScore'][k-1]
-        print(f"topScore {topScore} for k = {k}")
         for index in range(1,len(featuresJob['features'])):
             thisScore = featuresJob['cumulativeScore'][index]
             if abs(thisScore - topScore) > featureThreshold:
                 features.append(featuresJob['features'][index])
             else:
-                print(f"Index {index} with score {thisScore} under thresh")
                 break
         return features
 
