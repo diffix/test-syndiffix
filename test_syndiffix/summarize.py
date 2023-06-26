@@ -186,7 +186,7 @@ def makeCsvFiles(df, tu):
     for scoreType in ['columnScore', 'pairScore', 'synMlScore', 'elapsedTime', ]:
         dfTemp = df.query(f"rowType == '{scoreType}'")
         for column in dfTemp.columns:
-            if dfTemp[['column']].isnull().all():
+            if dfTemp[column].isnull().all():
                 dfTemp.drop(column, axis=1, inplace=True)
         csvPath = os.path.join(tu.summariesDir, f"{scoreType}.csv")
         dfTemp.to_csv(csvPath, index=False, header=dfTemp.columns)
