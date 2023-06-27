@@ -899,6 +899,7 @@ python3 {testPath} \\
         '''
         # Get all of the orig ml measures json files
         mlFiles = self.tu.getOrigMlFiles()
+        pp.pprint(mlFiles)    #zzzz
         self.goodMlJobs = {}
         for mlFile in mlFiles:
             mlPath = os.path.join(self.tu.origMlDir, mlFile)
@@ -910,6 +911,7 @@ python3 {testPath} \\
                 self.goodMlJobs[job['csvFile']].append(job)
             else:
                 self.goodMlJobs[job['csvFile']] = [job]
+        pp.pprint(self.goodMlJobs)   #zzzz
 
     def getCsvOrderInfo(self):
         csvOrderPath = os.path.join(self.tu.synMeasures, 'csvOrder.json')
