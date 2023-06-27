@@ -66,10 +66,7 @@ def summarize(measuresDir='measuresAb',
         for synMethod in jobs['ignore']:
             print(f"Ignoring {synMethod}")
             query = f"synMethod != '{synMethod}'"
-            print(query)
             dfAll = dfAll.query(query)
-            synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
-            print(synMethods)
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
