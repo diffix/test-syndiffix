@@ -572,7 +572,7 @@ class measuresConfig:
         self.tu = tu
         # The ML score on the original data has to be above this threshold to generate
         # a corresponding measure on the synthetic data
-        self.origMlScoreThreshold = 0.8
+        self.origMlScoreThreshold = 0.7
         self.goodMlJobs = None
         self.methods = None
 
@@ -897,7 +897,6 @@ python3 {testPath} \\
     def initGoodMlJobs(self):
         ''' This computes the ML measure jobs that should be run on each datasource
         '''
-        origMlJobsPath = os.path.join(self.tu.synMeasures, 'OrigMlJobs')
         # Get all of the orig ml measures json files
         mlFiles = self.tu.getOrigMlFiles()
         self.goodMlJobs = {}
