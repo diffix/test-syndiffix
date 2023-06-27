@@ -406,8 +406,8 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 1.3)
-    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, height))
+    height = max(5, len(synMethods) * 1.8)
+    fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(10, height))
 
     dfTemp = df.query("rowType == 'columnScore'")
     if dfTemp.shape[0] > 0:
@@ -473,6 +473,22 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             axs[1][0].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
         axs[1][0].set_xlim(max(0, low), 1.0)
 
+        xaxis = 'ML Penalty'
+        hueDf = getHueDf(dfTemp, hueCol)
+        print(figPath)
+        print(title)
+        print(xaxis)
+        printStats(dfTemp, hueCol, "quality")
+        sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
+        sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
+        if len(sampleCounts) == len(synMethods):
+            axs[1][1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
+        axs[1][1].set_xlabel(xaxis)
+        low = dfTemp['rowValue'].min()
+        if hueDf is not None:
+            axs[1][1].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
+        axs[1][1].set_xlim(max(0, low), 1.0)
+
     dfTemp = df.query("rowType == 'elapsedTime'")
     if dfTemp.shape[0] > 0:
         if apples:
@@ -483,15 +499,16 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "time")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[2][0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
-            axs[1][1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
-        axs[1][1].set_xscale('log')  # zzzz
+            axs[2][0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
+        axs[2][0].set_xlim(left=0.1)
+        axs[2][0].set_xscale('log')  # zzzz
         if hueDf is not None:
-            axs[1][1].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
-        axs[1][1].set_xlabel(xaxis)
-        # axs[1][1].set(yticklabels = [], ylabel = None)
+            axs[2][0].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
+        axs[2][0].set_xlabel(xaxis)
+        # axs[2][0].set(yticklabels = [], ylabel = None)
 
     fig.suptitle(title)
     plt.tight_layout()
