@@ -629,6 +629,7 @@ python3 {testPath} \\
     --measuresDir={measuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
+            print(f"Writing to {batchScriptPath}")
             f.write(batchScript)
 
     def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir):
