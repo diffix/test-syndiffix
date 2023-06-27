@@ -58,6 +58,14 @@ def summarize(measuresDir='measuresAb',
     # which 1) we don't deal well with, and 2) we don't need such encodings in the first place
     print("Remove one hot encoded data (covtype.csv and mnist12.csv) from gathered data")
     dfAll = dfAll.query("csvFile != 'covtype.csv' and csvFile != 'mnist12.csv'")
+    jobs = None
+    if os.path.exists('summarize.json'):
+        with open('summarize.json', 'r') as f:
+            jobs = json.load(f)
+    if jobs and 'ignore' in jobs:
+        for synMethod in jobs['ignore']:
+            print(f"Ignoring {synMethod}")
+            dfAll = dfAll.query(f"synMethod != '{synMethod}'")
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
@@ -89,10 +97,8 @@ def summarize(measuresDir='measuresAb',
     withoutMostly = synMethods.copy()
     withoutMostly.remove('mostly')
     # doPlots(tu, dfAll, withoutMostly, force=force)
-    if os.path.exists('summarize.json'):
-        with open('summarize.json', 'r') as f:
-            jobs = json.load(f)
-        for job in jobs:
+    if jobs and 'combs' in jobs:
+        for job in jobs['combs']:
             doPlots(tu, dfAll, job['columns'], force=force)
     if whatToDo == 'general' and 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
         for compareMethod in ['syndiffix', 'syndiffix_focus']:
