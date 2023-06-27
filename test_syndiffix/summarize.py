@@ -487,7 +487,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         low = dfTemp['rowValue'].min()
         if hueDf is not None:
             axs[1][1].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
-        axs[1][1].set_xlim(max(0, low), 1.0)
+        #axs[1][1].set_xlim(max(0, low), 1.0)
 
     dfTemp = df.query("rowType == 'elapsedTime'")
     if dfTemp.shape[0] > 0:
