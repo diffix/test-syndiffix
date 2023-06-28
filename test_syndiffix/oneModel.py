@@ -280,7 +280,9 @@ def oneModel(dataDir='csvGeneral',
         origColNames = colNames.copy()
         print("Original columns")
         print(origColNames)
-        if 'kFeatures' in featuresJob:
+        if 'fixed' in featuresJob:
+            featuresColumns = featuresJob['features']
+        elif 'kFeatures' in featuresJob:
             if featureThreshold:
                 featuresColumns = getMlFeaturesByThreshold(featuresJob, featureThreshold)
             else:
@@ -292,7 +294,7 @@ def oneModel(dataDir='csvGeneral',
             if featureThreshold:
                 featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         featuresWithoutMax = len(featuresColumns)
-        if len(featuresColumns) > maxFeatures:
+        if 'fixed' not in featuresJob and len(featuresColumns) > maxFeatures:
             print(f"Truncating to {maxFeatures} features due to maxFeatures")
             featuresColumns = featuresColumns[:maxFeatures-1]
         print("Feature columns")
