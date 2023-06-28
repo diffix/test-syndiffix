@@ -377,7 +377,6 @@ def doMlPlots(tu, df, force, hueCol=None):
     plt.savefig(figPath)
     plt.close()
 
-
 def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
     if what == 'lowBounds':
         dfTemp = df.query("rowType == 'privRisk'")
