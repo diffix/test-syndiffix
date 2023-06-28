@@ -62,6 +62,10 @@ def summarize(measuresDir='measuresAb',
     if os.path.exists('summarize.json'):
         with open('summarize.json', 'r') as f:
             jobs = json.load(f)
+    print("Before ignore:")
+    print(dfAll.columns)
+    makeCsvFiles(dfAll, tu)
+    doMlPlots(tu, dfAll, force)
     if jobs and 'ignore' in jobs:
         for synMethod in jobs['ignore']:
             print(f"Ignoring {synMethod}")
@@ -83,10 +87,8 @@ def summarize(measuresDir='measuresAb',
                 synMethods.remove(skipMethod)
     print(f"synMethods after skips: {synMethods}")
     print(f"Privacy plot")
-    makeCsvFiles(dfAll, tu)
     doPrivPlot(tu, dfAll, force)
     doPrivPlot(tu, dfAll, force, what='all')
-    doMlPlot(tu, dfAll, force)
     doPlots(tu, dfAll, synMethods, force=force)
     if whatToDo == 'general':
         if 'syndiffix_focus' in synMethods:
@@ -349,11 +351,8 @@ def getBestSyndiffix(df):
     return pd.concat([df1, df2], axis=0)
 
 
-def doMlPlot(tu, df, force, hueCol=None):
+def doMlPlots(tu, df, force, hueCol=None):
     figPath = os.path.join(tu.summariesDir, 'ml.png')
-    if not force and os.path.exists(figPath):
-        print(f"Skipping {figPath}")
-        return
 
     # dfTemp = df.query("rowType == 'synMlScore'")
     dfTemp = df.query("rowType == 'synMlScore' and numColumns > 2")
@@ -369,6 +368,14 @@ def doMlPlot(tu, df, force, hueCol=None):
     plt.savefig(figPath)
     plt.close()
 
+    figPath = os.path.join(tu.summariesDir, 'mlPenalty.png')
+    xaxis = 'ML penalty'
+    hueDf = getHueDf(dfTemp, hueCol)
+    sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf)
+    plt.xlim(-0.2, 1)
+    plt.xlabel(xaxis)
+    plt.savefig(figPath)
+    plt.close()
 
 def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
     if what == 'lowBounds':
@@ -478,7 +485,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(figPath)
         print(title)
         print(xaxis)
-        printStats(dfTemp, hueCol, "quality")
+        printStats(dfTemp, hueCol, "quality", measureField='mlPenalty')
         sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -516,7 +523,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.close()
 
 
-def computeImprovements(dfTemp, measureType):
+def computeImprovements(dfTemp, measureType, measureField):
     targets = []
     methods = []
     for synMethod in list(pd.unique(dfTemp['synMethod'])):
@@ -525,19 +532,19 @@ def computeImprovements(dfTemp, measureType):
         else:
             methods.append(synMethod)
     for statType in ['median', 'average']:
-        computeImprovementsWork(dfTemp, measureType, targets, methods, statType)
+        computeImprovementsWork(dfTemp, measureType, targets, methods, statType, measureField)
 
 
-def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
+def computeImprovementsWork(dfTemp, measureType, targets, methods, statType, measureField):
     for target in targets:
         for method in methods:
             if measureType == 'quality':
                 if statType == 'median':
-                    targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
-                    methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                    targetErr = 1 - dfTemp[dfTemp['synMethod'] == target][measureField].median()
+                    methodErr = 1 - dfTemp[dfTemp['synMethod'] == method][measureField].median()
                 else:
-                    targetErr = 1 - dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
-                    methodErr = 1 - dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
+                    targetErr = 1 - dfTemp[dfTemp['synMethod'] == target][measureField].mean()
+                    methodErr = 1 - dfTemp[dfTemp['synMethod'] == method][measureField].mean()
                 if targetErr > methodErr:
                     if methodErr == 0: methodErr = 0.001
                     improvement = round(targetErr / methodErr, 2) * -1
@@ -546,11 +553,11 @@ def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
                     improvement = round(methodErr / targetErr, 2)
             else:
                 if statType == 'median':
-                    targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].median()
-                    methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].median()
+                    targetTime = dfTemp[dfTemp['synMethod'] == target][measureField].median()
+                    methodTime = dfTemp[dfTemp['synMethod'] == method][measureField].median()
                 else:
-                    targetTime = dfTemp[dfTemp['synMethod'] == target]['rowValue'].mean()
-                    methodTime = dfTemp[dfTemp['synMethod'] == method]['rowValue'].mean()
+                    targetTime = dfTemp[dfTemp['synMethod'] == target][measureField].mean()
+                    methodTime = dfTemp[dfTemp['synMethod'] == method][measureField].mean()
                 if targetTime > methodTime:
                     if methodTime == 0: methodTime = 0.001
                     improvement = round(targetTime / methodTime, 2) * -1
@@ -560,13 +567,13 @@ def computeImprovementsWork(dfTemp, measureType, targets, methods, statType):
             print(f"Improvement for {statType} of {target} over {method} = {improvement}")
 
 
-def printStats(dfTemp, hueCol, measureType):
+def printStats(dfTemp, hueCol, measureType, measureField='rowValue'):
     if hueCol:
-        dfGroupby = dfTemp.groupby(['synMethod', hueCol])['rowValue'].describe()
+        dfGroupby = dfTemp.groupby(['synMethod', hueCol])[measureField].describe()
         print(f"groupby {hueCol}")
     else:
-        dfGroupby = dfTemp.groupby(['synMethod'])['rowValue'].describe()
-        computeImprovements(dfTemp, measureType)
+        dfGroupby = dfTemp.groupby(['synMethod'])[measureField].describe()
+        computeImprovements(dfTemp, measureType, measureField)
     if dfGroupby.shape[0] == 0:
         return
     print(dfGroupby.to_string())
