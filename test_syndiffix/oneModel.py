@@ -281,6 +281,7 @@ def oneModel(dataDir='csvGeneral',
         print("Original columns")
         print(origColNames)
         if 'fixed' in featuresJob:
+            print("Using fixed features")
             featuresColumns = featuresJob['features']
         elif 'kFeatures' in featuresJob:
             if featureThreshold:
