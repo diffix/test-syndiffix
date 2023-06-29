@@ -429,7 +429,7 @@ def oneModel(dataDir='csvGeneral',
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         extraArgs = []
         if withFocusColumn:
-            extraArgs = ["--clustering-maincolumn", f"'{focusColumn}'"]
+            extraArgs = ["--clustering-maincolumn", f"{focusColumn}"]
         elif clusterSpecJson:
             extraArgs = ["--clusters", f"{clusterSpecJson}"]
         elif featuresJob:
