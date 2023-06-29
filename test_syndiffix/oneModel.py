@@ -71,7 +71,7 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
         json.dump(outJson, f, indent=4)
 
 
-def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob):
+def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=[]):
     thisDir = os.path.dirname(os.path.abspath(__file__))
     abSharpDir = os.path.join(tu.abSharpDir, 'src', 'SynDiffix.Debug')
 
@@ -79,7 +79,7 @@ def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, t
     print(f"cmd-line args: {abSharpArgs}")
 
     abSharp = subprocess.run(
-        ['dotnet', 'run', '--configuration', 'Release', dataSourcePath, '--columns', *columns, *abSharpArgs],
+        ['dotnet', 'run', '--configuration', 'Release', dataSourcePath, '--columns', *columns, *abSharpArgs, *extraArgs],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         cwd=abSharpDir,
@@ -425,16 +425,16 @@ def oneModel(dataDir='csvGeneral',
                 # type that absharp can handle regardless of what the value are...
                 colType = 'text'
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
-        abSharpArgs += " --verbose "
+        extraArgs = []
         if withFocusColumn:
-            abSharpArgs += f" --clustering-maincolumn '{focusColumn}' "
+            extraArgs = ["--clustering-maincolumn", f"'{focusColumn}'"]
         elif clusterSpecJson:
-            abSharpArgs += f" --clusters {clusterSpecJson} "
+            extraArgs = ["--clusters", f"{clusterSpecJson}"]
         elif featuresJob:
-            abSharpArgs += " --no-clustering "
+            extraArgs = ["--no-clustering"]
         print("syndiffix args:")
         print(abSharpArgs)
-        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob)
+        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=extraArgs)
         if featuresJob:
             os.remove(dataSourcePath)
     else:
