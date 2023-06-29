@@ -339,6 +339,7 @@ def oneModel(dataDir='csvGeneral',
     colNames = list(df.columns.values)
     # quick test to make sure that the test and train data match columns
     dfTest = readCsv(testDataPath)
+    madeTempDataSource = False
     if featuresJob:
         # Remove columns not in the features set or target column
         # From here on out, we will be working with so-truncated data
@@ -404,6 +405,7 @@ def oneModel(dataDir='csvGeneral',
             tempFilesDir = os.path.join(tu.baseDir, 'tempCsvFiles')
             os.makedirs(tempFilesDir, exist_ok=True)
             dataSourcePath = os.path.join(tempFilesDir, sourceFileName)
+            madeTempDataSource = True
             df.to_csv(dataSourcePath, index=False, header=df.columns)
             print(dataSourcePath)
     print(list(dfTest.columns.values))
@@ -432,10 +434,8 @@ def oneModel(dataDir='csvGeneral',
             extraArgs = ["--clusters", f"{clusterSpecJson}"]
         elif featuresJob:
             extraArgs = ["--no-clustering"]
-        print("syndiffix args:")
-        print(abSharpArgs)
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=extraArgs)
-        if featuresJob:
+        if madeTempDataSource:
             os.remove(dataSourcePath)
     else:
         runTest(model, metaData['sdvMetaData'], df, colNames, outPath, dataSourceNum, testData)
