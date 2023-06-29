@@ -238,6 +238,15 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
         print(f"ERROR: bad column in allCols {allCols}")
         pp.pprint(clusterSpec)
         quit()
+    print("Cluster information:")
+    print(f"All columns: {allColumns}")
+    print(f"All columns: {allCols}")
+    print(f"Features columns: {featuresColumns}")
+    print(f"Features columns: {featCols}")
+    print(f"Target column: {focusColumn}")
+    print(f"Target column: {focCol}")
+    pp.pprint(clusterSpec)
+    quit()
     return clusterSpec
 
 def oneModel(dataDir='csvGeneral',
@@ -358,12 +367,6 @@ def oneModel(dataDir='csvGeneral',
             # in clusters
             clusterSpec = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize)
             clusterSpecJson = json.dumps(clusterSpec)
-            print("Cluster information:")
-            print(f"All columns: {origColNames}")
-            print(f"Features columns: {featuresColumns}")
-            print(f"Target column: {focusColumn}")
-            pp.pprint(clusterSpec)
-            quit()
         else:
             # We are going to limit ourselves to a single cluster, and only the
             # columns in that cluster (this is mainly test purposes)
