@@ -357,7 +357,12 @@ def oneModel(dataDir='csvGeneral',
             # At this point, featuresColumns are the columns that we'll want to include
             # in clusters
             clusterSpec = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize)
-            pass
+            print("Cluster information:")
+            print(f"All columns: {origColNames}")
+            print(f"Features columns: {featuresColumns}")
+            print(f"Target column: {focusColumn}")
+            pp.pprint(clusterSpec)
+            quit()
         else:
             # We are going to limit ourselves to a single cluster, and only the
             # columns in that cluster (this is mainly test purposes)
