@@ -71,7 +71,7 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
         json.dump(outJson, f, indent=4)
 
 
-def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob):
+def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=[]):
     thisDir = os.path.dirname(os.path.abspath(__file__))
     abSharpDir = os.path.join(tu.abSharpDir, 'src', 'SynDiffix.Debug')
 
@@ -79,7 +79,7 @@ def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, t
     print(f"cmd-line args: {abSharpArgs}")
 
     abSharp = subprocess.run(
-        ['dotnet', 'run', '--configuration', 'Release', dataSourcePath, '--columns', *columns, *abSharpArgs],
+        ['dotnet', 'run', '--configuration', 'Release', dataSourcePath, '--columns', *columns, *abSharpArgs, *extraArgs],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         cwd=abSharpDir,
