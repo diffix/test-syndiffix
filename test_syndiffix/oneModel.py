@@ -185,6 +185,61 @@ def getUniFeaturesByThreshold(featuresJob, featureThreshold):
             break
     return features
 
+def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
+    '''
+    { "InitialCluster": [4, 5, 7],
+      "DerivedClusters": [
+        { "StitchColumns": [7], "DerivedColumns": [1, 3, 9] },
+        { "StitchColumns": [9, 1], "DerivedColumns": [8, 0] },
+        { "StitchColumns": [1, 9], "DerivedColumns": [2] },
+        { "StitchColumns": [7, 3], "DerivedColumns": [6] }
+      ] }
+    '''
+    featCols = []
+    for column in featuresColumns:
+        featCols.append(allColumns.index(column))
+    focCol = allColumns.index(focusColumn)
+    cSize = maxClusterSize-1
+    # featCols is featuresColumns indices, focCol is focusColumn index
+    initialCluster = featCols[:cSize]
+    initialCluster += [focCol]
+    remainCols = featCols[cSize:]
+    clusterSpec = {'InitialCluster':initialCluster, 'DerivedClusters':[]}
+    # Add the clusters
+    while len(remainCols) > 0:
+        derivedCols = remainCols[:cSize]
+        clusterSpec['DerivedClusters'].append({'StitchColumns':[focCol],
+                                               'DerivedColumns':derivedCols})
+        remainCols = remainCols[cSize:]
+    # Add the patch columns
+    allCols = []
+    for column in allColumns:
+        allCols.append(allColumns.index(column))
+    for column in allCols:
+        if column in featCols or column == focCol:
+            continue
+        clusterSpec['DerivedClusters'].append({'StitchColumns':[],
+                                               'DerivedColumns':[column]})
+    # Let's check things:
+    for column in clusterSpec['InitialCluster']:
+        if column not in allCols:
+            print(f"ERROR: bad column in initialCluster")
+            pp.pprint(clusterSpec)
+            quit()
+        allCols.remove(column)
+    for derived in clusterSpec['DerivedClusters']:
+        for column in derived['DerivedColumns']:
+            if column not in allCols:
+                print(f"ERROR: bad column in derivedCluster {derived}")
+                pp.pprint(clusterSpec)
+                quit()
+            allCols.remove(column)
+    if len(allCols) > 0:
+        print(f"ERROR: bad column in allCols {allCols}")
+        pp.pprint(clusterSpec)
+        quit()
+    return json.dumps(clusterSpec)
+
 def oneModel(dataDir='csvGeneral',
              dataSourceNum=0,
              model='fastMl',
@@ -200,6 +255,8 @@ def oneModel(dataDir='csvGeneral',
              numFeatures=None,
              maxFeatures=6,
              featureThreshold=None,
+             multiCluster=False,
+             maxClusterSize=3,
              force=False):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(dataDir)
@@ -295,40 +352,49 @@ def oneModel(dataDir='csvGeneral',
             if featureThreshold:
                 featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         featuresWithoutMax = len(featuresColumns)
-        if 'fixed' not in featuresJob and len(featuresColumns) > maxFeatures:
-            print(f"Truncating to {maxFeatures} features due to maxFeatures")
-            featuresColumns = featuresColumns[:maxFeatures-1]
-        print("Feature columns")
-        print(featuresColumns)
-        newColNames = featuresColumns + [featuresJob['targetColumn']]
-        if len(newColNames) != len(list(set(newColNames))):
-            print(f"ERROR: duplicates in newColNames {newColNames}")
-            quit()
-        for origCol in origColNames:
-            if origCol not in newColNames:
-                df.drop(origCol, axis=1, inplace=True)
-                dfTest.drop(origCol, axis=1, inplace=True)
-        # Now we need to make a csv out of df to later give to abSharp
-        print("columns in dfTest")
-        print(dfTest.columns)
-        print("columns in df")
-        print(df.columns)
-        colNames = list(df.columns.values)
-        print("New columns")
-        print(colNames)
-        featuresJob['params'] = {
-            'maxFeatures':maxFeatures,
-            'featureThreshold':featureThreshold,
-            'usedFeatures':colNames,
-            'featuresWithoutMax':featuresWithoutMax,
-        }
-        import uuid
-        sourceFileName = sourceFileName + '.' + str(uuid.uuid4()) + '.csv'
-        tempFilesDir = os.path.join(tu.baseDir, 'tempCsvFiles')
-        os.makedirs(tempFilesDir, exist_ok=True)
-        dataSourcePath = os.path.join(tempFilesDir, sourceFileName)
-        df.to_csv(dataSourcePath, index=False, header=df.columns)
-        print(dataSourcePath)
+        clusterSpec = None
+        if multiCluster:
+            # At this point, featuresColumns are the columns that we'll want to include
+            # in clusters
+            clusterSpec = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize)
+            pass
+        else:
+            # We are going to limit ourselves to a single cluster, and only the
+            # columns in that cluster (this is mainly test purposes)
+            if 'fixed' not in featuresJob and len(featuresColumns) > maxFeatures:
+                print(f"Truncating to {maxFeatures} features due to maxFeatures")
+                featuresColumns = featuresColumns[:maxFeatures-1]
+            print("Feature columns")
+            print(featuresColumns)
+            newColNames = featuresColumns + [featuresJob['targetColumn']]
+            if len(newColNames) != len(list(set(newColNames))):
+                print(f"ERROR: duplicates in newColNames {newColNames}")
+                quit()
+            for origCol in origColNames:
+                if origCol not in newColNames:
+                    df.drop(origCol, axis=1, inplace=True)
+                    dfTest.drop(origCol, axis=1, inplace=True)
+            # Now we need to make a csv out of df to later give to abSharp
+            print("columns in dfTest")
+            print(dfTest.columns)
+            print("columns in df")
+            print(df.columns)
+            colNames = list(df.columns.values)
+            print("New columns")
+            print(colNames)
+            featuresJob['params'] = {
+                'maxFeatures':maxFeatures,
+                'featureThreshold':featureThreshold,
+                'usedFeatures':colNames,
+                'featuresWithoutMax':featuresWithoutMax,
+            }
+            import uuid
+            sourceFileName = sourceFileName + '.' + str(uuid.uuid4()) + '.csv'
+            tempFilesDir = os.path.join(tu.baseDir, 'tempCsvFiles')
+            os.makedirs(tempFilesDir, exist_ok=True)
+            dataSourcePath = os.path.join(tempFilesDir, sourceFileName)
+            df.to_csv(dataSourcePath, index=False, header=df.columns)
+            print(dataSourcePath)
     print(list(dfTest.columns.values))
     if colNames != list(dfTest.columns.values):
         print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
@@ -350,6 +416,8 @@ def oneModel(dataDir='csvGeneral',
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         if withFocusColumn:
             abSharpArgs += f" --clustering-maincolumn '{focusColumn}' "
+        elif clusterSpec:
+            abSharpArgs += f" --clusters {clusterSpec} "
         elif featuresJob:
             abSharpArgs += " --no-clustering "
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob)
