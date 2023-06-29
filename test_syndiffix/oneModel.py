@@ -238,7 +238,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
         print(f"ERROR: bad column in allCols {allCols}")
         pp.pprint(clusterSpec)
         quit()
-    return json.dumps(clusterSpec)
+    return clusterSpec
 
 def oneModel(dataDir='csvGeneral',
              dataSourceNum=0,
@@ -352,11 +352,12 @@ def oneModel(dataDir='csvGeneral',
             if featureThreshold:
                 featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         featuresWithoutMax = len(featuresColumns)
-        clusterSpec = None
+        clusterSpecJson = None
         if multiCluster:
             # At this point, featuresColumns are the columns that we'll want to include
             # in clusters
             clusterSpec = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize)
+            clusterSpecJson = json.dumps(clusterSpec)
             print("Cluster information:")
             print(f"All columns: {origColNames}")
             print(f"Features columns: {featuresColumns}")
@@ -392,6 +393,9 @@ def oneModel(dataDir='csvGeneral',
                 'featureThreshold':featureThreshold,
                 'usedFeatures':colNames,
                 'featuresWithoutMax':featuresWithoutMax,
+                'featureThreshold':featureThreshold,
+                'multiCluster':multiCluster,
+                'maxClusterSize':maxClusterSize,
             }
             import uuid
             sourceFileName = sourceFileName + '.' + str(uuid.uuid4()) + '.csv'
@@ -421,8 +425,8 @@ def oneModel(dataDir='csvGeneral',
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         if withFocusColumn:
             abSharpArgs += f" --clustering-maincolumn '{focusColumn}' "
-        elif clusterSpec:
-            abSharpArgs += f" --clusters {clusterSpec} "
+        elif clusterSpecJson:
+            abSharpArgs += f" --clusters {clusterSpecJson} "
         elif featuresJob:
             abSharpArgs += " --no-clustering "
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob)
