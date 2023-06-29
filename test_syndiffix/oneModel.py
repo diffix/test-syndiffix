@@ -432,6 +432,8 @@ def oneModel(dataDir='csvGeneral',
             abSharpArgs += f" --clusters {clusterSpecJson} "
         elif featuresJob:
             abSharpArgs += " --no-clustering "
+        print("syndiffix args:")
+        print(abSharpArgs)
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob)
         if featuresJob:
             os.remove(dataSourcePath)
