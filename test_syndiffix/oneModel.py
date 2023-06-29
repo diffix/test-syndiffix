@@ -18,7 +18,6 @@ from misc.csvUtils import readCsv
 
 pp = pprint.PrettyPrinter(indent=4)
 
-
 def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
     print("First row of data:")
     print(df.iloc[0])
