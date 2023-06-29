@@ -246,7 +246,6 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
     print(f"Target column: {focusColumn}")
     print(f"Target column: {focCol}")
     pp.pprint(clusterSpec)
-    quit()
     return clusterSpec
 
 def oneModel(dataDir='csvGeneral',
@@ -426,6 +425,7 @@ def oneModel(dataDir='csvGeneral',
                 # type that absharp can handle regardless of what the value are...
                 colType = 'text'
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
+        abSharpArgs += " --verbose "
         if withFocusColumn:
             abSharpArgs += f" --clustering-maincolumn '{focusColumn}' "
         elif clusterSpecJson:
