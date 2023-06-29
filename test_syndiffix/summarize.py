@@ -103,6 +103,7 @@ def summarize(measuresDir='measuresAb',
     if jobs and 'combs' in jobs:
         print("boo boo")
         pp.pprint(jobs)
+        print(f"{len(jobs['combs'])} jobs")
         for job in jobs['combs']:
             print("boo boo boo")
             pp.pprint(job)
