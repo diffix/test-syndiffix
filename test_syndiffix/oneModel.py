@@ -428,9 +428,9 @@ def oneModel(dataDir='csvGeneral',
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         extraArgs = []
         if withFocusColumn:
-            extraArgs = ["--clustering-maincolumn", f"{focusColumn}"]
+            extraArgs = ["--clustering-maincolumn", focusColumn]
         elif clusterSpecJson:
-            extraArgs = ["--clusters", f"{clusterSpecJson}"]
+            extraArgs = ["--clusters", clusterSpecJson]
         elif featuresJob:
             extraArgs = ["--no-clustering"]
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=extraArgs)
