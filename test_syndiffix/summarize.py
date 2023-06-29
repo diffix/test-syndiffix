@@ -101,7 +101,11 @@ def summarize(measuresDir='measuresAb',
     withoutMostly.remove('mostly')
     # doPlots(tu, dfAll, withoutMostly, force=force)
     if jobs and 'combs' in jobs:
+        print("boo boo")
+        pp.pprint(jobs)
         for job in jobs['combs']:
+            print("boo boo boo")
+            pp.pprint(job)
             doPlots(tu, dfAll, job['columns'], force=force)
     if whatToDo == 'general' and 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
         for compareMethod in ['syndiffix', 'syndiffix_focus']:
