@@ -276,7 +276,7 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
 
 def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit, axisType):
     legendDone = False
-    dfMerged = pd.merge(dfBase, dfOther, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
+    dfMerged = pd.merge(dfBase, dfOther, how='inner', on=['csvFile', 'targetColumn', 'targetColumn2', 'mlMethod'])
     print(f"dfMerged shape {dfMerged.shape}")
     if dfMerged.shape[0] > 200000:
         print(dfMerged.shape)
