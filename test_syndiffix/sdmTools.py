@@ -468,6 +468,8 @@ class sdmTools:
         print(dfTrain.iloc[:10].to_string())
         exec = self.exec[method]
         kwargs = self.kwargs[method]
+        print(exec)
+        print(kwargs)
         score = None
         if kwargs:
             exec.MODEL_KWARGS = {'max_iter': 500}
