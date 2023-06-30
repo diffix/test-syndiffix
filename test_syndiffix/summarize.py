@@ -227,7 +227,9 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
             # makeScatter(df, tu, synMethods, hueCol, 'compressedAxis', 'all', title, force)
     hueColsBasic = [None, 'mlMethodType',]
     for hueCol in hueColsBasic:
+        print("zzzz2")
         makeBasicGraph(df, tu, hueCol, 'all', title, force, apples=apples)
+        print("zzzz3")
         #makeBasicViolin(df, tu, 'all', title)
 
     title = f"Datasets with 2 columns"
