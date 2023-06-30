@@ -465,6 +465,7 @@ class sdmTools:
             print(f"Reducing training size from {dfTrain.shape[0]} rows to 100k rows")
             dfTrain = dfTrain.sample(n=100000)
         print(f"Shape after reduction {dfTrain.shape}")
+        print(dfTrain.iloc[:10].to_string())
         exec = self.exec[method]
         kwargs = self.kwargs[method]
         score = None
