@@ -422,6 +422,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         title += " (not apples-to-apples)"
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
+        print("zzzz4")
         return
     height = max(5, len(synMethods) * 1.8)
     fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(10, height))
