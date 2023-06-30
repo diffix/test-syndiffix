@@ -236,6 +236,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     if len(synMethods) == 2:
         for hueCol in hueColsScatter:
             makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"2col", title, force)
+    print("zzzz got here...")
     hueColsBasic = [None, '2dimSizeTag',]
     for hueCol in hueColsBasic:
         makeBasicGraph(dfTemp, tu, hueCol, f"2col", title, force, apples=apples)
