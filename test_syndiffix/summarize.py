@@ -278,14 +278,6 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit
     legendDone = False
     dfMerged = pd.merge(dfBase, dfOther, how='left', on=['csvFile', 'targetColumn', 'targetColumn2', 'mlMethod'])
     print(f"dfMerged shape {dfMerged.shape}")
-    if dfMerged.shape[0] > 2000000:
-        print(dfMerged.shape)
-        print(dfMerged.iloc[:10].to_string())
-        print(dfBase.shape)
-        print(dfBase.iloc[:10].to_string())
-        print(dfOther.shape)
-        print(dfOther.iloc[:10].to_string())
-        quit()
     # Let's count the number of times that X is greater than Y
     countX = len(dfMerged[dfMerged['rowValue_x'] > dfMerged['rowValue_y']])
     countY = len(dfMerged[dfMerged['rowValue_x'] < dfMerged['rowValue_y']])
