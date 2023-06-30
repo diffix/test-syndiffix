@@ -264,7 +264,7 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
     else:
         figPath = getFilePath(tu, synMethods, f"scatter.", f"{fileTag}.{axisType}")
     if not force and os.path.exists(figPath):
-        print(f"Skipping {figPath}")
+        print(f"Skipping scatter {figPath}")
         return
     print(f"    Scatter plots")
     fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 10))
