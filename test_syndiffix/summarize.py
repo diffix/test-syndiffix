@@ -221,7 +221,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     hueColsBasic = [None, 'mlMethodType',]
     for hueCol in hueColsBasic:
         makeBasicGraph(df, tu, hueCol, 'all', title, force, apples=apples)
-        makeBasicViolin(df, tu, 'all', title)
+        #makeBasicViolin(df, tu, 'all', title)
 
     title = f"Datasets with 2 columns"
     print(title)
@@ -233,7 +233,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     hueColsBasic = [None, '2dimSizeTag',]
     for hueCol in hueColsBasic:
         makeBasicGraph(dfTemp, tu, hueCol, f"2col", title, force, apples=apples)
-        makeBasicViolin(df, tu, f"2col", title)
+        #makeBasicViolin(df, tu, f"2col", title)
 
     # Now for only the real datasets
     title = "Real datasets only"
@@ -246,7 +246,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     hueColsBasic = [None, 'mlMethodType']
     for hueCol in hueColsBasic:
         makeBasicGraph(dfTemp, tu, hueCol, 'real', title, force, apples=apples)
-        makeBasicViolin(dfTemp, tu, 'real', title)
+        #makeBasicViolin(dfTemp, tu, 'real', title)
 
 
 def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
@@ -257,7 +257,7 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
     else:
         figPath = getFilePath(tu, synMethods, f"scatter.", f"{fileTag}.{axisType}")
     if not force and os.path.exists(figPath):
-        print(f"Skipping {figPath}")
+        print(f"Skipping scatter {figPath}")
         return
     print(f"    Scatter plots")
     fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 10))
@@ -276,18 +276,19 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
 
 def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit, axisType):
     legendDone = False
-    dfMerged = pd.merge(dfBase, dfOther, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
+    dfMerged = pd.merge(dfBase, dfOther, how='left', on=['csvFile', 'targetColumn', 'targetColumn2', 'mlMethod'])
+    print(f"dfMerged shape {dfMerged.shape}")
     # Let's count the number of times that X is greater than Y
     countX = len(dfMerged[dfMerged['rowValue_x'] > dfMerged['rowValue_y']])
     countY = len(dfMerged[dfMerged['rowValue_x'] < dfMerged['rowValue_y']])
     print(f"    All models with X>Y = {countX}, with Y>X = {countY}")
     # And for top-scoring models only:
     countX = len(dfMerged[(dfMerged['rowValue_x'] > dfMerged['rowValue_y']) &
-                          ((dfMerged['rowValue_x'] >= 0.8) |
-                           (dfMerged['rowValue_y'] >= 0.8))])
+                        ((dfMerged['rowValue_x'] >= 0.8) |
+                        (dfMerged['rowValue_y'] >= 0.8))])
     countY = len(dfMerged[(dfMerged['rowValue_x'] < dfMerged['rowValue_y']) &
-                          ((dfMerged['rowValue_x'] >= 0.8) |
-                           (dfMerged['rowValue_y'] >= 0.8))])
+                        ((dfMerged['rowValue_x'] >= 0.8) |
+                        (dfMerged['rowValue_y'] >= 0.8))])
     print(f"    >0.8 models with X>Y = {countX}, with Y>X = {countY}")
     # The columns get renamed after merging, so hueCol needs to be modified (to either
     # hueCol_x or hueCol_y). So long as the hueCol applies identically to the base and the other

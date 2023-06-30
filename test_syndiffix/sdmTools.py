@@ -460,13 +460,17 @@ class sdmTools:
     def _runOneMlMeasure(self, dfTest, dfTrain, metadata, column, method, csvFile):
         # TODO: change this limit depending on memory limitations of measuring machine
         print(f"Shape before reduction {dfTrain.shape}")
-        if dfTrain.shape[0] > 100000:
-            pass
+        #if dfTrain.shape[0] > 100000:    zzzz
+        if False:
             print(f"Reducing training size from {dfTrain.shape[0]} rows to 100k rows")
             dfTrain = dfTrain.sample(n=100000)
         print(f"Shape after reduction {dfTrain.shape}")
+        print(dfTrain.iloc[:10].to_string())
         exec = self.exec[method]
         kwargs = self.kwargs[method]
+        print(exec)
+        print(kwargs)
+        pp.pprint(metadata)
         score = None
         if kwargs:
             exec.MODEL_KWARGS = {'max_iter': 500}
