@@ -470,6 +470,7 @@ class sdmTools:
         kwargs = self.kwargs[method]
         print(exec)
         print(kwargs)
+        pp.pprint(metadata)
         score = None
         if kwargs:
             exec.MODEL_KWARGS = {'max_iter': 500}
