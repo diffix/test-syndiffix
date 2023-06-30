@@ -101,15 +101,8 @@ def summarize(measuresDir='measuresAb',
     withoutMostly.remove('mostly')
     # doPlots(tu, dfAll, withoutMostly, force=force)
     if jobs and 'combs' in jobs:
-        print("boo boo")
-        pp.pprint(jobs)
-        print(f"{len(jobs['combs'])} jobs")
         for job in jobs['combs']:
-            print("boo boo boo")
-            pp.pprint(job)
             doPlots(tu, dfAll, job['columns'], force=force)
-            print("boo 2")
-            pp.pprint(jobs['combs'])
     if whatToDo == 'general' and 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
         for compareMethod in ['syndiffix', 'syndiffix_focus']:
             for synMethod in synMethods:
@@ -227,9 +220,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
             # makeScatter(df, tu, synMethods, hueCol, 'compressedAxis', 'all', title, force)
     hueColsBasic = [None, 'mlMethodType',]
     for hueCol in hueColsBasic:
-        print("zzzz2")
         makeBasicGraph(df, tu, hueCol, 'all', title, force, apples=apples)
-        print("zzzz3")
         #makeBasicViolin(df, tu, 'all', title)
 
     title = f"Datasets with 2 columns"
@@ -239,7 +230,6 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     if len(synMethods) == 2:
         for hueCol in hueColsScatter:
             makeScatter(dfTemp, tu, synMethods, hueCol, 'equalAxis', f"2col", title, force)
-    print("zzzz got here...")
     hueColsBasic = [None, '2dimSizeTag',]
     for hueCol in hueColsBasic:
         makeBasicGraph(dfTemp, tu, hueCol, f"2col", title, force, apples=apples)
@@ -287,18 +277,19 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
 def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit, axisType):
     legendDone = False
     dfMerged = pd.merge(dfBase, dfOther, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
-    # Let's count the number of times that X is greater than Y
-    countX = len(dfMerged[dfMerged['rowValue_x'] > dfMerged['rowValue_y']])
-    countY = len(dfMerged[dfMerged['rowValue_x'] < dfMerged['rowValue_y']])
-    print(f"    All models with X>Y = {countX}, with Y>X = {countY}")
-    # And for top-scoring models only:
-    countX = len(dfMerged[(dfMerged['rowValue_x'] > dfMerged['rowValue_y']) &
-                          ((dfMerged['rowValue_x'] >= 0.8) |
-                           (dfMerged['rowValue_y'] >= 0.8))])
-    countY = len(dfMerged[(dfMerged['rowValue_x'] < dfMerged['rowValue_y']) &
-                          ((dfMerged['rowValue_x'] >= 0.8) |
-                           (dfMerged['rowValue_y'] >= 0.8))])
-    print(f"    >0.8 models with X>Y = {countX}, with Y>X = {countY}")
+    if False:
+        # Let's count the number of times that X is greater than Y
+        countX = len(dfMerged[dfMerged['rowValue_x'] > dfMerged['rowValue_y']])
+        countY = len(dfMerged[dfMerged['rowValue_x'] < dfMerged['rowValue_y']])
+        print(f"    All models with X>Y = {countX}, with Y>X = {countY}")
+        # And for top-scoring models only:
+        countX = len(dfMerged[(dfMerged['rowValue_x'] > dfMerged['rowValue_y']) &
+                            ((dfMerged['rowValue_x'] >= 0.8) |
+                            (dfMerged['rowValue_y'] >= 0.8))])
+        countY = len(dfMerged[(dfMerged['rowValue_x'] < dfMerged['rowValue_y']) &
+                            ((dfMerged['rowValue_x'] >= 0.8) |
+                            (dfMerged['rowValue_y'] >= 0.8))])
+        print(f"    >0.8 models with X>Y = {countX}, with Y>X = {countY}")
     # The columns get renamed after merging, so hueCol needs to be modified (to either
     # hueCol_x or hueCol_y). So long as the hueCol applies identically to the base and the other
     # data, it doesn't matter which.
@@ -422,7 +413,6 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         title += " (not apples-to-apples)"
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
-        print("zzzz4")
         return
     height = max(5, len(synMethods) * 1.8)
     fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(10, height))
