@@ -228,7 +228,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     hueColsBasic = [None, 'mlMethodType',]
     for hueCol in hueColsBasic:
         makeBasicGraph(df, tu, hueCol, 'all', title, force, apples=apples)
-        makeBasicViolin(df, tu, 'all', title)
+        #makeBasicViolin(df, tu, 'all', title)
 
     title = f"Datasets with 2 columns"
     print(title)
@@ -241,7 +241,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     hueColsBasic = [None, '2dimSizeTag',]
     for hueCol in hueColsBasic:
         makeBasicGraph(dfTemp, tu, hueCol, f"2col", title, force, apples=apples)
-        makeBasicViolin(df, tu, f"2col", title)
+        #makeBasicViolin(df, tu, f"2col", title)
 
     # Now for only the real datasets
     title = "Real datasets only"
@@ -254,7 +254,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
     hueColsBasic = [None, 'mlMethodType']
     for hueCol in hueColsBasic:
         makeBasicGraph(dfTemp, tu, hueCol, 'real', title, force, apples=apples)
-        makeBasicViolin(dfTemp, tu, 'real', title)
+        #makeBasicViolin(dfTemp, tu, 'real', title)
 
 
 def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
