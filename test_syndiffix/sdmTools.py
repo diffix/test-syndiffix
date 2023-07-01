@@ -471,22 +471,36 @@ class sdmTools:
         print(exec)
         print(kwargs)
         pp.pprint(metadata)
+        print(f"train shape {dfTrain.shape}")
+        print(f"test shape {dfTest.shape}")
+        print(f"target column is {column}")
+        print(dfTrain.describe().to_string())
         score = None
-        if kwargs:
-            exec.MODEL_KWARGS = {'max_iter': 500}
-        try:
-            score = exec.compute(
+        if method == 'LinearRegression':
+            print("Running without exec pointer")
+            score = sdmetrics.single_table.LinearRegression.compute(
                 test_data=dfTest,
                 train_data=dfTrain,
                 target=column,
                 metadata=metadata
             )
-        except Exception as e:
-            print(f"exception on {csvFile}, {column}, {method}")
-            print(e)
-            pp.pprint(metadata)
-            a = 1 / 0
-            quit()
+        else:
+            if kwargs:
+                exec.MODEL_KWARGS = {'max_iter': 500}
+            try:
+                score = exec.compute(
+                    test_data=dfTest,
+                    train_data=dfTrain,
+                    target=column,
+                    metadata=metadata
+                )
+            except Exception as e:
+                print(f"exception on {csvFile}, {column}, {method}")
+                print(e)
+                pp.pprint(metadata)
+                a = 1 / 0
+                quit()
+        print(f"score right after compute is {score}")
         return score
 
     def _getTestAndTrain(self, df):
@@ -883,6 +897,9 @@ python3 {testPath} \\
                     continue
                 for job in self.goodMlJobs[dataSourceName]:
                     if focusColumn is not None and job['column'] != focusColumn:
+                        continue
+                    measuresPath = os.path.join(tu.synMeasures, method, fileName)
+                    if os.path.exists(measuresPath):
                         continue
                     self.mlJobsOrder.append({**job,
                                              **{'resultsFile': fileName,
