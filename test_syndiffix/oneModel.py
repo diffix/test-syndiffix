@@ -194,6 +194,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
         { "StitchColumns": [7, 3], "DerivedColumns": [6] }
       ] }
     '''
+    numClusters = 1
     featCols = []
     for column in featuresColumns:
         featCols.append(allColumns.index(column))
@@ -210,6 +211,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
         clusterSpec['DerivedClusters'].append({'StitchColumns':[focCol],
                                                'DerivedColumns':derivedCols})
         remainCols = remainCols[cSize:]
+        numClusters += 1
     # Add the patch columns
     allCols = []
     for column in allColumns:
@@ -245,7 +247,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
     print(f"Target column: {focusColumn}")
     print(f"Target column: {focCol}")
     pp.pprint(clusterSpec)
-    return clusterSpec
+    return clusterSpec, numClusters
 
 def oneModel(dataDir='csvGeneral',
              dataSourceNum=0,
@@ -360,11 +362,12 @@ def oneModel(dataDir='csvGeneral',
             if featureThreshold:
                 featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         featuresWithoutMax = len(featuresColumns)
+        numClusters = 1
         clusterSpecJson = None
         if multiCluster:
             # At this point, featuresColumns are the columns that we'll want to include
             # in clusters
-            clusterSpec = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize)
+            clusterSpec, numClusters = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize)
             clusterSpecJson = json.dumps(clusterSpec)
         else:
             # We are going to limit ourselves to a single cluster, and only the
@@ -390,15 +393,6 @@ def oneModel(dataDir='csvGeneral',
             colNames = list(df.columns.values)
             print("New columns")
             print(colNames)
-            featuresJob['params'] = {
-                'maxFeatures':maxFeatures,
-                'featureThreshold':featureThreshold,
-                'usedFeatures':colNames,
-                'featuresWithoutMax':featuresWithoutMax,
-                'featureThreshold':featureThreshold,
-                'multiCluster':multiCluster,
-                'maxClusterSize':maxClusterSize,
-            }
             import uuid
             sourceFileName = sourceFileName + '.' + str(uuid.uuid4()) + '.csv'
             tempFilesDir = os.path.join(tu.baseDir, 'tempCsvFiles')
@@ -407,6 +401,16 @@ def oneModel(dataDir='csvGeneral',
             madeTempDataSource = True
             df.to_csv(dataSourcePath, index=False, header=df.columns)
             print(dataSourcePath)
+        featuresJob['params'] = {
+            'maxFeatures':maxFeatures,
+            'featureThreshold':featureThreshold,
+            'usedFeatures':colNames,
+            'featuresWithoutMax':featuresWithoutMax,
+            'featureThreshold':featureThreshold,
+            'multiCluster':multiCluster,
+            'maxClusterSize':maxClusterSize,
+            'numClusters':numClusters,
+        }
     print(list(dfTest.columns.values))
     if colNames != list(dfTest.columns.values):
         print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
