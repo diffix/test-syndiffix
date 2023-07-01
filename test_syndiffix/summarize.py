@@ -102,7 +102,7 @@ def summarize(measuresDir='measuresAb',
     # doPlots(tu, dfAll, withoutMostly, force=force)
     if jobs and 'combs' in jobs:
         for job in jobs['combs']:
-            doPlots(tu, dfAll, job['columns'], force=force, scatterHues=jobs['scatterHues'], basicHues=jobs['basicHues'])
+            doPlots(tu, dfAll, job['columns'], force=force, scatterHues=job['scatterHues'], basicHues=job['basicHues'])
     if whatToDo == 'general' and 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
         for compareMethod in ['syndiffix', 'syndiffix_focus']:
             for synMethod in synMethods:
