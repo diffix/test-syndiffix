@@ -898,7 +898,8 @@ python3 {testPath} \\
                 for job in self.goodMlJobs[dataSourceName]:
                     if focusColumn is not None and job['column'] != focusColumn:
                         continue
-                    measuresPath = os.path.join(self.tu.synMeasures, method, fileName)
+                    measuresFile = job['csvFile'] + '.' + job['method'] + '.' + job['column'] + '.ml.json'
+                    measuresPath = os.path.join(self.tu.synMeasures, method, measuresFile)
                     print(f"checking for {measuresPath}")
                     if os.path.exists(measuresPath):
                         print(f"    Skipping {measuresPath}")
