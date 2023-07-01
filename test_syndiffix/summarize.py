@@ -421,7 +421,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(f"Skipping {figPath}")
         return
     height = max(5, len(synMethods) * 1.8)
-    fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(10, height))
+    fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'columnScore'")
     if dfTemp.shape[0] > 0:
