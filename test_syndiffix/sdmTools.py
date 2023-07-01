@@ -898,7 +898,7 @@ python3 {testPath} \\
                 for job in self.goodMlJobs[dataSourceName]:
                     if focusColumn is not None and job['column'] != focusColumn:
                         continue
-                    measuresPath = os.path.join(tu.synMeasures, method, fileName)
+                    measuresPath = os.path.join(self.tu.synMeasures, method, fileName)
                     if os.path.exists(measuresPath):
                         continue
                     self.mlJobsOrder.append({**job,
