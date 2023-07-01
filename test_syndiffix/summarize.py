@@ -222,7 +222,7 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=None, ba
             makeScatter(df, tu, synMethods, hueCol, 'equalAxis', 'all', title, force)
             # makeScatter(df, tu, synMethods, hueCol, 'compressedAxis', 'all', title, force)
     if basicHues:
-        huesColsBasic = basicHues
+        hueColsBasic = basicHues
     else:
         hueColsBasic = [None, 'mlMethodType',]
     for hueCol in hueColsBasic:
