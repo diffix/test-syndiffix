@@ -899,7 +899,9 @@ python3 {testPath} \\
                     if focusColumn is not None and job['column'] != focusColumn:
                         continue
                     measuresPath = os.path.join(self.tu.synMeasures, method, fileName)
+                    print(f"checking for {measuresPath}")
                     if os.path.exists(measuresPath):
+                        print(f"    Skipping {measuresPath}")
                         continue
                     self.mlJobsOrder.append({**job,
                                              **{'resultsFile': fileName,
