@@ -102,7 +102,7 @@ def summarize(measuresDir='measuresAb',
     # doPlots(tu, dfAll, withoutMostly, force=force)
     if jobs and 'combs' in jobs:
         for job in jobs['combs']:
-            doPlots(tu, dfAll, job['columns'], force=force)
+            doPlots(tu, dfAll, job['columns'], force=force, scatterHues=jobs['scatterHues'], basicHues=jobs['basicHues'])
     if whatToDo == 'general' and 'syndiffix' in synMethods and 'syndiffix_focus' in synMethods:
         for compareMethod in ['syndiffix', 'syndiffix_focus']:
             for synMethod in synMethods:
@@ -201,7 +201,7 @@ def makeCsvFiles(df, tu):
         print(f"Writing {csvPath}")
         dfTemp.to_csv(csvPath, index=False, header=dfTemp.columns)
 
-def doPlots(tu, dfIn, synMethods, apples=True, force=False):
+def doPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=None, basicHues=None):
     print(f"-------- doPlots for synMethods '{synMethods}'")
     query = ''
     for synMethod in synMethods:
@@ -212,13 +212,19 @@ def doPlots(tu, dfIn, synMethods, apples=True, force=False):
 
     title = "All datasets (real and parameterized)"
     print(title)
-    hueColsScatter = [None, 'mlMethodType',]
+    if scatterHues:
+        hueColsScatter = scatterHues
+    else:
+        hueColsScatter = [None, 'mlMethodType',]
     # hueColsScatter = [None, 'mlMethodType', 'targetCardinality']
     if len(synMethods) == 2:
         for hueCol in hueColsScatter:
             makeScatter(df, tu, synMethods, hueCol, 'equalAxis', 'all', title, force)
             # makeScatter(df, tu, synMethods, hueCol, 'compressedAxis', 'all', title, force)
-    hueColsBasic = [None, 'mlMethodType',]
+    if basicHues:
+        huesColsBasic = basicHues
+    else:
+        hueColsBasic = [None, 'mlMethodType',]
     for hueCol in hueColsBasic:
         makeBasicGraph(df, tu, hueCol, 'all', title, force, apples=apples)
         #makeBasicViolin(df, tu, 'all', title)
