@@ -266,7 +266,7 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
         print(f"Skipping scatter {figPath}")
         return
     print(f"    Scatter plots")
-    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 15))
+    fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(10, 15))
     for ax0, ax1, rowType, rowVal, doLog, limit in zip([0, 0, 1, 1, 2], [0, 1, 0, 1, 0],
                 ['columnScore', 'pairScore', 'synMlScore', 'synMlScore', 'elapsedTime', ],
                 ['rowValue', 'rowValue', 'rowValue', 'mlPenalty', 'rowValue', ],
@@ -378,6 +378,7 @@ def doMlPlots(tu, df, force, hueCol=None):
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
     plt.xlim(0, 1)
     plt.xlabel(xaxis)
+    plt.tight_layout()
     plt.savefig(figPath)
     plt.close()
 
