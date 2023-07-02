@@ -175,6 +175,11 @@ class resultsGather():
                 row['featuresWithoutMax'] = params['featuresWithoutMax']
             else:
                 row['featuresWithoutMax'] = self.computeFeaturesWithoutMax(tr['features'], params['featureThreshold'])
+            if 'maxClusterSize' in params:
+                row['maxClusterSize'] = params['maxClusterSize']
+            row['numClusters'] = 1
+            if 'numClusters' in params:
+                row['numClusters'] = params['numClusters']
         self.tabData.append(row)
 
     def initTabRow(self, tr):
@@ -206,6 +211,8 @@ class resultsGather():
                     'featureThreshold': None,
                     'usedFeatures': None,
                     'featuresWithoutMax': None,
+                    'maxClusterSize': None,
+                    'numClusters': None,
                     'mlPenalty': None,
                     'privMethod': None,
                     'csvFile': None,
@@ -226,6 +233,8 @@ class resultsGather():
                     'featureThreshold': None,
                     'usedFeatures': None,
                     'featuresWithoutMax': None,
+                    'maxClusterSize': None,
+                    'numClusters': None,
                     'mlPenalty': None,
                     'privMethod': None,
                     'csvFile': csvName,
@@ -249,6 +258,8 @@ class resultsGather():
                 'featureThreshold': None,
                 'usedFeatures': None,
                 'featuresWithoutMax': None,
+                'maxClusterSize': None,
+                'numClusters': None,
                 'mlPenalty': None,
                 'privMethod': None,
                 'csvFile': csvName,
