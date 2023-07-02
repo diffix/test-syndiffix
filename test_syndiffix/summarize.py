@@ -266,21 +266,25 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
         print(f"Skipping scatter {figPath}")
         return
     print(f"    Scatter plots")
-    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 10))
-    for ax0, ax1, score, doLog, limit in zip([0, 0, 1, 1], [0, 1, 0, 1], ['columnScore', 'pairScore', 'synMlScore', 'elapsedTime', ], [False, False, False, True, ], [None, None, [0, 1], None, ]):
-        dfTemp = df.query(f"rowType == '{score}'")
+    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 15))
+    for ax0, ax1, rowType, rowVal, doLog, limit in zip([0, 0, 1, 1, 2], [0, 1, 0, 1, 0],
+                ['columnScore', 'pairScore', 'synMlScore', 'synMlScore', 'elapsedTime', ],
+                ['rowValue', 'rowValue', 'rowValue', 'mlPenalty', 'rowValue', ],
+                [False, False, False, False, True, ],
+                [None, None, [0, 1], [-.25,1], None, ]):
+        dfTemp = df.query(f"rowType == '{rowType}'")
         if dfTemp.shape[0] > 0 and len(list(pd.unique(dfTemp['synMethod']))) == 2:
             dfBase = dfTemp.query(f"synMethod == '{synMethods[0]}'")
             dfOther = dfTemp.query(f"synMethod == '{synMethods[1]}'")
-            print(f"Methods {synMethods}, score {score}:")
-            makeScatterWork(dfBase, dfOther, synMethods, axs[ax0][ax1], score, hueCol, doLog, limit, axisType)
+            print(f"Methods {synMethods}, score {rowType}:")
+            makeScatterWork(dfBase, dfOther, synMethods, axs[ax0][ax1], rowType, rowVal, hueCol, doLog, limit, axisType)
     fig.suptitle(title)
     plt.tight_layout()
     plt.savefig(figPath)
     plt.close()
 
 
-def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit, axisType):
+def makeScatterWork(dfBase, dfOther, synMethods, ax, rowType, rowVal, hueCol, doLog, limit, axisType):
     legendDone = False
     dfMerged = pd.merge(dfBase, dfOther, how='left', on=['csvFile', 'targetColumn', 'targetColumn2', 'mlMethod'])
     print(f"dfMerged shape {dfMerged.shape}")
@@ -302,14 +306,16 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit
     hueCol = hueCol + '_x' if hueCol else None
     hueDf = getHueDf(dfMerged, hueCol)
     hue_order = sorted(list(pd.unique(dfMerged[hueCol]))) if hueCol else None
-    g = sns.scatterplot(x=dfMerged['rowValue_x'], y=dfMerged['rowValue_y'], hue=hueDf, hue_order=hue_order, s=15, ax=ax)
+    rowValue_x = f"{rowVal}_x"
+    rowValue_y = f"{rowVal}_y"
+    g = sns.scatterplot(x=dfMerged[rowValue_x], y=dfMerged[rowValue_y], hue=hueDf, hue_order=hue_order, s=20, ax=ax)
     if axisType == 'equalAxis':
-        low = min(dfMerged['rowValue_x'].min(), dfMerged['rowValue_y'].min())
-        high = max(dfMerged['rowValue_x'].max(), dfMerged['rowValue_y'].max())
+        low = min(dfMerged[rowValue_x].min(), dfMerged[rowValue_y].min())
+        high = max(dfMerged[rowValue_x].max(), dfMerged[rowValue_y].max())
         low = max(low, 0)
     else:
-        low = max(dfMerged['rowValue_x'].min(), dfMerged['rowValue_y'].min())
-        high = min(dfMerged['rowValue_x'].max(), dfMerged['rowValue_y'].max())
+        low = max(dfMerged[rowValue_x].min(), dfMerged[rowValue_y].min())
+        high = min(dfMerged[rowValue_x].max(), dfMerged[rowValue_y].max())
     ax.plot([low, high], [low, high], color='red')
     if ax.get_legend() is not None:
         if legendDone:
@@ -322,11 +328,11 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, score, hueCol, doLog, limit
     if doLog:
         ax.set_xscale('log')
         ax.set_yscale('log')
-        ax.set_xlabel(f"{synMethods[0]} {score} (log)")
-        ax.set_ylabel(f"{synMethods[1]} {score} (log) ({dfMerged.shape[0]})")
+        ax.set_xlabel(f"{synMethods[0]} {rowType} (log)")
+        ax.set_ylabel(f"{synMethods[1]} {rowType} (log) ({dfMerged.shape[0]})")
     else:
-        ax.set_xlabel(f"{synMethods[0]} {score}")
-        ax.set_ylabel(f"{synMethods[1]} {score} ({dfMerged.shape[0]})")
+        ax.set_xlabel(f"{synMethods[0]} {rowType}")
+        ax.set_ylabel(f"{synMethods[1]} {rowType} ({dfMerged.shape[0]})")
 
 
 def setLabelSampleCount(s, labels):
