@@ -185,8 +185,8 @@ def getUniFeaturesByThreshold(featuresJob, featureThreshold):
     return features
 
 def transformClusterSpec(columns, clusterSpec):
-    for colName, index in zip(clusterSpec['initialCluster'], range(len(clusterSpec['initialCluster']))):
-        clusterSpec['initialCluster'][index] = columns.index(colName)
+    for colName, index in zip(clusterSpec['InitialCluster'], range(len(clusterSpec['InitialCluster']))):
+        clusterSpec['InitialCluster'][index] = columns.index(colName)
     for derivedCluster in clusterSpec['derivedClusters']:
         for colName, index in zip(derivedCluster['StitchColumns'], range(len(derivedCluster['StitchColumns']))):
             derivedCluster['StitchColumns'][index] = columns.index(colName)
