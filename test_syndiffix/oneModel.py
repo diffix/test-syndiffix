@@ -241,7 +241,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
     print(f"Target column: {focusColumn}")
     print(f"Target column: {focCol}")
     pp.pprint(clusterSpec)
-    return clusterSpec, numClusters, usedCols
+    return clusterSpec, numClusters, usedColumns
 
 def oneModel(dataDir='csvGeneral',
              dataSourceNum=0,
@@ -359,7 +359,6 @@ def oneModel(dataDir='csvGeneral',
             if featureThreshold:
                 featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         featuresWithoutMax = len(featuresColumns)
-        numClusters = 1
         clusterSpecJson = None
         clusterSpec, numClusters, usedColumns = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize, maxClusters, doPatches)
         clusterSpecJson = json.dumps(clusterSpec)
