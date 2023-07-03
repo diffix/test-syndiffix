@@ -184,7 +184,7 @@ def getUniFeaturesByThreshold(featuresJob, featureThreshold):
             break
     return features
 
-def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
+def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, maxClusters, doPatches):
     '''
     { "InitialCluster": [4, 5, 7],
       "DerivedClusters": [
@@ -201,53 +201,47 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize):
     focCol = allColumns.index(focusColumn)
     cSize = maxClusterSize-1
     # featCols is featuresColumns indices, focCol is focusColumn index
+    # Note that if cSize > len(featCols), then initialCluster is only the featCols
     initialCluster = featCols[:cSize]
     initialCluster += [focCol]
+    usedCols = initialCluster.copy()
     remainCols = featCols[cSize:]
     clusterSpec = {'InitialCluster':initialCluster, 'DerivedClusters':[]}
     # Add the clusters
     while len(remainCols) > 0:
+        if numClusters >= maxClusters:
+            break
         derivedCols = remainCols[:cSize]
+        usedCols += derivedCols
         clusterSpec['DerivedClusters'].append({'StitchColumns':[focCol],
                                                'DerivedColumns':derivedCols})
         remainCols = remainCols[cSize:]
         numClusters += 1
-    # Add the patch columns
-    allCols = []
-    for column in allColumns:
-        allCols.append(allColumns.index(column))
-    for column in allCols:
-        if column in featCols or column == focCol:
-            continue
-        clusterSpec['DerivedClusters'].append({'StitchColumns':[],
-                                               'DerivedColumns':[column]})
-    # Let's check things:
-    for column in clusterSpec['InitialCluster']:
-        if column not in allCols:
-            print(f"ERROR: bad column in initialCluster")
-            pp.pprint(clusterSpec)
-            quit()
-        allCols.remove(column)
-    for derived in clusterSpec['DerivedClusters']:
-        for column in derived['DerivedColumns']:
-            if column not in allCols:
-                print(f"ERROR: bad column in derivedCluster {derived}")
-                pp.pprint(clusterSpec)
-                quit()
-            allCols.remove(column)
-    if len(allCols) > 0:
-        print(f"ERROR: bad column in allCols {allCols}")
-        pp.pprint(clusterSpec)
-        quit()
+    if doPatches:
+        # Add the patch columns
+        allCols = []
+        for column in allColumns:
+            allCols.append(allColumns.index(column))
+        for column in allCols:
+            if column in featCols or column == focCol:
+                continue
+            clusterSpec['DerivedClusters'].append({'StitchColumns':[],
+                                                'DerivedColumns':[column]})
+
+    usedColumns = []
+    for colId in usedCols:
+        usedColumns.append(allColumns[colId])
     print("Cluster information:")
     print(f"All columns: {allColumns}")
     print(f"All columns: {allCols}")
     print(f"Features columns: {featuresColumns}")
     print(f"Features columns: {featCols}")
+    print(f"Used columns: {usedColumns}")
+    print(f"Used columns: {usedCols}")
     print(f"Target column: {focusColumn}")
     print(f"Target column: {focCol}")
     pp.pprint(clusterSpec)
-    return clusterSpec, numClusters
+    return clusterSpec, numClusters, usedCols
 
 def oneModel(dataDir='csvGeneral',
              dataSourceNum=0,
@@ -262,11 +256,17 @@ def oneModel(dataDir='csvGeneral',
              featuresType=None,
              featuresDir=None,
              numFeatures=None,
-             maxFeatures=6,
              featureThreshold=None,
-             multiCluster=False,
              maxClusterSize=3,
+             maxClusters=1000,
+             doPatches=True,
              force=False):
+
+    ''' Build as many clusters of size maxClusterSize as we can until we either reach
+        maxClusters or we have put all features (that pass featureThreshold) into clusters.
+        If doPatches==False, then we remove all columns that are not in a cluster.
+        Otherwise, we add the columns as patches.
+    '''
     tu = testUtils.testUtilities()
     tu.registerCsvLib(dataDir)
     tu.registerSynResults(synResults)
@@ -338,12 +338,9 @@ def oneModel(dataDir='csvGeneral',
     df = readCsv(dataSourcePath)
     print(f"Training dataframe shape (before features) {df.shape}")
     colNames = list(df.columns.values)
-    # quick test to make sure that the test and train data match columns
     dfTest = readCsv(testDataPath)
     madeTempDataSource = False
     if featuresJob:
-        # Remove columns not in the features set or target column
-        # From here on out, we will be working with so-truncated data
         origColNames = colNames.copy()
         print("Original columns")
         print(origColNames)
@@ -364,25 +361,11 @@ def oneModel(dataDir='csvGeneral',
         featuresWithoutMax = len(featuresColumns)
         numClusters = 1
         clusterSpecJson = None
-        if multiCluster:
-            # At this point, featuresColumns are the columns that we'll want to include
-            # in clusters
-            clusterSpec, numClusters = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize)
-            clusterSpecJson = json.dumps(clusterSpec)
-        else:
-            # We are going to limit ourselves to a single cluster, and only the
-            # columns in that cluster (this is mainly test purposes)
-            if 'fixed' not in featuresJob and len(featuresColumns) > maxFeatures:
-                print(f"Truncating to {maxFeatures} features due to maxFeatures")
-                featuresColumns = featuresColumns[:maxFeatures-1]
-            print("Feature columns")
-            print(featuresColumns)
-            newColNames = featuresColumns + [featuresJob['targetColumn']]
-            if len(newColNames) != len(list(set(newColNames))):
-                print(f"ERROR: duplicates in newColNames {newColNames}")
-                quit()
+        clusterSpec, numClusters, usedColumns = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize, maxClusters, doPatches)
+        clusterSpecJson = json.dumps(clusterSpec)
+        if not doPatches:
             for origCol in origColNames:
-                if origCol not in newColNames:
+                if origCol not in usedColumns:
                     df.drop(origCol, axis=1, inplace=True)
                     dfTest.drop(origCol, axis=1, inplace=True)
             # Now we need to make a csv out of df to later give to abSharp
@@ -402,16 +385,16 @@ def oneModel(dataDir='csvGeneral',
             df.to_csv(dataSourcePath, index=False, header=df.columns)
             print(dataSourcePath)
         featuresJob['params'] = {
-            'maxFeatures':maxFeatures,
+             'doPatches':doPatches,
             'featureThreshold':featureThreshold,
             'usedFeatures':colNames,
             'featuresWithoutMax':featuresWithoutMax,
             'featureThreshold':featureThreshold,
-            'multiCluster':multiCluster,
             'maxClusterSize':maxClusterSize,
             'numClusters':numClusters,
         }
     print(list(dfTest.columns.values))
+    # quick test to make sure that the test and train data match columns
     if colNames != list(dfTest.columns.values):
         print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
         quit()
@@ -420,7 +403,7 @@ def oneModel(dataDir='csvGeneral',
     print(f"Columns {colNames}")
     mls = testUtils.mlSupport(tu)
     metaData = makeMetadata(df)
-    if model == 'abSharp' or 'syndiffix' in model:
+    if model == 'abSharp' or 'syndiffix' in model or 'sd_' in model:
         colTypeSymbols = {'text': 's', 'real': 'r', 'datetime': 't', 'int': 'i', 'boolean': 'b'}
         colTypes = tu.getColTypesFromDataframe(df)
         columns = []
@@ -437,6 +420,7 @@ def oneModel(dataDir='csvGeneral',
             extraArgs = ["--clusters", clusterSpecJson]
         elif featuresJob:
             extraArgs = ["--no-clustering"]
+        quit()
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=extraArgs)
         if madeTempDataSource:
             os.remove(dataSourcePath)
