@@ -105,7 +105,7 @@ def makeCsvFiles(df, tu):
         print(f"Writing {csvPath}")
         dfTemp.to_csv(csvPath, index=False, header=dfTemp.columns)
 
-def do2dimPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=None, basicHues=None, doElapsed=False):
+def do2dimPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[None], basicHues=[None], doElapsed=False):
     print(f"-------- do2dimPlots for synMethods '{synMethods}'")
     query = ''
 
@@ -117,18 +117,15 @@ def do2dimPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=None
 
     title = f"Datasets with 2 columns"
     print(title)
-    hueColsScatter = [None]
-    if len(synMethods) == 2:
-        for hueCol in hueColsScatter:
-            makeScatter(df, tu, synMethods, hueCol, 'equalAxis', f"2col", title, force)
-    hueColsBasic = [None, '2dimSizeTag',]
-    for hueCol in hueColsBasic:
+    for hueCol in scatterHues:
+        makeScatter(df, tu, synMethods, hueCol, 'equalAxis', f"2col", title, force)
+    for hueCol in basicHues:
         makeAccuracyGraph(df, tu, hueCol, f"2col", title, force, apples=apples)
     if doElapsed:
-        for hueCol in hueColsBasic:
+        for hueCol in basicHues:
             makeElapsedGraph(df, tu, hueCol, f"2col", title, force, apples=apples)
 
-def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=None, basicHues=None, doElapsed=False):
+def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, basicHues=[None], doElapsed=False):
     print(f"-------- doRealPlots for synMethods '{synMethods}'")
     query = ''
     for synMethod in synMethods:
@@ -140,15 +137,10 @@ def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=None
     # Now for only the real datasets
     title = "Real datasets only"
     print(title)
-    hueColsScatter = [None, 'mlMethodType',]
-    if len(synMethods) == 2:
-        for hueCol in hueColsScatter:
-            makeScatter(df, tu, synMethods, hueCol, 'equalAxis', 'real', title, force)
-    hueColsBasic = [None, 'mlMethodType']
-    for hueCol in hueColsBasic:
+    for hueCol in basicHues:
         makeMlGraph(df, tu, hueCol, 'real', title, force, apples=apples)
     if doElapsed:
-        for hueCol in hueColsBasic:
+        for hueCol in basicHues:
             makeElapsedGraph(df, tu, hueCol, 'real', title, force, apples=apples)
 
 def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
