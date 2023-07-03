@@ -395,7 +395,7 @@ def oneModel(dataDir='csvGeneral',
     print(f"Columns {colNames}")
     mls = testUtils.mlSupport(tu)
     metaData = makeMetadata(df)
-    if model == 'abSharp' or 'syndiffix' in model or 'sd_' in model:
+    if model == 'abSharp' or 'syndiffix' in model or 'sdx_' in model:
         colTypeSymbols = {'text': 's', 'real': 'r', 'datetime': 't', 'int': 'i', 'boolean': 'b'}
         colTypes = tu.getColTypesFromDataframe(df)
         columns = []
