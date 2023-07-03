@@ -125,7 +125,7 @@ def do2dimPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[Non
         for hueCol in basicHues:
             makeElapsedGraph(df, tu, hueCol, f"2col", title, force, apples=apples)
 
-def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, basicHues=[None], doElapsed=False):
+def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[None], basicHues=[None], doElapsed=False):
     print(f"-------- doRealPlots for synMethods '{synMethods}'")
     query = ''
     for synMethod in synMethods:
@@ -137,6 +137,8 @@ def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, basicHues=[None]
     # Now for only the real datasets
     title = "Real datasets only"
     print(title)
+    for hueCol in scatterHues:
+        makeScatter(df, tu, synMethods, hueCol, 'equalAxis', f"real", title, force)
     for hueCol in basicHues:
         makeMlGraph(df, tu, hueCol, 'real', title, force, apples=apples)
     if doElapsed:
