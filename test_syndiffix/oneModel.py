@@ -419,7 +419,6 @@ def oneModel(dataDir='csvGeneral',
             extraArgs = ["--clusters", clusterSpecJson]
         elif featuresJob:
             extraArgs = ["--no-clustering"]
-        quit()
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=extraArgs)
         if madeTempDataSource:
             os.remove(dataSourcePath)
