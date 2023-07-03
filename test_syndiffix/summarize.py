@@ -335,15 +335,15 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
-            axs[0][0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
-        axs[0][0].set_xlabel(xaxis)
+            axs[0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
+        axs[0].set_xlabel(xaxis)
         low = dfTemp['rowValue'].min()
         if hueDf is not None:
-            axs[0][0].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
-        axs[0][0].set_xlim(max(0, low), 1.0)
+            axs[0].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
+        axs[0].set_xlim(max(0, low), 1.0)
 
         xaxis = 'ML Penalty'
         hueDf = getHueDf(dfTemp, hueCol)
@@ -351,15 +351,15 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality", measureField='mlPenalty')
-        sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
+        sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
-            axs[0][1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
-        axs[0][1].set_xlabel(xaxis)
+            axs[1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
+        axs[1].set_xlabel(xaxis)
         low = dfTemp['rowValue'].min()
         if hueDf is not None:
-            axs[0][1].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
-        #axs[1][1].set_xlim(max(0, low), 1.0)
+            axs[1].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
+        #axs[1].set_xlim(max(0, low), 1.0)
 
     fig.suptitle(title)
     plt.tight_layout()
