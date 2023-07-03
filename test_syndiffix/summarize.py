@@ -51,7 +51,6 @@ def summarize(measuresDir='measuresAb',
     print("Before ignore:")
     print(dfAll.columns)
     makeCsvFiles(dfAll, tu)
-    doMlPlots(tu, dfAll, force)
     if jobs and 'ignore' in jobs:
         for synMethod in jobs['ignore']:
             print(f"Ignoring {synMethod}")
@@ -251,34 +250,6 @@ def getBestSyndiffix(df):
     df1 = df[['synMethod', 'rowValue']]
     df2 = dfMerged[['synMethod', 'rowValue']]
     return pd.concat([df1, df2], axis=0)
-
-
-def doMlPlots(tu, df, force, hueCol=None):
-    figPath = os.path.join(tu.summariesDir, 'ml.png')
-
-    # dfTemp = df.query("rowType == 'synMlScore'")
-    dfTemp = df.query("rowType == 'synMlScore' and numColumns > 2")
-
-    # dfTemp = getBestSyndiffix(dfTemp)
-    print("doMlPlot stats:")
-    printStats(dfTemp, hueCol, "quality")
-    xaxis = 'ML scores'
-    hueDf = getHueDf(dfTemp, hueCol)
-    sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf)
-    plt.xlim(0, 1)
-    plt.xlabel(xaxis)
-    plt.tight_layout()
-    plt.savefig(figPath)
-    plt.close()
-
-    figPath = os.path.join(tu.summariesDir, 'mlPenalty.png')
-    xaxis = 'ML penalty'
-    hueDf = getHueDf(dfTemp, hueCol)
-    sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf)
-    plt.xlim(-0.2, 1)
-    plt.xlabel(xaxis)
-    plt.savefig(figPath)
-    plt.close()
 
 def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
     if what == 'lowBounds':
