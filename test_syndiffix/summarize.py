@@ -16,7 +16,6 @@ pp = pprint.PrettyPrinter(indent=4)
 
 setLabelCountsGlobal = False
 
-
 def swrite(f, wstr):
     f.write(wstr)
     f.write('\n')
