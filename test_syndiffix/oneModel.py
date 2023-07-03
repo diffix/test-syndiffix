@@ -418,7 +418,6 @@ def oneModel(dataDir='csvGeneral',
             extraArgs = ["--no-clustering"]
         print("Extra args:")
         pp.pprint(extraArgs)
-        quit()
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=extraArgs)
         if madeTempDataSource:
             os.remove(dataSourcePath)
