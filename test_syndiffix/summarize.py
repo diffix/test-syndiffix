@@ -390,16 +390,16 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "time")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
-            axs[0][0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
-        axs[0][0].set_xlim(left=0.1)
-        axs[0][0].set_xscale('log')  # zzzz
+            axs[0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
+        axs[0].set_xlim(left=0.1)
+        axs[0].set_xscale('log')  # zzzz
         if hueDf is not None:
-            axs[0][0].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
-        axs[0][0].set_xlabel(xaxis)
-        # axs[0][0].set(yticklabels = [], ylabel = None)
+            axs[0].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
+        axs[0].set_xlabel(xaxis)
+        # axs[0].set(yticklabels = [], ylabel = None)
 
     fig.suptitle(title)
     plt.tight_layout()
