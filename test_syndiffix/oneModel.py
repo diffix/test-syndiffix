@@ -217,11 +217,11 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
                                                'DerivedColumns':derivedCols})
         remainCols = remainCols[cSize:]
         numClusters += 1
+    allCols = []
+    for column in allColumns:
+        allCols.append(allColumns.index(column))
     if doPatches:
         # Add the patch columns
-        allCols = []
-        for column in allColumns:
-            allCols.append(allColumns.index(column))
         for column in allCols:
             if column in featCols or column == focCol:
                 continue
