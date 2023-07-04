@@ -2,6 +2,7 @@ import fire
 import sys
 import os
 import json
+import statistics
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import sdmTools
 import testUtils
@@ -34,7 +35,6 @@ class SdmManager(object):
         mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs))
 
     def measureMlVariance(self, origMlDir='origMlAb'):
-        import statistics
         tu = testUtils.testUtilities()
         tu.registerOrigMlDir(origMlDir)
         mlFiles = self.tu.getOrigMlFiles()
@@ -57,20 +57,30 @@ class SdmManager(object):
                 }
             results[job['method']]['max'].append(max(job['allScores']))
             results[job['method']]['avg'].append(statistics.mean(job['allScores']))
-            results[job['method']]['sd'].append(statistics.stdev(job['allScores']))
+            if len(job['allScores']) > 1:
+                results[job['method']]['sd'].append(statistics.stdev(job['allScores']))
+            else:
+                results[job['method']]['sd'].append(None)
             results[job['method']]['max-min'].append(max(job['allScores'])-min(job['allScores']))
             if max(job['allScores']) > 0 and min(job['allScores']) < 0:
-                results[job['method']]['posNeg'].append(True)
+                results[job['method']]['posNeg'].append(1)
             else:
-                results[job['method']]['posNeg'].append(False)
-        pass
+                results[job['method']]['posNeg'].append(0)
         for method, res in results.items():
             self._printMlStats(method, res)
 
     def _printMlStats(self, method, res):
         print(f"{method}:")
         print(f"    Total samples: {len(res['max'])}")
-        pass
+        print(f"    Average max: {statistics.mean(res['max'])}")
+        print(f"    Stddev max: {statistics.stdev(res['max'])}")
+        print(f"    Average avg: {statistics.mean(res['avg'])}")
+        print(f"    Stddev avg: {statistics.stdev(res['avg'])}")
+        print(f"    Average stdev: {statistics.mean(res['sd'])}")
+        print(f"    Stddev stdev: {statistics.stdev(res['sd'])}")
+        print(f"    Average max-min gap: {statistics.mean(res['max-min'])}")
+        print(f"    Stddev max-min gap: {statistics.stdev(res['max-min'])}")
+        print(f"    {sum(res['posNeg'])} of {len(res['posNeg'])} have both positive and negative scores")
 
     def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
