@@ -22,6 +22,7 @@ class sdmTools:
     def __init__(self, tu):
         self.maxEvalsPerType = 20
         self.maxTrainingSize = 20000
+        self.mlMeasureRepeats = 20
         self.synMethods = [
             'tvae',
             'gaussianCopula',
@@ -406,7 +407,7 @@ class sdmTools:
         mls = testUtils.mlSupport(self.tu)
         mlClassInfo = mls.makeMlClassInfo(dfTest, None)
         metadata = self._getMetadataFromMlInfo(mlClassInfo)
-        score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
+        score, allScores = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                       myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
             print("Scores is None, quitting")
@@ -414,6 +415,7 @@ class sdmTools:
         endTime = time.time()
         print(f"Score = {score}")
         myJob['score'] = score
+        myJob['allScores'] = allScores
         myJob['elapsedSyn'] = endTime - startTime
         myJob['elapsed'] = results['elapsedTime']
         myJob['focusColumn'] = focusColumn
@@ -448,10 +450,11 @@ class sdmTools:
         metadata = self._getMetadataFromMlInfo(mlClassInfo)
         print("Metadata:")
         pp.pprint(metadata)
-        score = self._runOneMlMeasure(dfTest, dfTrain, metadata, myJob['column'], myJob['method'], myJob['csvFile'])
+        score, allScores = self._runOneMlMeasure(dfTest, dfTrain, metadata, myJob['column'], myJob['method'], myJob['csvFile'])
         endTime = time.time()
         print(f"Score = {score}")
         myJob['score'] = score
+        myJob['allScores'] = allScores
         myJob['elapsed'] = endTime - startTime
         with open(origMlJobPath, 'w') as f:
             json.dump(myJob, f, indent=4)
@@ -459,34 +462,16 @@ class sdmTools:
 
     def _runOneMlMeasure(self, dfTest, dfTrain, metadata, column, method, csvFile):
         # TODO: change this limit depending on memory limitations of measuring machine
-        print(f"Shape before reduction {dfTrain.shape}")
-        #if dfTrain.shape[0] > 100000:    zzzz
-        if False:
+        if dfTrain.shape[0] > 100000:
             print(f"Reducing training size from {dfTrain.shape[0]} rows to 100k rows")
             dfTrain = dfTrain.sample(n=100000)
-        print(f"Shape after reduction {dfTrain.shape}")
-        print(dfTrain.iloc[:10].to_string())
+            print(f"Shape after reduction {dfTrain.shape}")
         exec = self.exec[method]
         kwargs = self.kwargs[method]
-        print(exec)
-        print(kwargs)
-        pp.pprint(metadata)
-        print(f"train shape {dfTrain.shape}")
-        print(f"test shape {dfTest.shape}")
-        print(f"target column is {column}")
-        print(dfTrain.describe().to_string())
-        score = None
-        if method == 'LinearRegression':
-            print("Running without exec pointer")
-            score = sdmetrics.single_table.LinearRegression.compute(
-                test_data=dfTest,
-                train_data=dfTrain,
-                target=column,
-                metadata=metadata
-            )
-        else:
-            if kwargs:
-                exec.MODEL_KWARGS = {'max_iter': 500}
+        allScores = []
+        if kwargs:
+            exec.MODEL_KWARGS = {'max_iter': 500}
+        for _ in range(self.mlMeasureRepeats):
             try:
                 score = exec.compute(
                     test_data=dfTest,
@@ -500,8 +485,8 @@ class sdmTools:
                 pp.pprint(metadata)
                 a = 1 / 0
                 quit()
-        print(f"score right after compute is {score}")
-        return score
+            allScores.append(score)
+        return max(allScores), allScores
 
     def _getTestAndTrain(self, df):
         dfShuffled = df.sample(frac=1)

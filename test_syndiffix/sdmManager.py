@@ -1,6 +1,7 @@
 import fire
 import sys
 import os
+import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import sdmTools
 import testUtils
@@ -31,6 +32,29 @@ class SdmManager(object):
         sdmt.enumerateOrigMlJobs()
         mc = sdmTools.measuresConfig(tu)
         mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs))
+
+    def measureMlVariance(self, origMlDir='origMlAb'):
+        tu = testUtils.testUtilities()
+        tu.registerOrigMlDir(origMlDir)
+        mlFiles = self.tu.getOrigMlFiles()
+        self.goodMlJobs = {}
+        results = {}
+        for mlFile in mlFiles:
+            mlPath = os.path.join(self.tu.origMlDir, mlFile)
+            with open(mlPath, 'r') as f:
+                job = json.load(f)
+            if 'allScores' not in job:
+                print(f"Missing allScores on {mlPath}")
+                quit()
+            if job['method'] not in results:
+                results[job['method']] = {
+                    'max':[],
+                    'avg':[],
+                    'sd':[],
+                    'max-min':[],
+                    'posNeg':[],
+                }
+            pass
 
     def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
