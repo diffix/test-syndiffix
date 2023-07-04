@@ -44,6 +44,7 @@ class SdmManager(object):
             mlPath = os.path.join(self.tu.origMlDir, mlFile)
             with open(mlPath, 'r') as f:
                 job = json.load(f)
+            pp.pprint(job)
             if 'allScores' not in job:
                 print(f"Missing allScores on {mlPath}")
                 quit()
