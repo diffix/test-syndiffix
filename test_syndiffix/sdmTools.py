@@ -401,30 +401,33 @@ class sdmTools:
             return
         dfAnon = pd.DataFrame(results['anonTable'], columns=results['colNames'])
         dfTest = pd.DataFrame(results['testTable'], columns=results['colNames'])
-        startTime = time.time()
-        print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
         print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape}")
         mls = testUtils.mlSupport(self.tu)
         mlClassInfo = mls.makeMlClassInfo(dfTest, None)
         metadata = self._getMetadataFromMlInfo(mlClassInfo)
-        score, allScores = self._runOneMlMeasure(dfTest, dfAnon, metadata,
+        allScores = []
+        for _ in range(self.mlMeasureRepeats):
+            startTime = time.time()
+            print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
+            score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                       myJob['column'], myJob['method'], myJob['csvFile'])
-        if score is None:
-            print("Scores is None, quitting")
-            quit()
-        endTime = time.time()
-        print(f"Score = {score}")
-        myJob['score'] = score
-        myJob['allScores'] = allScores
-        myJob['elapsedSyn'] = endTime - startTime
-        myJob['elapsed'] = results['elapsedTime']
-        myJob['focusColumn'] = focusColumn
-        if 'features' in results:
-            myJob['features'] = results['features']
-        print("Job Information")
-        pp.pprint(myJob)
-        with open(measuresPath, 'w') as f:
-            json.dump(myJob, f, indent=4)
+            if score is None:
+                print("Scores is None, quitting")
+                quit()
+            endTime = time.time()
+            allScores.append(score)
+            print(f"Score = {score}")
+            myJob['score'] = max(allScores)
+            myJob['allScores'] = allScores
+            myJob['elapsedSyn'] = endTime - startTime
+            myJob['elapsed'] = results['elapsedTime']
+            myJob['focusColumn'] = focusColumn
+            if 'features' in results:
+                myJob['features'] = results['features']
+            print("Job Information")
+            pp.pprint(myJob)
+            with open(measuresPath, 'w') as f:
+                json.dump(myJob, f, indent=4)
         print("oneSynMLJob: SUCCESS")
 
     def runOrigMlJob(self, jobNum, force):
@@ -438,8 +441,6 @@ class sdmTools:
             print(f"{origMlJobPath} exists, skipping")
             print("oneSynMLJob: SUCCESS (skipped)")
             return
-        startTime = time.time()
-        print(f"oneOrigMlJob: Starting job {myJob} at time {startTime}")
         csvPath = os.path.join(self.tu.csvLib, myJob['csvFile'])
         dfTrain = readCsv(csvPath)
         csvPath = os.path.join(self.tu.csvLibTest, myJob['csvFile'])
@@ -450,14 +451,19 @@ class sdmTools:
         metadata = self._getMetadataFromMlInfo(mlClassInfo)
         print("Metadata:")
         pp.pprint(metadata)
-        score, allScores = self._runOneMlMeasure(dfTest, dfTrain, metadata, myJob['column'], myJob['method'], myJob['csvFile'])
-        endTime = time.time()
-        print(f"Score = {score}")
-        myJob['score'] = score
-        myJob['allScores'] = allScores
-        myJob['elapsed'] = endTime - startTime
-        with open(origMlJobPath, 'w') as f:
-            json.dump(myJob, f, indent=4)
+        allScores = []
+        for _ in range(self.mlMeasureRepeats):
+            startTime = time.time()
+            print(f"oneOrigMlJob: Starting job {myJob} at time {startTime}")
+            score = self._runOneMlMeasure(dfTest, dfTrain, metadata, myJob['column'], myJob['method'], myJob['csvFile'])
+            endTime = time.time()
+            allScores.append(score)
+            print(f"Score = {score}")
+            myJob['score'] = max(allScores)
+            myJob['allScores'] = allScores
+            myJob['elapsed'] = endTime - startTime
+            with open(origMlJobPath, 'w') as f:
+                json.dump(myJob, f, indent=4)
         print("oneOrigMlJob: SUCCESS")
 
     def _runOneMlMeasure(self, dfTest, dfTrain, metadata, column, method, csvFile):
@@ -468,25 +474,22 @@ class sdmTools:
             print(f"Shape after reduction {dfTrain.shape}")
         exec = self.exec[method]
         kwargs = self.kwargs[method]
-        allScores = []
         if kwargs:
             exec.MODEL_KWARGS = {'max_iter': 500}
-        for _ in range(self.mlMeasureRepeats):
-            try:
-                score = exec.compute(
-                    test_data=dfTest,
-                    train_data=dfTrain,
-                    target=column,
-                    metadata=metadata
-                )
-            except Exception as e:
-                print(f"exception on {csvFile}, {column}, {method}")
-                print(e)
-                pp.pprint(metadata)
-                a = 1 / 0
-                quit()
-            allScores.append(score)
-        return max(allScores), allScores
+        try:
+            score = exec.compute(
+                test_data=dfTest,
+                train_data=dfTrain,
+                target=column,
+                metadata=metadata
+            )
+        except Exception as e:
+            print(f"exception on {csvFile}, {column}, {method}")
+            print(e)
+            pp.pprint(metadata)
+            a = 1 / 0
+            quit()
+        return score
 
     def _getTestAndTrain(self, df):
         dfShuffled = df.sample(frac=1)

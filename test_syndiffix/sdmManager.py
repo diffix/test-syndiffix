@@ -34,6 +34,7 @@ class SdmManager(object):
         mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs))
 
     def measureMlVariance(self, origMlDir='origMlAb'):
+        import statistics
         tu = testUtils.testUtilities()
         tu.registerOrigMlDir(origMlDir)
         mlFiles = self.tu.getOrigMlFiles()
@@ -54,7 +55,22 @@ class SdmManager(object):
                     'max-min':[],
                     'posNeg':[],
                 }
-            pass
+            results[job['method']]['max'].append(max(job['allScores']))
+            results[job['method']]['avg'].append(statistics.mean(job['allScores']))
+            results[job['method']]['sd'].append(statistics.stdev(job['allScores']))
+            results[job['method']]['max-min'].append(max(job['allScores'])-min(job['allScores']))
+            if max(job['allScores']) > 0 and min(job['allScores']) < 0:
+                results[job['method']]['posNeg'].append(True)
+            else:
+                results[job['method']]['posNeg'].append(False)
+        pass
+        for method, res in results.items():
+            self._printMlStats(method, res)
+
+    def _printMlStats(self, method, res):
+        print(f"{method}:")
+        print(f"    Total samples: {len(res['max'])}")
+        pass
 
     def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
