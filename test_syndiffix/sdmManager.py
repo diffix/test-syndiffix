@@ -40,7 +40,7 @@ class SdmManager(object):
         mlFiles = tu.getOrigMlFiles()
         results = {}
         for mlFile in mlFiles:
-            mlPath = os.path.join(self.tu.origMlDir, mlFile)
+            mlPath = os.path.join(tu.origMlDir, mlFile)
             with open(mlPath, 'r') as f:
                 job = json.load(f)
             if 'allScores' not in job:
