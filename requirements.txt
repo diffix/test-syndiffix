@@ -6,3 +6,5 @@ pandas==1.5.3
 sdmetrics==0.9.1
 seaborn==0.12.2
 sdv==0.18.0
+gretel-client==0.15.14
+ydata-sdk==0.6.0
