@@ -37,8 +37,7 @@ class SdmManager(object):
     def measureMlVariance(self, origMlDir='origMlAb'):
         tu = testUtils.testUtilities()
         tu.registerOrigMlDir(origMlDir)
-        mlFiles = self.tu.getOrigMlFiles()
-        self.goodMlJobs = {}
+        mlFiles = tu.getOrigMlFiles()
         results = {}
         for mlFile in mlFiles:
             mlPath = os.path.join(self.tu.origMlDir, mlFile)
@@ -46,7 +45,7 @@ class SdmManager(object):
                 job = json.load(f)
             pp.pprint(job)
             if 'allScores' not in job:
-                #print(f"Missing allScores on {mlPath}")
+                print(f"Missing allScores on {mlPath}")
                 quit()
             if job['method'] not in results:
                 results[job['method']] = {
