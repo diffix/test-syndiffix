@@ -41,6 +41,7 @@ class SdmManager(object):
                 'avg':[],
                 'sd':[],
                 'max-min':[],
+                'max-first':[],
                 'posNeg':[],
             }
         results[method]['max'].append(max(job['allScores']))
@@ -50,6 +51,7 @@ class SdmManager(object):
         else:
             results[method]['sd'].append(0)
         results[method]['max-min'].append(max(job['allScores'])-min(job['allScores']))
+        results[method]['max-first'].append(max(job['allScores'])-job['allScores'][0])
         if max(job['allScores']) > 0 and min(job['allScores']) < 0:
             results[method]['posNeg'].append(1)
         else:
@@ -87,6 +89,8 @@ class SdmManager(object):
         print(f"    Max max-min gap: {max(res['max-min'])}")
         print(f"    Average max-min gap: {statistics.mean(res['max-min'])}")
         print(f"    Stddev max-min gap: {statistics.stdev(res['max-min'])}")
+        print(f"    Max max-first gap: {max(res['max-first'])}")
+        print(f"    Average max-first gap: {statistics.mean(res['max-first'])}")
         print(f"    {sum(res['posNeg'])} of {len(res['posNeg'])} have both positive and negative scores")
 
     def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
