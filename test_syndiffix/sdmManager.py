@@ -71,6 +71,8 @@ class SdmManager(object):
     def _printMlStats(self, method, res):
         print(f"{method}:")
         print(f"    Total samples: {len(res['max'])}")
+        print(f"    Max max: {max(res['max'])}")
+        print(f"    Min max: {min(res['max'])}")
         print(f"    Average max: {statistics.mean(res['max'])}")
         print(f"    Stddev max: {statistics.stdev(res['max'])}")
         print(f"    Average avg: {statistics.mean(res['avg'])}")
