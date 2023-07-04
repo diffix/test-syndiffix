@@ -43,7 +43,8 @@ class External(object):
             print(e, 'encountered when processing', csvPath)
             return None
 
-        syntheticDf.to_csv(resultCsvPath(csvPath, 'ydata' + ('_local' if local else '')))
+        syntheticDf.to_csv(resultCsvPath(csvPath, 'ydata' + ('_local' if local else '')),
+                           index=False, sep=',', header=True)
         print(syntheticDf.round(3))
 
     def gretel(self, csvPath, local=False):
@@ -71,7 +72,6 @@ class External(object):
 
             project = create_or_get_unique_project(name="synthetic-data")
             config = read_model_config("synthetics/tabular-lstm")
-            config["models"][0]["synthetics"]["params"]["epochs"] = 10
             config["models"][0]["synthetics"]["generate"]["num_records"] = 10
             model = project.create_model_obj(model_config=config, data_source=csvPath)
 
@@ -83,7 +83,7 @@ class External(object):
 
                 nRows = readCsv(csvPath).shape[0]
                 recordHandler = model.create_record_handler_obj(
-                    params={"num_records": nRows, "max_invalid": None}
+                    params={"num_records": nRows, "max_invalid": nRows * 3}
                 )
                 recordHandler.submit_cloud()
                 poll(recordHandler)
@@ -93,7 +93,8 @@ class External(object):
                 print(e, 'encountered when processing', csvPath)
                 return None
 
-        syntheticDf.to_csv(resultCsvPath(csvPath, 'gretel' + ('_local' if local else '')))
+        syntheticDf.to_csv(resultCsvPath(csvPath, 'gretel' + ('_local' if local else '')),
+                           index=False, sep=',', header=True)
 
         print(syntheticDf.round(3))
 
