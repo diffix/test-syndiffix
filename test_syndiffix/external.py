@@ -46,28 +46,21 @@ class External(object):
         syntheticDf.to_csv(resultCsvPath(csvPath, 'ydata' + ('_local' if local else '')))
         print(syntheticDf.round(3))
 
-    def gretel(self, csvPath, local=True):
+    def gretel(self, csvPath, local=False):
         pd.set_option("max_colwidth", None)
 
         if local:
-            from gretel_synthetics.batch import DataFrameBatch
+            from gretel_synthetics.actgan import ACTGAN
 
-            checkpoint_dir = resultCsvPath(csvPath, 'gretel_local_checkpoints_tmp')
-
-            config_template = {
-                "field_delimiter": ",",
-                "overwrite": True,
-                "checkpoint_dir": checkpoint_dir
-            }
             df = readCsv(csvPath)
             nRows = df.shape[0]
-            batcher = DataFrameBatch(df=df, config=config_template, batch_size=5)
-            batcher.create_training_data()
-            batcher.train_all_batches()
-            statuses = batcher.generate_all_batch_lines(num_lines=2000)
-            print("Batcher statuses:", statuses)
+            model = ACTGAN(
+                verbose=True,
+                auto_transform_datetimes=True,
+            )
 
-            syntheticDf = batcher.batches_to_df()
+            model.fit(df)
+            syntheticDf = model.sample(nRows)
         else:
             from gretel_client import configure_session
             from gretel_client.projects import create_or_get_unique_project
