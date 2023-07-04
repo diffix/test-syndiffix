@@ -43,19 +43,25 @@ class SdmManager(object):
                 'max-min':[],
                 'max-first':[],
                 'posNeg':[],
+                '5%ofMax':[],
             }
-        results[method]['max'].append(max(job['allScores']))
+        maxScore = max(job['allScores'])
+        results[method]['max'].append(maxScore)
         results[method]['avg'].append(statistics.mean(job['allScores']))
         if len(job['allScores']) > 1:
             results[method]['sd'].append(statistics.stdev(job['allScores']))
         else:
             results[method]['sd'].append(0)
-        results[method]['max-min'].append(max(job['allScores'])-min(job['allScores']))
-        results[method]['max-first'].append(max(job['allScores'])-job['allScores'][0])
-        if max(job['allScores']) > 0 and min(job['allScores']) < 0:
+        results[method]['max-min'].append(maxScore-min(job['allScores']))
+        results[method]['max-first'].append(maxScore-job['allScores'][0])
+        if maxScore > 0 and min(job['allScores']) < 0:
             results[method]['posNeg'].append(1)
         else:
             results[method]['posNeg'].append(0)
+        for i in range(len(job['allScores'])):
+            if job['allScores'][i]/maxScore > 0.95:
+                results['5%ofMax'] = i
+                break
 
     def measureMlVariance(self, origMlDir='origMlAb'):
         tu = testUtils.testUtilities()
@@ -91,6 +97,9 @@ class SdmManager(object):
         print(f"    Stddev max-min gap: {statistics.stdev(res['max-min'])}")
         print(f"    Max max-first gap: {max(res['max-first'])}")
         print(f"    Average max-first gap: {statistics.mean(res['max-first'])}")
+        print(f"    Max 5%ofMax: {max(res['5%ofMax'])}")
+        print(f"    Average 5%ofMax: {statistics.mean(res['5%ofMax'])}")
+        print(f"    Stddev 5%ofMax: {statistics.stdev(res['5%ofMax'])}")
         print(f"    {sum(res['posNeg'])} of {len(res['posNeg'])} have both positive and negative scores")
 
     def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
