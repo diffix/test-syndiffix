@@ -43,9 +43,9 @@ class SdmManager(object):
             mlPath = os.path.join(self.tu.origMlDir, mlFile)
             with open(mlPath, 'r') as f:
                 job = json.load(f)
-            #if 'allScores' not in job:
-                #print(f"Missing allScores on {mlPath}")
-                #quit()
+            if 'allScores' not in job:
+                print(f"Missing allScores on {mlPath}")
+                quit()
             if job['method'] not in results:
                 results[job['method']] = {
                     'max':[],
@@ -69,7 +69,7 @@ class SdmManager(object):
             self._printMlStats(method, res)
 
     def _printMlStats(self, method, res):
-        #print(f"{method}:")
+        print(f"{method}:")
         print(f"    Total samples: {len(res['max'])}")
         print(f"    Average max: {statistics.mean(res['max'])}")
         print(f"    Stddev max: {statistics.stdev(res['max'])}")
