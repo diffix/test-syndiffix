@@ -34,6 +34,27 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs))
 
+    def _addJobToResults(self, method, job, results):
+        if method not in results:
+            results[method] = {
+                'max':[],
+                'avg':[],
+                'sd':[],
+                'max-min':[],
+                'posNeg':[],
+            }
+        results[method]['max'].append(max(job['allScores']))
+        results[method]['avg'].append(statistics.mean(job['allScores']))
+        if len(job['allScores']) > 1:
+            results[method]['sd'].append(statistics.stdev(job['allScores']))
+        else:
+            results[method]['sd'].append(0)
+        results[method]['max-min'].append(max(job['allScores'])-min(job['allScores']))
+        if max(job['allScores']) > 0 and min(job['allScores']) < 0:
+            results[method]['posNeg'].append(1)
+        else:
+            results[method]['posNeg'].append(0)
+
     def measureMlVariance(self, origMlDir='origMlAb'):
         tu = testUtils.testUtilities()
         tu.registerOrigMlDir(origMlDir)
@@ -46,25 +67,9 @@ class SdmManager(object):
             if 'allScores' not in job:
                 print(f"Missing allScores on {mlPath}")
                 quit()
-            if job['method'] not in results:
-                results[job['method']] = {
-                    'max':[],
-                    'avg':[],
-                    'sd':[],
-                    'max-min':[],
-                    'posNeg':[],
-                }
-            results[job['method']]['max'].append(max(job['allScores']))
-            results[job['method']]['avg'].append(statistics.mean(job['allScores']))
-            if len(job['allScores']) > 1:
-                results[job['method']]['sd'].append(statistics.stdev(job['allScores']))
-            else:
-                results[job['method']]['sd'].append(0)
-            results[job['method']]['max-min'].append(max(job['allScores'])-min(job['allScores']))
-            if max(job['allScores']) > 0 and min(job['allScores']) < 0:
-                results[job['method']]['posNeg'].append(1)
-            else:
-                results[job['method']]['posNeg'].append(0)
+            self._addJobToResults(job['method'], job, results)
+            if max(job['allScores']) > 0.5:
+                self._addJobToResults(job['method']+'_good', job, results)
         for method, res in results.items():
             self._printMlStats(method, res)
 
