@@ -50,18 +50,17 @@ class SdmManager(object):
         results[method]['avg'].append(statistics.mean(job['allScores']))
         if len(job['allScores']) > 1:
             results[method]['sd'].append(statistics.stdev(job['allScores']))
-        else:
-            results[method]['sd'].append(0)
         results[method]['max-min'].append(maxScore-min(job['allScores']))
         results[method]['max-first'].append(maxScore-job['allScores'][0])
         if maxScore > 0 and min(job['allScores']) < 0:
             results[method]['posNeg'].append(1)
         else:
             results[method]['posNeg'].append(0)
-        for i in range(len(job['allScores'])):
-            if job['allScores'][i]/maxScore > 0.95:
-                results['5%ofMax'] = i
-                break
+        if maxScore > 0:
+            for i in range(len(job['allScores'])):
+                if job['allScores'][i]/maxScore > 0.95:
+                    results['5%ofMax'].append(i)
+                    break
 
     def measureMlVariance(self, origMlDir='origMlAb'):
         tu = testUtils.testUtilities()
