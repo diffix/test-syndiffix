@@ -59,7 +59,7 @@ class SdmManager(object):
             if len(job['allScores']) > 1:
                 results[job['method']]['sd'].append(statistics.stdev(job['allScores']))
             else:
-                results[job['method']]['sd'].append(None)
+                results[job['method']]['sd'].append(0)
             results[job['method']]['max-min'].append(max(job['allScores'])-min(job['allScores']))
             if max(job['allScores']) > 0 and min(job['allScores']) < 0:
                 results[job['method']]['posNeg'].append(1)
