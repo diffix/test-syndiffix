@@ -79,6 +79,7 @@ class SdmManager(object):
         print(f"    Stddev avg: {statistics.stdev(res['avg'])}")
         print(f"    Average stdev: {statistics.mean(res['sd'])}")
         print(f"    Stddev stdev: {statistics.stdev(res['sd'])}")
+        print(f"    Max max-min gap: {max(res['max-min'])}")
         print(f"    Average max-min gap: {statistics.mean(res['max-min'])}")
         print(f"    Stddev max-min gap: {statistics.stdev(res['max-min'])}")
         print(f"    {sum(res['posNeg'])} of {len(res['posNeg'])} have both positive and negative scores")
