@@ -43,7 +43,7 @@ class SdmManager(object):
                 'max-min':[],
                 'max-first':[],
                 'posNeg':[],
-                '5percentOfMax':[],
+                '5%ofMax':[],
             }
         maxScore = max(job['allScores'])
         results[method]['max'].append(maxScore)
@@ -59,7 +59,7 @@ class SdmManager(object):
         if maxScore > 0:
             for i in range(len(job['allScores'])):
                 if job['allScores'][i]/maxScore > 0.95:
-                    results['5percentOfMax'].append(i)
+                    results[method]['5%ofMax'].append(i)
                     break
 
     def measureMlVariance(self, origMlDir='origMlAb'):
@@ -96,9 +96,9 @@ class SdmManager(object):
         print(f"    Stddev max-min gap: {statistics.stdev(res['max-min'])}")
         print(f"    Max max-first gap: {max(res['max-first'])}")
         print(f"    Average max-first gap: {statistics.mean(res['max-first'])}")
-        print(f"    Max 5percentOfMax: {max(res['5percentOfMax'])}")
-        print(f"    Average 5percentOfMax: {statistics.mean(res['5percentOfMax'])}")
-        print(f"    Stddev 5percentOfMax: {statistics.stdev(res['5percentOfMax'])}")
+        print(f"    Max 5%ofMax: {max(res['5%ofMax'])}")
+        print(f"    Average 5%ofMax: {statistics.mean(res['5%ofMax'])}")
+        print(f"    Stddev 5%ofMax: {statistics.stdev(res['5%ofMax'])}")
         print(f"    {sum(res['posNeg'])} of {len(res['posNeg'])} have both positive and negative scores")
 
     def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
