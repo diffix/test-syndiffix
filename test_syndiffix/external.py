@@ -4,15 +4,6 @@ import fire
 import pandas as pd
 import numpy as np
 
-from gretel_client import configure_session
-from gretel_client.projects import create_or_get_unique_project
-from gretel_client.projects.models import read_model_config
-from gretel_client.helpers import poll
-
-from ydata.sdk.synthesizers import RegularSynthesizer
-from ydata_synthetic.synthesizers.regular import RegularSynthesizer as RegularSynthesizerLocal
-from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from misc.csvUtils import readCsv
 
@@ -21,6 +12,7 @@ def resultCsvPath(csvPath, method):
     path = os.path.join(os.path.dirname(csvPath), f'../../results{method}', os.path.basename(csvPath) + 'result.csv')
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
+
 
 class External(object):
 
@@ -32,12 +24,17 @@ class External(object):
 
         try:
             if local:
-                synth = RegularSynthesizerLocal(modelname='dragan', model_parameters=ModelParameters(), n_discriminator=3)
+                from ydata_synthetic.synthesizers.regular import RegularSynthesizer as RegularSynthesizerLocal
+                from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
+
+                synth = RegularSynthesizerLocal(
+                    modelname='dragan', model_parameters=ModelParameters(), n_discriminator=3)
                 train_args = TrainParameters(epochs=5, sample_interval=100)
                 num_cols = list(df.select_dtypes([np.number]).columns)
                 cat_cols = list(df.select_dtypes(include='object').columns)
-                synth.fit(data=df, train_arguments = train_args, num_cols = num_cols, cat_cols = cat_cols)
+                synth.fit(data=df, train_arguments=train_args, num_cols=num_cols, cat_cols=cat_cols)
             else:
+                from ydata.sdk.synthesizers import RegularSynthesizer
                 synth = RegularSynthesizer()
                 synth.fit(df)
 
@@ -46,47 +43,76 @@ class External(object):
             print(e, 'encountered when processing', csvPath)
             return None
 
-        syntheticDf.to_csv(resultCsvPath(csvPath, 'ydata'))
+        syntheticDf.to_csv(resultCsvPath(csvPath, 'ydata' + ('_local' if local else '')))
         print(syntheticDf.round(3))
 
-    def gretel(self, csvPath):
+    def gretel(self, csvPath, local=True):
         pd.set_option("max_colwidth", None)
 
-        configure_session(api_key=os.environ['GRETEL_API_KEY'], cache="yes", validate=True)
+        if local:
+            from gretel_synthetics.batch import DataFrameBatch
 
-        project = create_or_get_unique_project(name="synthetic-data")
-        config = read_model_config("synthetics/tabular-lstm")
-        config["models"][0]["synthetics"]["params"]["epochs"] = 10
-        config["models"][0]["synthetics"]["generate"]["num_records"] = 10
-        model = project.create_model_obj(model_config=config, data_source=csvPath)
+            checkpoint_dir = resultCsvPath(csvPath, 'gretel_local_checkpoints_tmp')
 
-        try:
-            model.submit_cloud()
-            poll(model)
-            previewDf = readCsv(model.get_artifact_link("data_preview"), compression="gzip")
-            print(previewDf)
+            config_template = {
+                "field_delimiter": ",",
+                "overwrite": True,
+                "checkpoint_dir": checkpoint_dir
+            }
+            df = readCsv(csvPath)
+            nRows = df.shape[0]
+            batcher = DataFrameBatch(df=df, config=config_template, batch_size=5)
+            batcher.create_training_data()
+            batcher.train_all_batches()
+            statuses = batcher.generate_all_batch_lines(num_lines=2000)
+            print("Batcher statuses:", statuses)
 
-            nRows = readCsv(csvPath).shape[0]
-            recordHandler = model.create_record_handler_obj(
-                params={"num_records": nRows, "max_invalid": None}
-            )
-            recordHandler.submit_cloud()
-            poll(recordHandler)
+            syntheticDf = batcher.batches_to_df()
+        else:
+            from gretel_client import configure_session
+            from gretel_client.projects import create_or_get_unique_project
+            from gretel_client.projects.models import read_model_config
+            from gretel_client.helpers import poll
 
-            syntheticDf = readCsv(recordHandler.get_artifact_link("data"), compression="gzip")
-        except Exception as e:
-            print(e, 'encountered when processing', csvPath)
-            return None
+            configure_session(api_key=os.environ['GRETEL_API_KEY'], cache="yes", validate=True)
 
-        syntheticDf.to_csv(resultCsvPath(csvPath, 'gretel'))
+            project = create_or_get_unique_project(name="synthetic-data")
+            config = read_model_config("synthetics/tabular-lstm")
+            config["models"][0]["synthetics"]["params"]["epochs"] = 10
+            config["models"][0]["synthetics"]["generate"]["num_records"] = 10
+            model = project.create_model_obj(model_config=config, data_source=csvPath)
+
+            try:
+                model.submit_cloud()
+                poll(model)
+                previewDf = readCsv(model.get_artifact_link("data_preview"), compression="gzip")
+                print(previewDf)
+
+                nRows = readCsv(csvPath).shape[0]
+                recordHandler = model.create_record_handler_obj(
+                    params={"num_records": nRows, "max_invalid": None}
+                )
+                recordHandler.submit_cloud()
+                poll(recordHandler)
+
+                syntheticDf = readCsv(recordHandler.get_artifact_link("data"), compression="gzip")
+            except Exception as e:
+                print(e, 'encountered when processing', csvPath)
+                return None
+
+        syntheticDf.to_csv(resultCsvPath(csvPath, 'gretel' + ('_local' if local else '')))
 
         print(syntheticDf.round(3))
 
-    def many(self, *csvPaths, onlyMissing=False, method=None):
+    def many(self, *csvPaths, onlyMissing=False, method=None, pick=None):
         if not method:
             "Method argument required"
 
         for i, csvPath in enumerate(csvPaths):
+            if pick and pick > len(csvPaths):
+                raise ValueError("--pick out of range")
+            if pick and pick != i:
+                continue
             print(i + 1, ' / ', len(csvPaths), csvPath)
             if onlyMissing and os.path.isfile(resultCsvPath(csvPath, method)):
                 print('Result file exists, skipping')
