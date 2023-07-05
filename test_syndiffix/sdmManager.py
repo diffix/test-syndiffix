@@ -34,7 +34,7 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs))
 
-    def _addJobToResults(self, method, job, results):
+    def _addJobToResults(self, method, job, results, mlFile):
         if method not in results:
             results[method] = {
                 'max':[],
@@ -44,8 +44,10 @@ class SdmManager(object):
                 'max-first':[],
                 'posNeg':[],
                 '5%ofMax':[],
+                'mlFile':[],
             }
         maxScore = max(job['allScores'])
+        results[method]['mlFile'].append(mlFile)
         results[method]['max'].append(maxScore)
         results[method]['avg'].append(statistics.mean(job['allScores']))
         if len(job['allScores']) > 1:
@@ -74,9 +76,9 @@ class SdmManager(object):
             if 'allScores' not in job:
                 print(f"Missing allScores on {mlPath}")
                 quit()
-            self._addJobToResults(job['method'], job, results)
+            self._addJobToResults(job['method'], job, results, mlFile)
             if max(job['allScores']) > 0.5:
-                self._addJobToResults(job['method']+'_good', job, results)
+                self._addJobToResults(job['method']+'_good', job, results, mlFile)
         for method, res in results.items():
             self._printMlStats(method, res)
 
@@ -92,11 +94,14 @@ class SdmManager(object):
         print(f"    Average stdev: {statistics.mean(res['sd'])}")
         print(f"    Stddev stdev: {statistics.stdev(res['sd'])}")
         print(f"    Max max-min gap: {max(res['max-min'])}")
+        print(f"         {res['mlFile'][res['max-min'].index(max(res['max-min']))]}")
         print(f"    Average max-min gap: {statistics.mean(res['max-min'])}")
         print(f"    Stddev max-min gap: {statistics.stdev(res['max-min'])}")
         print(f"    Max max-first gap: {max(res['max-first'])}")
+        print(f"         {res['mlFile'][res['max-first'].index(max(res['max-first']))]}")
         print(f"    Average max-first gap: {statistics.mean(res['max-first'])}")
         print(f"    Max 5%ofMax: {max(res['5%ofMax'])}")
+        print(f"         {res['mlFile'][res['5%ofMax'].index(max(res['5%ofMax']))]}")
         print(f"    Average 5%ofMax: {statistics.mean(res['5%ofMax'])}")
         print(f"    Stddev 5%ofMax: {statistics.stdev(res['5%ofMax'])}")
         print(f"    {sum(res['posNeg'])} of {len(res['posNeg'])} have both positive and negative scores")
