@@ -10,7 +10,6 @@ from misc.csvUtils import readCsv
 
 pp = pprint.PrettyPrinter(indent=4)
 
-
 class resultsGather():
     def __init__(self, measuresDir='measuresAb', csvDir='csvAb'):
         self.tu = testUtils.testUtilities()
