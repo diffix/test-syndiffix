@@ -43,7 +43,7 @@ class SdmManager(object):
                 'max-min':[],
                 'max-first':[],
                 'posNeg':[],
-                '5%ofMax':[],
+                '0.01ofMax':[],
                 'mlFile':[],
             }
         maxScore = max(job['allScores'])
@@ -60,8 +60,8 @@ class SdmManager(object):
             results[method]['posNeg'].append(0)
         if maxScore > 0:
             for i in range(len(job['allScores'])):
-                if job['allScores'][i]/maxScore > 0.95:
-                    results[method]['5%ofMax'].append(i)
+                if maxScore - job['allScores'][i] < 0.01:
+                    results[method]['0.01ofMax'].append(i)
                     break
 
     def measureMlVariance(self, origMlDir='origMlAb'):
@@ -100,10 +100,10 @@ class SdmManager(object):
         print(f"    Max max-first gap: {max(res['max-first'])}")
         print(f"         {res['mlFile'][res['max-first'].index(max(res['max-first']))]}")
         print(f"    Average max-first gap: {statistics.mean(res['max-first'])}")
-        print(f"    Max 5%ofMax: {max(res['5%ofMax'])}")
-        print(f"         {res['mlFile'][res['5%ofMax'].index(max(res['5%ofMax']))]}")
-        print(f"    Average 5%ofMax: {statistics.mean(res['5%ofMax'])}")
-        print(f"    Stddev 5%ofMax: {statistics.stdev(res['5%ofMax'])}")
+        print(f"    Max 0.01ofMax: {max(res['0.01ofMax'])}")
+        print(f"         {res['mlFile'][res['0.01ofMax'].index(max(res['0.01ofMax']))]}")
+        print(f"    Average 0.01ofMax: {statistics.mean(res['0.01ofMax'])}")
+        print(f"    Stddev 0.01ofMax: {statistics.stdev(res['0.01ofMax'])}")
         print(f"    {sum(res['posNeg'])} of {len(res['posNeg'])} have both positive and negative scores")
 
     def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
