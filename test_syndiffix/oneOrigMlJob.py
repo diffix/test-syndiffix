@@ -14,14 +14,22 @@ to run on the synthetic data later on.
 '''
 
 
-def oneOrigMlJob(jobNum=0, csvLib='csvAb', measuresDir='measuresAb', origMlDir='origMlAb', force=False):
+def oneOrigMlJob(jobNum=0, csvLib='csvAb', measuresDir='measuresAb', origMlDir='origMlAb', numJobs=None, force=False):
     tu = testUtils.testUtilities()
     tu.registerCsvLib(csvLib)
     tu.registerSynMeasure(measuresDir)
     tu.registerOrigMlDir(origMlDir)
     sdmt = sdmTools.sdmTools(tu)
     sdmt.enumerateOrigMlJobs()
-    sdmt.runOrigMlJob(jobNum, force)
+    jobid = i%nj
+    sample = int(i/nj)
+    if numJobs:
+        realJobNum = jobNum%numJobs
+        sampleNum = int(jobNum/numJobs)
+    else:
+        realJobNum = jobNum
+        sampleNum = 0
+    sdmt.runOrigMlJob(realJobNum, sampleNum, force)
 
 
 def main():

@@ -361,7 +361,7 @@ class sdmTools:
         except:
             pass
 
-    def runSynMlJob(self, jobNum, force=False):
+    def runSynMlJob(self, jobNum, sampleNum, force=False):
         mc = measuresConfig(self.tu)
         mlJobs = mc.getMlJobs()
         if jobNum >= len(mlJobs):
@@ -369,7 +369,7 @@ class sdmTools:
             return
         myJob = mlJobs[jobNum]
         # Check if the job is already done
-        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'] + '.ml.json'
+        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'] + '.part_' + str(sampleNum) + '.ml.json'
         measuresDir = os.path.join(self.tu.synMeasures, myJob['synMethod'])
         os.makedirs(measuresDir, exist_ok=True)
         measuresPath = os.path.join(self.tu.synMeasures, myJob['synMethod'], measuresFile)
@@ -405,37 +405,35 @@ class sdmTools:
         mls = testUtils.mlSupport(self.tu)
         mlClassInfo = mls.makeMlClassInfo(dfTest, None)
         metadata = self._getMetadataFromMlInfo(mlClassInfo)
-        allScores = []
-        for _ in range(self.mlMeasureRepeats):
-            startTime = time.time()
-            print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
-            score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
-                                      myJob['column'], myJob['method'], myJob['csvFile'])
-            if score is None:
-                print("Scores is None, quitting")
-                quit()
-            endTime = time.time()
-            allScores.append(score)
-            print(f"Score = {score}")
-            myJob['score'] = max(allScores)
-            myJob['allScores'] = allScores
-            myJob['elapsedSyn'] = endTime - startTime
-            myJob['elapsed'] = results['elapsedTime']
-            myJob['focusColumn'] = focusColumn
-            if 'features' in results:
-                myJob['features'] = results['features']
-            print("Job Information")
-            pp.pprint(myJob)
-            with open(measuresPath, 'w') as f:
-                json.dump(myJob, f, indent=4)
+        startTime = time.time()
+        print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
+        score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
+                                    myJob['column'], myJob['method'], myJob['csvFile'])
+        if score is None:
+            print("Scores is None, quitting")
+            quit()
+        endTime = time.time()
+        print(f"Score = {score}")
+        myJob['score'] = score
+        myJob['elapsedSyn'] = endTime - startTime
+        myJob['elapsed'] = results['elapsedTime']
+        myJob['focusColumn'] = focusColumn
+        myJob['sampleNum'] = sampleNum
+        if 'features' in results:
+            myJob['features'] = results['features']
+        print("Job Information")
+        pp.pprint(myJob)
+        with open(measuresPath, 'w') as f:
+            json.dump(myJob, f, indent=4)
         print("oneSynMLJob: SUCCESS")
 
-    def runOrigMlJob(self, jobNum, force):
+    def runOrigMlJob(self, jobNum, sampleNum, force):
         if jobNum >= len(self.origMlJobs):
             print(f"oneOrigMlJob: my jobNum {jobNum} is too large")
             return
         myJob = self.origMlJobs[jobNum]
-        origMlJobName = f"{myJob['csvFile']}.{myJob['column'].replace(' ','')}.{myJob['method']}.json"
+        origMlJobName = f"{myJob['csvFile']}.{myJob['column'].replace(' ','')}.{myJob['method']}.part_{sampleNum}.json"
+        '.part_' + str(sampleNum)
         origMlJobPath = os.path.join(self.tu.origMlDir, origMlJobName)
         if not force and os.path.exists(origMlJobPath):
             print(f"{origMlJobPath} exists, skipping")
@@ -451,19 +449,16 @@ class sdmTools:
         metadata = self._getMetadataFromMlInfo(mlClassInfo)
         print("Metadata:")
         pp.pprint(metadata)
-        allScores = []
-        for _ in range(self.mlMeasureRepeats):
-            startTime = time.time()
-            print(f"oneOrigMlJob: Starting job {myJob} at time {startTime}")
-            score = self._runOneMlMeasure(dfTest, dfTrain, metadata, myJob['column'], myJob['method'], myJob['csvFile'])
-            endTime = time.time()
-            allScores.append(score)
-            print(f"Score = {score}")
-            myJob['score'] = max(allScores)
-            myJob['allScores'] = allScores
-            myJob['elapsed'] = endTime - startTime
-            with open(origMlJobPath, 'w') as f:
-                json.dump(myJob, f, indent=4)
+        startTime = time.time()
+        print(f"oneOrigMlJob: Starting job {myJob} at time {startTime}")
+        score = self._runOneMlMeasure(dfTest, dfTrain, metadata, myJob['column'], myJob['method'], myJob['csvFile'])
+        endTime = time.time()
+        print(f"Score = {score}")
+        myJob['score'] = score
+        myJob['elapsed'] = endTime - startTime
+        myJob['sampleNum'] = sampleNum
+        with open(origMlJobPath, 'w') as f:
+            json.dump(myJob, f, indent=4)
         print("oneOrigMlJob: SUCCESS")
 
     def _runOneMlMeasure(self, dfTest, dfTrain, metadata, column, method, csvFile):
@@ -618,13 +613,13 @@ python3 {testPath} \\
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs):
+    def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs, numSamples):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneOrigMlJob.py')
         self._makeLogsDir('logs_origml')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
-#SBATCH --array=0-{numJobs-1}
+#SBATCH --array=0-{(numJobs*numSamples)-1}
 #SBATCH --output=logs_origml/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
@@ -632,24 +627,26 @@ python3 {testPath} \\
     --csvLib={csvLib} \\
     --origMlDir={origMlDir} \\
     --force=False \\
+    --numJobs={numJobs} \\
     --measuresDir={measuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
             print(f"Writing to {batchScriptPath}")
             f.write(batchScript)
 
-    def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir):
+    def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir, numSamples):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
         self._makeLogsDir('logs_synml')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
-#SBATCH --array=0-{len(self.mlJobsOrder)-1}
+#SBATCH --array=0-{(len(self.mlJobsOrder)*numSamples)-1}
 #SBATCH --output=logs_synml/slurm-%A_%a.out
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
     --force=False \\
+    --numJobs={len(self.mlJobsOrder)} \\
     --csvLib={csvLib} \\
     --resultsDir={resultsDir} \\
     --runsDir={runsDir} \\

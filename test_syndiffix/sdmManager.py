@@ -23,7 +23,7 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeCsvOrder()
 
-    def makeOrigMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', runsDir='runAb', origMlDir='origMlAb'):
+    def makeOrigMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', runsDir='runAb', origMlDir='origMlAb', numSamples=20):
         tu = testUtils.testUtilities()
         tu.registerCsvLib(csvLib)
         tu.registerSynMeasure(measuresDir)
@@ -32,7 +32,7 @@ class SdmManager(object):
         sdmt = sdmTools.sdmTools(tu)
         sdmt.enumerateOrigMlJobs()
         mc = sdmTools.measuresConfig(tu)
-        mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs))
+        mc.makeOrigMlJobsBatchScript(csvLib, measuresDir, origMlDir, len(sdmt.origMlJobs), numSamples)
 
     def _addJobToResults(self, method, job, results, mlFile):
         if method not in results:
@@ -123,7 +123,7 @@ class SdmManager(object):
         mc.makeAndSaveFeaturesJobOrder()
         mc.makeFeaturesJobsBatchScript(csvLib, runsDir, featuresDir, featuresType, len(mc.featuresJobs))
 
-    def makeMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
+    def makeMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None, numSamples=20):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
         runsDir/mlJobs.json, and puts the needed SLURM script in runsDir as runsDir/batchMl
         '''
@@ -137,7 +137,7 @@ class SdmManager(object):
         tu.registerOrigMlDir(origMlDir)
         mc = sdmTools.measuresConfig(tu)
         mc.makeAndSaveMlJobsOrder(synMethod)
-        mc.makeMlJobsBatchScript(csvLib, measuresDir, resultsDir, runsDir)
+        mc.makeMlJobsBatchScript(csvLib, measuresDir, resultsDir, runsDir, numSamples)
 
     def makeQualRuns(self, measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynQualJob.py, and puts the needed
