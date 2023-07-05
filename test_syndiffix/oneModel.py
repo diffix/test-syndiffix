@@ -451,6 +451,5 @@ def oneModel(dataDir='csvGeneral',
     sdm.runMl()
     print("oneModel:SUCCESS")
 
-
 if __name__ == "__main__":
     fire.Fire(oneModel)
