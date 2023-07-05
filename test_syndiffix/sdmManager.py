@@ -82,6 +82,7 @@ class SdmManager(object):
             self._addJobToResults(job['method'], job, results, mlFile)
             if max(job['allScores']) > 0.5:
                 self._addJobToResults(job['method']+'_good', job, results, mlFile)
+        pp.pprint(results)
         for method, res in results.items():
             self._printMlStats(method, res)
 
