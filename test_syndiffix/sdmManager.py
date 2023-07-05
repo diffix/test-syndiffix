@@ -58,15 +58,10 @@ class SdmManager(object):
             results[method]['posNeg'].append(1)
         else:
             results[method]['posNeg'].append(0)
-        appended = False
         for i in range(len(job['allScores'])):
             if maxScore - job['allScores'][i] < 0.01:
-                appended = True
                 results[method]['0.01ofMax'].append(i)
                 break
-        if not appended:
-            pp.pprint(job)
-            a=1/0
 
     def measureMlVariance(self, origMlDir='origMlAb'):
         tu = testUtils.testUtilities()
