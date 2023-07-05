@@ -168,7 +168,6 @@ class resultsGather():
         row['mlPenalty'] = self.computeMlPenality(tr['score'], tr['scoreOrig'])
         if 'features' in tr and 'params' in tr['features']:
             params = tr['features']['params']
-            row['maxFeatures'] = params['maxFeatures']
             row['featureThreshold'] = params['featureThreshold']
             row['usedFeatures'] = len(params['usedFeatures'])
             if 'featuresWithoutMax' in params:
@@ -207,7 +206,6 @@ class resultsGather():
                     'mlMethod': None,
                     'mlMethodType': None,
                     'origMlScore': None,
-                    'maxFeatures': None,
                     'featureThreshold': None,
                     'usedFeatures': None,
                     'featuresWithoutMax': None,
@@ -229,7 +227,6 @@ class resultsGather():
                     'mlMethod': None,
                     'mlMethodType': None,
                     'origMlScore': None,
-                    'maxFeatures': None,
                     'featureThreshold': None,
                     'usedFeatures': None,
                     'featuresWithoutMax': None,
@@ -254,7 +251,6 @@ class resultsGather():
                 'mlMethod': None,
                 'mlMethodType': None,
                 'origMlScore': None,
-                'maxFeatures': None,
                 'featureThreshold': None,
                 'usedFeatures': None,
                 'featuresWithoutMax': None,
