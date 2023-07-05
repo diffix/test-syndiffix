@@ -62,6 +62,9 @@ class SdmManager(object):
             for i in range(len(job['allScores'])):
                 if maxScore - job['allScores'][i] < 0.01:
                     results[method]['0.01ofMax'].append(i)
+                    if i > 13:
+                        print(f"Got big one on {mlFile}")
+                        pp.pprint(job)
                     break
 
     def measureMlVariance(self, origMlDir='origMlAb'):
