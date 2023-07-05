@@ -9,7 +9,7 @@ from misc.csvUtils import readCsv
 
 
 def resultCsvPath(csvPath, method):
-    path = os.path.join(os.path.dirname(csvPath), f'../../results{method}', os.path.basename(csvPath) + 'result.csv')
+    path = os.path.join(os.path.dirname(csvPath), f'../../results{method}', os.path.basename(csvPath))
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
 
