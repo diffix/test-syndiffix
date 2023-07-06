@@ -369,7 +369,7 @@ class sdmTools:
             return
         myJob = mlJobs[jobNum]
         # Check if the job is already done
-        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'] + '.part_' + str(sampleNum) + '.ml.json'
+        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'].replace(' ','') + '.part_' + str(sampleNum) + '.ml.json'
         measuresDir = os.path.join(self.tu.tempSynMeasures, myJob['synMethod'])
         os.makedirs(measuresDir, exist_ok=True)
         measuresPath = os.path.join(measuresDir, measuresFile)
