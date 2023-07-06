@@ -8,7 +8,7 @@
 
 These tests all assume a root directory whose location is defined by the environment variable `AB_RESULTS_DIR`. The `AB_RESULTS_DIR` has a number of default subdirectories (which must be configured prior to running the tests):
 
-There are six different types of directories under the root directory:
+There are eight different types of directories under the root directory:
 
 * csv library: contains CSV datasets for testing. The datasets must be split into `train` and `test` files, each containing half of the data, randomly selected (see `misc/splitFile.py`). These two sets are in directories labeled `train` and `test`.
 * synthetic data building results: contains the results of building synthetic data. Has one sub-directory per method (or different set of method parameters).
@@ -16,8 +16,10 @@ There are six different types of directories under the root directory:
 * measurement summaries: contains graphs that summarize the measurements
 * run commands: contains the commands used to run the tests, including SLURM jobs
 * original ML measures: the ML model scores against the original data
+* temporary directory for the separate measurement samples for original ML measures
+* temporary directory for the separate measurement samples for the ML measures of the synthetic data
 
-The code is setup so that there is one group of these five directories per distinct set of CSV files. They can be named anything, but by convention are csvXXX, resultsXXX, measuresXXX, summXXX, and runXXX, origMlXXX.
+The code is setup so that there is one group of these five directories per distinct set of CSV files. They can be named anything, but by convention are csvXXX, resultsXXX, measuresXXX, summXXX, runXXX, origMlXXX, measuresXXXTemp, and origMLXXXTemp.
 
 ### Synthetic data methods
 
@@ -56,9 +58,12 @@ Run `sbatch batch_<featuresType>`. This creates the SLURM jobs with `oneFeatures
 To do measures on the SLURM cluster, we have the following workflow:
 
 * Use `sdmManager.py updateCsvInfo` whenever new tables are added to a csv directory, or when code has changed and you want to rerun the original ML measures. This creates the file `csvOrder.json` in the measures directory. Note that if a table is removed, then `csvOrder.json` should be removed first. Also remove `focusColumns.json` in the runs directory before running this.
-* Run `sdmManager.py makeOrigMlRuns` to create `batchOrigMl`. 
-* Run `sbatch batchOrigMl` to run ML measures over the original (not synthesized) datasets. The purpose of this is to determine which ML measures (i.e. column and method) have the best quality. These make the measures to use for comparison with synthetic data. This creates the original ML measures directory and populates it with one json file per model.
+* Run `sdmManager.py makeOrigMlRuns` to create `batchOrigMl`. Select a temporary directory to hold the measure samples.
+* Run `sbatch batchOrigMl` to run ML measures over the original (not synthesized) datasets. The purpose of this is to determine which ML measures (i.e. column and method) have the best quality. These make the measures to use for comparison with synthetic data. This creates the original ML measures directory and populates it with one json file per model. Note that `batchOrigMlRuns` creates multiple measures per table/column/method combination, each such measure in a separate file.
+* Run `sdmManager.py mergeMlMeasures` to select the best score of multiple ml measures, create a `json` file containing that score, and place them in the original ML measures directory.
 * Run `sdmManager.py makeMlRuns` to build the SLURM configuration information for doing ML measures (creates the files `mlJobs.json` and `batchMl` in the run commands directory). The cmd line parameter `--synMethod=method` can be used to limit the created jobs to those of the synMethod only. In any event, `makeMlRuns` will not schedule runs if measures already exist. You must manually remove existing measures if you want to rerun them. NOTE: `makeMlRuns` needs to be run on a machine with more memory than the "submit" machines. Suggest pinky03 or brain03.
+* Run `sbatch batchMl` to do the ML measures. Note that this makes multiple measures per table/column/method combination.
+* Run `sdmManager.py mergeMlMeasures` to select the best score of multiple ml measures, create a `json` file containing that score, and move them to the measures directory.
 * In the run commands directory, do `sbatch batchMl` to do the ML measures
 * Run `sdmManager.py makeQualRuns` to build the SLURM configuration information for doing quality measures (creates the file `batchQual` in the run commands directory)
 * In the run commands directory, do `sbatch batchQual` to do the 1dim and 2dim quality measures.
