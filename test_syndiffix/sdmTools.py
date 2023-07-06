@@ -143,7 +143,7 @@ class sdmTools:
             mls = testUtils.mlSupport(self.tu)
             mlClassInfo = mls.makeMlClassInfo(self.dfControl, None)
             metadata = self._getMetadataFromMlInfo(mlClassInfo)
-            if metadata['columns'][privJob['secret']]['type'] == 'numerical':
+            if metadata['columns'][privJob['secret']]['sdtype'] == 'numerical':
                 regression = True
             else:
                 regression = False
