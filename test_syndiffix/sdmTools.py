@@ -669,7 +669,7 @@ python3 {testPath} \\
             print(f"Writing to {batchScriptPath}")
             f.write(batchScript)
 
-    def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir, numSamples):
+    def makeMlJobsBatchScript(self, csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
         self._makeLogsDir('logs_synml')
@@ -685,7 +685,7 @@ python3 {testPath} \\
     --csvLib={csvLib} \\
     --resultsDir={resultsDir} \\
     --runsDir={runsDir} \\
-    --measuresDir={measuresDir}
+    --tempMeasuresDir={tempMeasuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
