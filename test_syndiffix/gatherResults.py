@@ -106,8 +106,6 @@ class resultsGather():
             else:
                 row['totalElapsedTime'] = elapsedTime
             self.tabData.append(row)
-        else:
-            pass
 
     def computeMlPenality(self, synScore, origScore):
         origScore = max(origScore,0)
