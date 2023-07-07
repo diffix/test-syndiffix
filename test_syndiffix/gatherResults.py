@@ -100,14 +100,11 @@ class resultsGather():
             row = self.initTabRow(tr)
             row['rowType'] = 'elapsedTime'
             row['rowValue'] = elapsedTime
-            self.tabData.append(row)
             # Now do total elapsed for when we have features computation
-            row = self.initTabRow(tr)
-            row['rowType'] = 'totalElapsedTime'
             if 'features' in tr and 'elapsedTime' in tr['features']:
-                row['rowValue'] = elapsedTime + tr['features']['elapsedTime']
+                row['totalElapsedTime'] = elapsedTime + tr['features']['elapsedTime']
             else:
-                row['rowValue'] = elapsedTime
+                row['totalElapsedTime'] = elapsedTime
             self.tabData.append(row)
         else:
             pass
@@ -210,6 +207,7 @@ class resultsGather():
                     'origMlScore': None,
                     'featureThreshold': None,
                     'usedFeatures': None,
+                    'totalElapsedTime': None,
                     'featuresWithoutMax': None,
                     'maxClusterSize': None,
                     'numClusters': None,
@@ -231,6 +229,7 @@ class resultsGather():
                     'origMlScore': None,
                     'featureThreshold': None,
                     'usedFeatures': None,
+                    'totalElapsedTime': None,
                     'featuresWithoutMax': None,
                     'maxClusterSize': None,
                     'numClusters': None,
@@ -255,6 +254,7 @@ class resultsGather():
                 'origMlScore': None,
                 'featureThreshold': None,
                 'usedFeatures': None,
+                'totalElapsedTime': None,
                 'featuresWithoutMax': None,
                 'maxClusterSize': None,
                 'numClusters': None,
