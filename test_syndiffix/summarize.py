@@ -367,7 +367,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         axs[0].set_xlabel(xaxis)
 
         xaxis = 'Elapsed Time with Feature Selection'
-        sns.boxplot(x=dfTemp['totalElapsedType'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
+        sns.boxplot(x=dfTemp['totalElapsedTime'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
