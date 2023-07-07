@@ -155,8 +155,9 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
         return
     print(f"    Scatter plots")
     fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(10, 15))
-    for ax0, ax1, rowType, rowVal, doLog, limit in zip([0, 0, 1, 1, 2], [0, 1, 0, 1, 0],
+    for ax0, ax1, rowType, axisLabel, rowVal, doLog, limit in zip([0, 0, 1, 1, 2], [0, 1, 0, 1, 0],
                 ['columnScore', 'pairScore', 'synMlScore', 'synMlScore', 'elapsedTime', ],
+                ['Marginals Score', 'Pairs Score', 'ML Score', 'ML Penality', 'Elapsed Time', ],
                 ['rowValue', 'rowValue', 'rowValue', 'mlPenalty', 'rowValue', ],
                 [False, False, False, False, True, ],
                 [None, None, [0, 1], [-.25,1], None, ]):
@@ -165,14 +166,14 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
             dfBase = dfTemp.query(f"synMethod == '{synMethods[0]}'")
             dfOther = dfTemp.query(f"synMethod == '{synMethods[1]}'")
             print(f"Methods {synMethods}, score {rowType}:")
-            makeScatterWork(dfBase, dfOther, synMethods, axs[ax0][ax1], rowType, rowVal, hueCol, doLog, limit, axisType)
+            makeScatterWork(dfBase, dfOther, synMethods, axs[ax0][ax1], rowType, axisLabel, rowVal, hueCol, doLog, limit, axisType)
     fig.suptitle(title)
     plt.tight_layout()
     plt.savefig(figPath)
     plt.close()
 
 
-def makeScatterWork(dfBase, dfOther, synMethods, ax, rowType, rowVal, hueCol, doLog, limit, axisType):
+def makeScatterWork(dfBase, dfOther, synMethods, ax, rowType, axisLabel, rowVal, hueCol, doLog, limit, axisType):
     legendDone = False
     dfMerged = pd.merge(dfBase, dfOther, how='left', on=['csvFile', 'targetColumn', 'targetColumn2', 'mlMethod'])
     print(f"dfMerged shape {dfMerged.shape}")
@@ -216,11 +217,11 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, rowType, rowVal, hueCol, do
     if doLog:
         ax.set_xscale('log')
         ax.set_yscale('log')
-        ax.set_xlabel(f"{synMethods[0]} {rowType} (log)")
-        ax.set_ylabel(f"{synMethods[1]} {rowType} (log) ({dfMerged.shape[0]})")
+        ax.set_xlabel(f"{synMethods[0]} {axisLabel} (log)")
+        ax.set_ylabel(f"{synMethods[1]} {axisLabel} (log) ({dfMerged.shape[0]})")
     else:
-        ax.set_xlabel(f"{synMethods[0]} {rowType}")
-        ax.set_ylabel(f"{synMethods[1]} {rowType} ({dfMerged.shape[0]})")
+        ax.set_xlabel(f"{synMethods[0]} {axisLabel}")
+        ax.set_ylabel(f"{synMethods[1]} {axisLabel} ({dfMerged.shape[0]})")
 
 
 def setLabelSampleCount(s, labels):

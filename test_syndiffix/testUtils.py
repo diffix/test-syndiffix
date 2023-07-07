@@ -116,7 +116,9 @@ class testUtilities:
         self.csvLibTest = os.path.join(self.baseDir, 'csvLib', 'test')
         self.synResults = os.path.join(self.baseDir, 'synResults')
         self.synMeasures = os.path.join(self.baseDir, 'synMeasures')
+        self.tempSynMeasures = os.path.join(self.baseDir, 'tempSynMeasures')
         self.origMlDir = os.path.join(self.baseDir, 'origMlAb')
+        self.tempOrigMlDir = os.path.join(self.baseDir, 'origMlAbTemp')
         self.runsDir = os.path.join(self.baseDir, 'runs')
         self.featuresDir = os.path.join(self.baseDir, 'featuresAb')
         self.featuresTypeDir = os.path.join(self.featuresDir, 'univariate')
@@ -346,6 +348,14 @@ class testUtilities:
     def registerSynMeasure(self, name):
         self.synMeasures = os.path.join(self.baseDir, name)
         os.makedirs(self.synMeasures, exist_ok=True)
+
+    def registerTempSynMeasure(self, name):
+        self.tempSynMeasures = os.path.join(self.baseDir, name)
+        os.makedirs(self.tempSynMeasures, exist_ok=True)
+
+    def registerTempOrigMlDir(self, name):
+        self.tempOrigMlDir = os.path.join(self.baseDir, name)
+        os.makedirs(self.tempOrigMlDir, exist_ok=True)
 
     def registerOrigMlDir(self, name):
         self.origMlDir = os.path.join(self.baseDir, name)

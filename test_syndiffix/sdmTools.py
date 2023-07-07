@@ -369,10 +369,10 @@ class sdmTools:
             return
         myJob = mlJobs[jobNum]
         # Check if the job is already done
-        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'] + '.part_' + str(sampleNum) + '.ml.json'
-        measuresDir = os.path.join(self.tu.synMeasures, myJob['synMethod'])
+        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'].replace(' ','') + '.part_' + str(sampleNum) + '.ml.json'
+        measuresDir = os.path.join(self.tu.tempSynMeasures, myJob['synMethod'])
         os.makedirs(measuresDir, exist_ok=True)
-        measuresPath = os.path.join(self.tu.synMeasures, myJob['synMethod'], measuresFile)
+        measuresPath = os.path.join(measuresDir, measuresFile)
         if not force and os.path.exists(measuresPath):
             print(f"{measuresPath} exists, skipping")
             print("oneSynMLJob: SUCCESS (skipped)")
@@ -428,15 +428,14 @@ class sdmTools:
         print("oneSynMLJob: SUCCESS")
 
     def runOrigMlJob(self, jobNum, sampleNum, force):
-        if jobNum >= len(self.origMlJobs):
+        if jobNum >= len(self.tempOrigMlJobs):
             print(f"oneOrigMlJob: my jobNum {jobNum} is too large")
             return
-        myJob = self.origMlJobs[jobNum]
-        origMlJobName = f"{myJob['csvFile']}.{myJob['column'].replace(' ','')}.{myJob['method']}.part_{sampleNum}.json"
-        '.part_' + str(sampleNum)
-        origMlJobPath = os.path.join(self.tu.origMlDir, origMlJobName)
-        if not force and os.path.exists(origMlJobPath):
-            print(f"{origMlJobPath} exists, skipping")
+        myJob = self.tempOrigMlJobs[jobNum]
+        tempOrigMlJobName = f"{myJob['csvFile']}.{myJob['column'].replace(' ','')}.{myJob['method']}.part_{sampleNum}.json"
+        tempOrigMlJobPath = os.path.join(self.tu.tempOrigMlDir, tempOrigMlJobName)
+        if not force and os.path.exists(tempOrigMlJobPath):
+            print(f"{tempOrigMlJobPath} exists, skipping")
             print("oneSynMLJob: SUCCESS (skipped)")
             return
         csvPath = os.path.join(self.tu.csvLib, myJob['csvFile'])
@@ -457,7 +456,7 @@ class sdmTools:
         myJob['score'] = score
         myJob['elapsed'] = endTime - startTime
         myJob['sampleNum'] = sampleNum
-        with open(origMlJobPath, 'w') as f:
+        with open(tempOrigMlJobPath, 'w') as f:
             json.dump(myJob, f, indent=4)
         print("oneOrigMlJob: SUCCESS")
 
@@ -508,7 +507,7 @@ class sdmTools:
         return None
 
     def enumerateOrigMlJobs(self):
-        self.origMlJobs = []
+        self.tempOrigMlJobs = []
         mc = measuresConfig(self.tu)
         for csvFile, mlClassInfo in mc.getCsvOrderInfo():
             limits = {
@@ -524,7 +523,7 @@ class sdmTools:
                     continue
                 limits[methodType] += 1
                 for method in methods:
-                    self.origMlJobs.append({'csvFile': csvFile, 'column': colInfo['column'], 'method': method})
+                    self.tempOrigMlJobs.append({'csvFile': csvFile, 'column': colInfo['column'], 'method': method})
 
     def _getMethodsFromColInfo(self, colInfo):
         for mlInfo in self.mlConfig:
@@ -567,6 +566,41 @@ class sdmTools:
                 metadata['columns'][colInfo['column']] = {"sdtype": "numerical", "computer_representation": subType}
         return metadata
 
+    def mergeMlMeasures(self, synMethod):
+        if synMethod:
+            inDir = os.path.join(self.tu.tempSynMeasures, synMethod)
+            outDir = os.path.join(self.tu.synMeasures, synMethod)
+        else:
+            inDir = os.path.join(self.tu.tempOrigMlDir)
+            outDir = os.path.join(self.tu.origMlDir)
+        allMeasures = {}
+        inFileNames = [f for f in os.listdir(inDir) if os.path.isfile(os.path.join(inDir, f))]
+        for inFile in inFileNames:
+            if 'part_' not in inFile:
+                print(f"ERROR: unexpected file name {inFile}")
+                quit()
+            inPath = os.path.join(inDir, inFile)
+            with open(inPath, 'r') as f:
+                oneMl = json.load(f)
+            key = oneMl['csvFile'] + '_' + oneMl['column'] + '_' + oneMl['method']
+            if key in allMeasures:
+                allMeasures[key]['allScores'].append(oneMl['score'])
+            else:
+                allMeasures[key] = {
+                    'allScores':[oneMl['score']],
+                    'info':oneMl,
+                }
+        for key, stuff in allMeasures.items():
+            ''' synMeasure csvFile.method.column.ml.json
+                origMeasure csvFile.column.method.json
+            '''
+            info = stuff['info']
+            fileName = f"{info['csvFile']}.{info['column'].replace(' ','')}.{info['method']}.ml.json"
+            outPath = os.path.join(outDir, fileName)
+            info['score'] = max(stuff['allScores'])
+            info['allScores'] = stuff['allScores']
+            with open(outPath, 'w') as f:
+                json.dump(info, f, indent=4)
 
 class measuresConfig:
     def __init__(self, tu):
@@ -634,7 +668,7 @@ python3 {testPath} \\
             print(f"Writing to {batchScriptPath}")
             f.write(batchScript)
 
-    def makeMlJobsBatchScript(self, csvLib, measuresDir, resultsDir, runsDir, numSamples):
+    def makeMlJobsBatchScript(self, csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
         self._makeLogsDir('logs_synml')
@@ -650,7 +684,7 @@ python3 {testPath} \\
     --csvLib={csvLib} \\
     --resultsDir={resultsDir} \\
     --runsDir={runsDir} \\
-    --measuresDir={measuresDir}
+    --tempMeasuresDir={tempMeasuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
