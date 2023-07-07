@@ -155,12 +155,12 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
         return
     print(f"    Scatter plots")
     fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(10, 15))
-    for ax0, ax1, rowType, axisLabel, rowVal, doLog, limit in zip([0, 0, 1, 1, 2], [0, 1, 0, 1, 0],
-                ['columnScore', 'pairScore', 'synMlScore', 'synMlScore', 'elapsedTime', ],
-                ['Marginals Score', 'Pairs Score', 'ML Score', 'ML Penality', 'Elapsed Time', ],
-                ['rowValue', 'rowValue', 'rowValue', 'mlPenalty', 'rowValue', ],
-                [False, False, False, False, True, ],
-                [None, None, [0, 1], [-.25,1], None, ]):
+    for ax0, ax1, rowType, axisLabel, rowVal, doLog, limit in zip([0, 0, 1, 1, 2, 2], [0, 1, 0, 1, 0, 1],
+                ['columnScore', 'pairScore', 'synMlScore', 'synMlScore', 'elapsedTime', 'elapsedTime', ],
+                ['Marginals Score', 'Pairs Score', 'ML Score', 'ML Penality', 'Elapsed Time', 'Total Elapsed Time', ],
+                ['rowValue', 'rowValue', 'rowValue', 'mlPenalty', 'rowValue', 'totalElapsedTime', ],
+                [False, False, False, False, True, True, ],
+                [None, None, [0, 1], [-.25,1], None, None, ]):
         dfTemp = df.query(f"rowType == '{rowType}'")
         if dfTemp.shape[0] > 0 and len(list(pd.unique(dfTemp['synMethod']))) == 2:
             dfBase = dfTemp.query(f"synMethod == '{synMethods[0]}'")
