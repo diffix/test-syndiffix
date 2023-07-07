@@ -343,7 +343,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(f"Skipping {figPath}")
         return
     height = max(5, len(synMethods) * 0.8)
-    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(15, height))
+    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'elapsedTime'")
     if dfTemp.shape[0] > 0:
@@ -355,16 +355,27 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "time")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs)
+
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
-            axs.yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
-        axs.set_xlim(left=0.1)
-        axs.set_xscale('log')  # zzzz
+            axs[0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
+        axs[0].set_xlim(left=0.1)
+        axs[0].set_xscale('log')  # zzzz
         if hueDf is not None:
-            axs.legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
-        axs.set_xlabel(xaxis)
-        # axs.set(yticklabels = [], ylabel = None)
+            axs[0].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
+        axs[0].set_xlabel(xaxis)
+
+        xaxis = 'Elapsed Time with Feature Selection'
+        sns.boxplot(x=dfTemp['totalElapsedType'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
+        sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
+        if len(sampleCounts) == len(synMethods):
+            axs[1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
+        axs[1].set_xlim(left=0.1)
+        axs[1].set_xscale('log')  # zzzz
+        if hueDf is not None:
+            axs[1].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
+        axs[1].set_xlabel(xaxis)
 
     fig.suptitle(title)
     plt.tight_layout()
