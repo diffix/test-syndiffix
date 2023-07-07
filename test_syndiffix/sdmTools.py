@@ -599,7 +599,6 @@ class sdmTools:
             outPath = os.path.join(outDir, fileName)
             info['score'] = max(stuff['allScores'])
             info['allScores'] = stuff['allScores']
-            json.dump
             with open(outPath, 'w') as f:
                 json.dump(info, f, indent=4)
 
