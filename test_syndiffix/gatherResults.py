@@ -59,11 +59,6 @@ class resultsGather():
         row['rowValue'] = tr['properties']['Score'][0]
         self.tabData.append(row)
 
-        if 'elapsedTime' in tr:
-            # We do elapsed time in two places in case the qual scores
-            # is missing but the ML score is not
-            self.setElapsedTime(tr, tr['elapsedTime'])
-
         for i in range(len(tr['shapes']['Column'])):
             column = tr['shapes']['Column'][i]
             score = tr['shapes']['Quality Score'][i]
@@ -105,6 +100,14 @@ class resultsGather():
             row = self.initTabRow(tr)
             row['rowType'] = 'elapsedTime'
             row['rowValue'] = elapsedTime
+            self.tabData.append(row)
+            # Now do total elapsed for when we have features computation
+            row = self.initTabRow(tr)
+            row['rowType'] = 'totalElapsedTime'
+            if 'features' in tr and 'elapsedTime' in tr['features']:
+                row['rowValue'] = elapsedTime + tr['features']['elapsedTime']
+            else:
+                row['rowValue'] = elapsedTime
             self.tabData.append(row)
         else:
             pass
