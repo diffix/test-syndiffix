@@ -196,13 +196,17 @@ def transformClusterSpec(columns, clusterSpec):
 
 def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, maxClusters, doPatches):
     '''
-    { "InitialCluster": [4, 5, 7],
-      "DerivedClusters": [
-        { "StitchColumns": [7], "DerivedColumns": [1, 3, 9] },
-        { "StitchColumns": [9, 1], "DerivedColumns": [8, 0] },
-        { "StitchColumns": [1, 9], "DerivedColumns": [2] },
-        { "StitchColumns": [7, 3], "DerivedColumns": [6] }
-      ] }
+    {
+  "InitialCluster": [4, 5, 7],
+  "DerivedClusters": [
+    { "StitchOwner": "Shared", "StitchColumns": [7], "DerivedColumns": [1, 3, 9]
+    },
+    { "StitchOwner": "Left", "StitchColumns": [9, 1], "DerivedColumns": [8, 0]
+    },
+    { "StitchOwner": "Right", "StitchColumns": [1, 9], "DerivedColumns": [2] },
+    { "StitchOwner": "Shared", "StitchColumns": [7, 3], "DerivedColumns": [6] }
+  ]
+}
     '''
     numClusters = 1
     cSize = maxClusterSize-1
@@ -219,7 +223,9 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
         derivedCols = remainColumns[:cSize]
         usedColumns += derivedCols
         clusterSpec['DerivedClusters'].append({'StitchColumns':[focusColumn],
-                                               'DerivedColumns':derivedCols})
+                                               'DerivedColumns':derivedCols,
+                                               'StitchOwner':'Shared'})
+
         remainColumns = remainColumns[cSize:]
         numClusters += 1
     if doPatches:
@@ -227,8 +233,9 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
         for column in allColumns:
             if column in featuresColumns or column == focusColumn:
                 continue
-            clusterSpec['DerivedClusters'].append({'StitchColumns':[],
-                                                'DerivedColumns':[column]})
+            clusterSpec['DerivedClusters'].append({'StitchColumns':[focusColumn],
+                                                'DerivedColumns':[column],
+                                                'StitchOwner':'Left'})
     print("Cluster information:")
     print(f"All columns: {allColumns}")
     print(f"Features columns: {featuresColumns}")
