@@ -59,11 +59,6 @@ class resultsGather():
         row['rowValue'] = tr['properties']['Score'][0]
         self.tabData.append(row)
 
-        if 'elapsedTime' in tr:
-            # We do elapsed time in two places in case the qual scores
-            # is missing but the ML score is not
-            self.setElapsedTime(tr, tr['elapsedTime'])
-
         for i in range(len(tr['shapes']['Column'])):
             column = tr['shapes']['Column'][i]
             score = tr['shapes']['Quality Score'][i]
@@ -105,9 +100,12 @@ class resultsGather():
             row = self.initTabRow(tr)
             row['rowType'] = 'elapsedTime'
             row['rowValue'] = elapsedTime
+            # Now do total elapsed for when we have features computation
+            if 'features' in tr and 'elapsedTime' in tr['features']:
+                row['totalElapsedTime'] = elapsedTime + tr['features']['elapsedTime']
+            else:
+                row['totalElapsedTime'] = elapsedTime
             self.tabData.append(row)
-        else:
-            pass
 
     def computeMlPenality(self, synScore, origScore):
         origScore = max(origScore,0)
@@ -207,6 +205,7 @@ class resultsGather():
                     'origMlScore': None,
                     'featureThreshold': None,
                     'usedFeatures': None,
+                    'totalElapsedTime': None,
                     'featuresWithoutMax': None,
                     'maxClusterSize': None,
                     'numClusters': None,
@@ -228,6 +227,7 @@ class resultsGather():
                     'origMlScore': None,
                     'featureThreshold': None,
                     'usedFeatures': None,
+                    'totalElapsedTime': None,
                     'featuresWithoutMax': None,
                     'maxClusterSize': None,
                     'numClusters': None,
@@ -252,6 +252,7 @@ class resultsGather():
                 'origMlScore': None,
                 'featureThreshold': None,
                 'usedFeatures': None,
+                'totalElapsedTime': None,
                 'featuresWithoutMax': None,
                 'maxClusterSize': None,
                 'numClusters': None,
