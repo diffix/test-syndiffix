@@ -23,7 +23,6 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeCsvOrder()
 
-
     def gatherFeatures(self, featuresType='ml', featuresDir='featuresAb', runsDir='runAb'):
         print(
             f"Running gatherFeatures with featuresType={featuresType},featuresDir={featuresDir},runsDir={runsDir}")
