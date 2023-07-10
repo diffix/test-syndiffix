@@ -1,5 +1,6 @@
 import os
 import sys
+import stat
 import json
 import time
 import copy
@@ -698,6 +699,7 @@ python3 {managerPath} gatherFeatures
             '''
             with open(gatherPath, 'w') as f:
                 f.write(gatherScript)
+            os.chmod(gatherPath, stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
             shellScript = f'''#!/bin/sh
 jid1=$(sbatch --parsable gatherFeatures.sh)
 sbatch --dependency=aftercorr:${{jid1}} batchMl
@@ -708,6 +710,7 @@ sbatch batchMl
             '''
         with open(shellPath, 'w') as f:
             f.write(shellScript)
+        os.chmod(shellPath, stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
         self._makeLogsDir('logs_synml')
