@@ -28,10 +28,10 @@ for csvFile in files:
     trainPath = os.path.join(csvTrainDir, csvFile)
     dfTrain = readCsv(trainPath)
     testPath = os.path.join(csvTestDir, csvFile)
-    dfTest = readCsv(testPath)
+    dfTest = readCsv(testPath).reindex(dfTrain.columns, axis=1)
     try:
-        anonPath = os.path.join(csvAnonDir, csvFile)
-        dfAnon = readCsv(anonPath)
+        anonPath = os.path.join(csvAnonDir, csvFile.lower())
+        dfAnon = readCsv(anonPath).reindex(dfTrain.columns, axis=1)
     except FileNotFoundError:
         continue
     results = {}
