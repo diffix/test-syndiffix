@@ -699,7 +699,7 @@ python3 {managerPath} gatherFeatures
             '''
             with open(gatherPath, 'w') as f:
                 f.write(gatherScript)
-            os.chmod(gatherPath, stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            os.chmod(gatherPath, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
             shellScript = f'''#!/bin/sh
 jid1=$(sbatch --parsable gatherFeatures.sh)
 sbatch --dependency=aftercorr:${{jid1}} batchMl
