@@ -152,7 +152,7 @@ class SdmManager(object):
         mc.makeAndSaveFeaturesJobOrder()
         mc.makeFeaturesJobsBatchScript(csvLib, runsDir, featuresDir, featuresType, len(mc.featuresJobs))
 
-    def makeMlRuns(self, csvLib='csvAb', tempMeasuresDir='measuresAbTemp', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None, numSamples=20):
+    def makeMlRuns(self, csvLib='csvAb', tempMeasuresDir='measuresAbTemp', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None, numSamples=20, limitToFeatures=False):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
         runsDir/mlJobs.json, and puts the needed SLURM script in runsDir as runsDir/batchMl
         '''
@@ -166,7 +166,7 @@ class SdmManager(object):
         tu.registerOrigMlDir(origMlDir)
         mc = sdmTools.measuresConfig(tu)
         mc.makeAndSaveMlJobsOrder(synMethod)
-        mc.makeMlJobsBatchScript(csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples)
+        mc.makeMlJobsBatchScript(csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples, limitToFeatures)
 
     def makeQualRuns(self, measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynQualJob.py, and puts the needed

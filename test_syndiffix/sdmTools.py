@@ -688,7 +688,26 @@ python3 {testPath} \\
             print(f"Writing to {batchScriptPath}")
             f.write(batchScript)
 
-    def makeMlJobsBatchScript(self, csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples):
+    def makeMlJobsBatchScript(self, csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples, limitToFeatures):
+        shellPath = os.path.join(self.tu.runsDir, "batchMl.sh")
+        if limitToFeatures:
+            gatherPath = os.path.join(self.tu.runsDir, "gatherFeatures.sh")
+            managerPath = os.path.join(self.tu.pythonDir, 'sdmManager.py')
+            gatherScript = f'''#!/bin/sh
+python3 {managerPath} gatherFeatures
+            '''
+            with open(gatherPath, 'w') as f:
+                f.write(gatherScript)
+            shellScript = f'''#!/bin/sh
+jid1=$(sbatch --parsable gatherFeatures.sh)
+sbatch --dependency=aftercorr:${{jid1}} batchMl
+            '''
+        else:
+            shellScript = f'''#!/bin/sh
+sbatch batchMl
+            '''
+        with open(shellPath, 'w') as f:
+            f.write(shellScript)
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
         self._makeLogsDir('logs_synml')
@@ -704,6 +723,7 @@ python3 {testPath} \\
     --csvLib={csvLib} \\
     --resultsDir={resultsDir} \\
     --runsDir={runsDir} \\
+    --limitToFeatures={limitToFeatures}
     --tempMeasuresDir={tempMeasuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
