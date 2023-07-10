@@ -566,6 +566,26 @@ class sdmTools:
                 metadata['columns'][colInfo['column']] = {"sdtype": "numerical", "computer_representation": subType}
         return metadata
 
+    def gatherFeatures(self):
+        kfeatures = {}
+        inFileNames = [f for f in os.listdir(self.tu.featuresTypeDir) if os.path.isfile(os.path.join(self.tu.featuresTypeDir, f))]
+        for inFile in inFileNames:
+            if inFile[-5:] != '.json':
+                continue
+            inPath = os.path.join(self.tu.featuresTypeDir, inFile)
+            with open(inPath, 'r') as f:
+                feat = json.load(f)
+            if feat['csvFile'] not in kfeatures:
+                kfeatures[feat['csvFile']] = {}
+            if feat['targetColumn'] not in kfeatures[feat['csvFile']]:
+                kfeatures[feat['csvFile']][feat['targetColumn']] = {}
+            for thing in feat['origMlScores']:
+                kfeatures[feat['csvFile']][feat['targetColumn']][thing['alg']] = feat['kFeatures']
+        outPath = os.path.join(self.tu.runsDir, 'kfeatures.json')
+        print(f"Writing kfeatures to {outPath}")
+        with open(outPath, 'w') as f:
+            json.dump(kfeatures, f, indent=4)
+
     def mergeMlMeasures(self, synMethod):
         if synMethod:
             inDir = os.path.join(self.tu.tempSynMeasures, synMethod)
