@@ -582,6 +582,7 @@ class sdmTools:
             for thing in feat['origMlScores']:
                 kfeatures[feat['csvFile']][feat['targetColumn']][thing['alg']] = feat['kFeatures']
         outPath = os.path.join(self.tu.runsDir, 'kfeatures.json')
+        print(f"Writing kfeatures to {outPath}")
         with open(outPath, 'w') as f:
             json.dump(kfeatures, f, indent=4)
 
