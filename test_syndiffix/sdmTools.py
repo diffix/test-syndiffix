@@ -710,7 +710,7 @@ sbatch batchMl
             '''
         with open(shellPath, 'w') as f:
             f.write(shellScript)
-        os.chmod(shellPath, stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.chmod(shellPath, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
         self._makeLogsDir('logs_synml')
