@@ -24,14 +24,15 @@ class SdmManager(object):
         mc.makeCsvOrder()
 
 
-    def gatherFeatures(self, featuresType='ml', featuresDir='featuresAb', runsDir='runAb', synMethod=None):
+    def gatherFeatures(self, featuresType='ml', featuresDir='featuresAb', runsDir='runAb'):
         print(
-            f"Running gatherFeatures with featuresType={featuresType},featuresDir={featuresDir},runsDir={runsDir},synMethod={synMethod}")
+            f"Running gatherFeatures with featuresType={featuresType},featuresDir={featuresDir},runsDir={runsDir}")
         tu = testUtils.testUtilities()
         tu.registerFeaturesDir(featuresDir)
         tu.registerFeaturesType(featuresType)
         tu.registerRunsDir(runsDir)
-        pass
+        sdmt = sdmTools.sdmTools(tu)
+        sdmt.gatherFeatures()
 
     def mergeMlMeasures(self, outDir='origMlAb', tempDir='origMlAbTemp', synMethod=None):
         ''' This can be used to either merge original ML measures or the measures for
