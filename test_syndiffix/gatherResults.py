@@ -21,9 +21,12 @@ class resultsGather():
 
     def gather(self):
         inDirPaths, inDirNames = self.tu.getSynMeasuresDirs()
+        print(f"Gathering for synMethods:")
+        pp.pprint(inDirPaths)
         self.tabData = []
         for self.inDirPath, self.synMethod in zip(inDirPaths, inDirNames):
             inFiles = [f for f in os.listdir(self.inDirPath) if os.path.isfile(os.path.join(self.inDirPath, f))]
+            print(f"Read in {len(inFiles)} files from {self.inDirPath} for method {self.synMethod}")
             for self.inFile in inFiles:
                 if self.inFile[-5:] != '.json':
                     continue
