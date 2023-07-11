@@ -615,6 +615,8 @@ class sdmTools:
         else:
             inDir = os.path.join(self.tu.tempOrigMlDir)
             outDir = os.path.join(self.tu.origMlDir)
+        os.makedirs(inDir, exist_ok=True)
+        os.makedirs(outDir, exist_ok=True)
         allMeasures = {}
         inFileNames = [f for f in os.listdir(inDir) if os.path.isfile(os.path.join(inDir, f))]
         for inFile in inFileNames:
