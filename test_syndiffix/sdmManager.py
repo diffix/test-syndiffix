@@ -152,7 +152,7 @@ class SdmManager(object):
         mc.makeAndSaveFeaturesJobOrder()
         mc.makeFeaturesJobsBatchScript(csvLib, runsDir, featuresDir, featuresType, len(mc.featuresJobs))
 
-    def makeMlRuns(self, csvLib='csvAb', tempMeasuresDir='measuresAbTemp', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None, numSamples=20):
+    def makeMlRuns(self, csvLib='csvAb', tempMeasuresDir='measuresAbTemp', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None, numSamples=20, limitToFeatures=False):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
         runsDir/mlJobs.json, and puts the needed SLURM script in runsDir as runsDir/batchMl
         '''
@@ -166,7 +166,7 @@ class SdmManager(object):
         tu.registerOrigMlDir(origMlDir)
         mc = sdmTools.measuresConfig(tu)
         mc.makeAndSaveMlJobsOrder(synMethod)
-        mc.makeMlJobsBatchScript(csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples)
+        mc.makeMlJobsBatchScript(csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples, limitToFeatures)
 
     def makeQualRuns(self, measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynQualJob.py, and puts the needed
@@ -200,6 +200,20 @@ class SdmManager(object):
         tu.registerCsvLib(csvLib)
         mc = sdmTools.measuresConfig(tu)
         mc.makeFocusRunsScripts(csvLib, measuresDir, resultsDir, runsDir)
+
+    def help(self):
+        print('''
+def makeMlRuns(self, csvLib='csvAb', tempMeasuresDir='measuresAbTemp', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None, numSamples=20, limitToFeatures=False):
+def mergeMlMeasures(self, outDir='origMlAb', tempDir='origMlAbTemp', synMethod=None):
+def makeQualRuns(self, measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', synMethod=None):
+
+def gatherFeatures(self, featuresType='ml', featuresDir='featuresAb', runsDir='runAb'):
+def makeOrigMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', runsDir='runAb', tempOrigMlDir='origMlAbTemp', numSamples=20):
+def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
+def makePrivRuns(self, measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', numAttacks=5000, numAttacksInference=500):
+def makeFocusRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb'):
+def updateCsvInfo(self, csvLib='csvAb', measuresDir='measuresAb'):
+        ''')
 
 
 def main():

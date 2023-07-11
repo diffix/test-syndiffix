@@ -1,5 +1,6 @@
 import os
 import sys
+import stat
 import json
 import time
 import copy
@@ -361,7 +362,15 @@ class sdmTools:
         except:
             pass
 
-    def runSynMlJob(self, jobNum, sampleNum, force=False):
+    def _getColumnsToKeep(self, job):
+        featuresPath = os.path.join(self.tu.runsDir, 'kfeatures.json')
+        json.load
+        with open(featuresPath, 'r') as f:
+            kfeatures = json.load(f)
+        # This will just crash if the entry isn't there... 
+        return kfeatures[job['csvFile']][job['column']][job['method']] + [job['column']]
+
+    def runSynMlJob(self, jobNum, sampleNum, limitToFeatures, force=False):
         mc = measuresConfig(self.tu)
         mlJobs = mc.getMlJobs()
         if jobNum >= len(mlJobs):
@@ -370,7 +379,11 @@ class sdmTools:
         myJob = mlJobs[jobNum]
         # Check if the job is already done
         measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'].replace(' ','') + '.part_' + str(sampleNum) + '.ml.json'
-        measuresDir = os.path.join(self.tu.tempSynMeasures, myJob['synMethod'])
+        if limitToFeatures:
+            synMethod = myJob['synMethod'] + '_clip'
+        else:
+            synMethod = myJob['synMethod']
+        measuresDir = os.path.join(self.tu.tempSynMeasures, synMethod)
         os.makedirs(measuresDir, exist_ok=True)
         measuresPath = os.path.join(measuresDir, measuresFile)
         if not force and os.path.exists(measuresPath):
@@ -401,12 +414,21 @@ class sdmTools:
             return
         dfAnon = pd.DataFrame(results['anonTable'], columns=results['colNames'])
         dfTest = pd.DataFrame(results['testTable'], columns=results['colNames'])
-        print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape}")
+        print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape} (before features limit)")
+        if limitToFeatures:
+            columnsToKeep = self._getColumnsToKeep(myJob)
+            allColumns = list(dfAnon.columns.values)
+            for column in allColumns:
+                if column not in columnsToKeep:
+                    dfAnon.drop(column, axis=1, inplace=True)
+                    dfTest.drop(column, axis=1, inplace=True)
+            print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape} (after features limit)")
         mls = testUtils.mlSupport(self.tu)
         mlClassInfo = mls.makeMlClassInfo(dfTest, None)
         metadata = self._getMetadataFromMlInfo(mlClassInfo)
         startTime = time.time()
         print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
+        print(f"columns {list(dfTest.columns.values)}")
         score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                     myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
@@ -593,6 +615,8 @@ class sdmTools:
         else:
             inDir = os.path.join(self.tu.tempOrigMlDir)
             outDir = os.path.join(self.tu.origMlDir)
+        os.makedirs(inDir, exist_ok=True)
+        os.makedirs(outDir, exist_ok=True)
         allMeasures = {}
         inFileNames = [f for f in os.listdir(inDir) if os.path.isfile(os.path.join(inDir, f))]
         for inFile in inFileNames:
@@ -688,7 +712,28 @@ python3 {testPath} \\
             print(f"Writing to {batchScriptPath}")
             f.write(batchScript)
 
-    def makeMlJobsBatchScript(self, csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples):
+    def makeMlJobsBatchScript(self, csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples, limitToFeatures):
+        shellPath = os.path.join(self.tu.runsDir, "batchMl.sh")
+        if limitToFeatures:
+            gatherPath = os.path.join(self.tu.runsDir, "gatherFeatures.sh")
+            managerPath = os.path.join(self.tu.pythonDir, 'sdmManager.py')
+            gatherScript = f'''#!/bin/sh
+python3 {managerPath} gatherFeatures
+            '''
+            with open(gatherPath, 'w') as f:
+                f.write(gatherScript)
+            os.chmod(gatherPath, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+            shellScript = f'''#!/bin/sh
+jid1=$(sbatch --parsable gatherFeatures.sh)
+sbatch --dependency=aftercorr:${{jid1}} batchMl
+            '''
+        else:
+            shellScript = f'''#!/bin/sh
+sbatch batchMl
+            '''
+        with open(shellPath, 'w') as f:
+            f.write(shellScript)
+        os.chmod(shellPath, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         batchScriptPath = os.path.join(self.tu.runsDir, "batchMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneSynMLJob.py')
         self._makeLogsDir('logs_synml')
@@ -704,6 +749,7 @@ python3 {testPath} \\
     --csvLib={csvLib} \\
     --resultsDir={resultsDir} \\
     --runsDir={runsDir} \\
+    --limitToFeatures={limitToFeatures}
     --tempMeasuresDir={tempMeasuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
