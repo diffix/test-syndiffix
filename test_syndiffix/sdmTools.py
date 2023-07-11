@@ -368,7 +368,7 @@ class sdmTools:
         with open(featuresPath, 'r') as f:
             kfeatures = json.load(f)
         # This will just crash if the entry isn't there... 
-        return kfeatures[job['csvFile']][job['column']][job['method']]
+        return kfeatures[job['csvFile']][job['column']][job['method']] + [job['column']]
 
     def runSynMlJob(self, jobNum, sampleNum, limitToFeatures, force=False):
         mc = measuresConfig(self.tu)
