@@ -22,7 +22,7 @@ class resultsGather():
     def gather(self):
         inDirPaths, inDirNames = self.tu.getSynMeasuresDirs()
         print(f"Gathering for synMethods:")
-        pp.pprint(inDirNames)
+        pp.pprint(inDirPaths)
         self.tabData = []
         for self.inDirPath, self.synMethod in zip(inDirPaths, inDirNames):
             inFiles = [f for f in os.listdir(self.inDirPath) if os.path.isfile(os.path.join(self.inDirPath, f))]
