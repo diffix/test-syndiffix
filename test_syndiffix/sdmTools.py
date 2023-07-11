@@ -441,6 +441,7 @@ class sdmTools:
         myJob['elapsed'] = results['elapsedTime']
         myJob['focusColumn'] = focusColumn
         myJob['sampleNum'] = sampleNum
+        myJob['synMethod'] = synMethod
         if 'features' in results:
             myJob['features'] = results['features']
         print("Job Information")
