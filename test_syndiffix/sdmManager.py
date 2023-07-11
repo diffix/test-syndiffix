@@ -201,6 +201,20 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeFocusRunsScripts(csvLib, measuresDir, resultsDir, runsDir)
 
+    def help(self):
+        print('''
+def makeMlRuns(self, csvLib='csvAb', tempMeasuresDir='measuresAbTemp', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None, numSamples=20, limitToFeatures=False):
+def mergeMlMeasures(self, outDir='origMlAb', tempDir='origMlAbTemp', synMethod=None):
+def makeQualRuns(self, measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', synMethod=None):
+
+def gatherFeatures(self, featuresType='ml', featuresDir='featuresAb', runsDir='runAb'):
+def makeOrigMlRuns(self, csvLib='csvAb', measuresDir='measuresAb', runsDir='runAb', tempOrigMlDir='origMlAbTemp', numSamples=20):
+def makeFeatures(self, csvLib='csvAb', featuresType='univariate', featuresDir='featuresAb', resultsDir='resultsAb', runsDir='runAb', origMlDir='origMlAb', synMethod=None):
+def makePrivRuns(self, measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb', numAttacks=5000, numAttacksInference=500):
+def makeFocusRuns(self, csvLib='csvAb', measuresDir='measuresAb', resultsDir='resultsAb', runsDir='runAb'):
+def updateCsvInfo(self, csvLib='csvAb', measuresDir='measuresAb'):
+        ''')
+
 
 def main():
     fire.Fire(SdmManager)
