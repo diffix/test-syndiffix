@@ -2,6 +2,7 @@ import os
 import json
 import pprint
 import sys
+import dateutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from misc.csvUtils import readCsv
 
@@ -30,17 +31,26 @@ for csvFile in files:
     testPath = os.path.join(csvTestDir, csvFile)
     dfTest = readCsv(testPath).reindex(dfTrain.columns, axis=1)
     try:
-        anonPath = os.path.join(csvAnonDir, csvFile.lower())
+        anonPath = os.path.join(csvAnonDir, csvFile)
         dfAnon = readCsv(anonPath).reindex(dfTrain.columns, axis=1)
     except FileNotFoundError:
         continue
     results = {}
     results['colNames'] = list(dfTrain.columns)
-    # Not 0 to avoid log issues
-    results['elapsedTime'] = 0.0000001
+    results['elapsedTime'] = None
     results['originalTable'] = dfTrain.values.tolist()
     results['testTable'] = dfTest.values.tolist()
     results['anonTable'] = dfAnon.values.tolist()
+
+    logPath = os.path.join(csvAnonDir, csvFile + '.log.json')
+    try:
+        with open(logPath) as f:
+            logs = json.load(f)
+
+        logTimestamps = [dateutil.parser.parse(l['ts']).timestamp() for l in logs]
+        results['elapsedTime'] = logTimestamps[-1] - logTimestamps[0]
+    except FileNotFoundError:
+        print("Log file for", csvFile, "not found")
 
     resultsName = csvFile + '.json'
     jsonPath = os.path.join(resultsDir, resultsName)

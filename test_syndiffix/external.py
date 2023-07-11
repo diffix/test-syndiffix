@@ -1,3 +1,4 @@
+import json
 import sys
 import os
 import fire
@@ -122,20 +123,22 @@ class External(object):
             except Exception as e:
                 print(e, 'encountered when processing', csvPath)
                 return None
-
+            finally:
+                with open(resultCsvPath(csvPath, 'gretel') + '.log.json', 'w') as f:
+                    json.dump(model.logs, f)
         syntheticDf.to_csv(resultCsvPath(csvPath, 'gretel' + ('_local' if local else '')),
                            index=False, sep=',', header=True)
 
         print(syntheticDf.round(3))
 
     def many(self, *csvPaths, onlyMissing=False, method=None, pick=None):
-        if not method:
-            "Method argument required"
+        if method is None:
+            raise ValueError("Method argument required")
 
         for i, csvPath in enumerate(csvPaths):
-            if pick and pick > len(csvPaths):
+            if pick is not None and pick > len(csvPaths):
                 raise ValueError("--pick out of range")
-            if pick and pick != i:
+            if pick is not None and pick != i:
                 continue
             print(i + 1, ' / ', len(csvPaths), csvPath)
             if onlyMissing and os.path.isfile(resultCsvPath(csvPath, method)):
