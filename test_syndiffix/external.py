@@ -17,6 +17,9 @@ def resultCsvPath(csvPath, method):
 
 class External(object):
 
+    def __init__(self) -> None:
+        self._gretelModelList = None
+
     def tonic(self, csvPath):
         from tonic_api.api import TonicApi
 
@@ -131,7 +134,26 @@ class External(object):
 
         print(syntheticDf.round(3))
 
-    def many(self, *csvPaths, onlyMissing=False, method=None, pick=None):
+    def gretelDlLogs(self, csvPath):
+        from gretel_client import configure_session
+        from gretel_client.projects.jobs import Status
+        from gretel_client.projects import create_or_get_unique_project
+
+        if self._gretelModelList is None:
+            configure_session(api_key=os.environ['GRETEL_API_KEY'], cache="yes", validate=True)
+            project = create_or_get_unique_project(name="synthetic-data")
+            self._gretelModelList = list(project.search_models(limit=12341234))
+
+        csvFile = os.path.basename(csvPath)
+        matching = [m for m in self._gretelModelList if csvFile in m.data_source and m.status == Status.COMPLETED]
+        if matching:
+            mostRecent = matching[-1]
+            with open(resultCsvPath(csvPath, 'gretel') + '.log.json', 'w') as f:
+                json.dump(mostRecent.logs, f)
+        else:
+            print("model for", csvPath, "not found in Gretel API")
+
+    def many(self, *csvPaths, onlyMissing=False, method=None, pick=None, logs=False):
         if method is None:
             raise ValueError("Method argument required")
 
@@ -141,13 +163,22 @@ class External(object):
             if pick is not None and pick != i:
                 continue
             print(i + 1, ' / ', len(csvPaths), csvPath)
-            if onlyMissing and os.path.isfile(resultCsvPath(csvPath, method)):
-                print('Result file exists, skipping')
-                continue
+            if onlyMissing:
+                if logs:
+                    if os.path.isfile(resultCsvPath(csvPath, method) + '.log.json'):
+                        print('Result log file exists, skipping')
+                        continue
+                else:
+                    if os.path.isfile(resultCsvPath(csvPath, method)):
+                        print('Result file exists, skipping')
+                        continue
             if method == 'ydata':
                 self.ydata(csvPath)
             if method == 'gretel':
-                self.gretel(csvPath)
+                if logs:
+                    self.gretelDlLogs(csvPath)
+                else:
+                    self.gretel(csvPath)
 
 
 if __name__ == "__main__":
