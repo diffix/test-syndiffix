@@ -422,11 +422,13 @@ class sdmTools:
                 if column not in columnsToKeep:
                     dfAnon.drop(column, axis=1, inplace=True)
                     dfTest.drop(column, axis=1, inplace=True)
+            print(f"    dfTest shape {dfTest.shape}, dfAnon (train) shape {dfAnon.shape} (after features limit)")
         mls = testUtils.mlSupport(self.tu)
         mlClassInfo = mls.makeMlClassInfo(dfTest, None)
         metadata = self._getMetadataFromMlInfo(mlClassInfo)
         startTime = time.time()
         print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
+        print(f"columns {list(dfTest.columns.values)}")
         score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
                                     myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
