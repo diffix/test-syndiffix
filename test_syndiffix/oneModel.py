@@ -71,6 +71,8 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
 
 
 def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=[]):
+    print(f"running runAbSharp with dataSourcePath {dataSourcePath}\n outPath {outPath}\n abSharpArgs {abSharpArgs}\n columns {columns}\n focusColumn {focusColumn}\n featuresJob {featuresJob}\n extraArgs {extraArgs}\n"):
+    quit()
     thisDir = os.path.dirname(os.path.abspath(__file__))
     abSharpDir = os.path.join(tu.abSharpDir, 'src', 'SynDiffix.Debug')
 
@@ -245,7 +247,11 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
     return clusterSpec, numClusters, usedColumns
 
 def oneModel(dataDir='csvGeneral',
-             dataSourceNum=0,
+             dataSourceNum=None,
+             csvFile=None,
+             featuresFile=None,
+             featuresType=None,
+             featuresDir=None,
              model='fastMl',
              suffix='',
              synResults='synResults',
@@ -253,8 +259,6 @@ def oneModel(dataDir='csvGeneral',
              abSharpArgs='',
              runsDir='runsAb',
              doMeasures=False,
-             featuresType=None,
-             featuresDir=None,
              numFeatures=None,
              featureThreshold=None,
              maxClusterSize=3,
@@ -262,7 +266,19 @@ def oneModel(dataDir='csvGeneral',
              doPatches=True,
              force=False):
 
-    ''' Build as many clusters of size maxClusterSize as we can until we either reach
+    ''' There are two ways to run oneModel without features (i.e. for ctGan or syndiffix):
+            1. Specify the dataSourceNum
+            2. Specify the csvFile
+        Likewise, there are two ways to run oneModel with features:
+            1. Specify the dataSourceNum, featuresType, and featuresDir
+            2. Specify the featuresFile, featuresType, and featuresDir
+
+        An example of the latter is:
+            --featuresDir=featuresAb
+            --featuresType=ml
+            --featuresFile="ml.census.csv.tax filer stat.json"
+        
+        Build as many clusters of size maxClusterSize as we can until we either reach
         maxClusters or we have put all features (that pass featureThreshold) into clusters.
         If doPatches==False, then we remove all columns that are not in a cluster.
         Otherwise, we add the columns as patches.
@@ -274,7 +290,15 @@ def oneModel(dataDir='csvGeneral',
         print(f"abSharpArgs: {abSharpArgs}")
     focusColumn = None
     featuresJob = None
-    if not featuresType:
+    if csvFile:
+        if featuresType or dataSourceNum:
+            print("ERROR: can't specify featuresType or dataSourceNum along with csvFile")
+        sourceFileName = csvFile
+        if ((featuresDir or featuresType or featuresFile) and
+            (not featuresDir or not featuresType or not featuresFile)):
+            print("ERROR: if any of featuresDir, featuresType, or featuresFile are specified, then all must be specified")
+            quit()
+    if dataSourceNum and not featuresType:
         inFiles = [f for f in os.listdir(
             tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
         dataSources = []
@@ -286,10 +310,10 @@ def oneModel(dataDir='csvGeneral',
             print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
             quit()
         sourceFileName = dataSources[dataSourceNum]
-        baseFileName = sourceFileName[:-4]
-    else:
+    if featuresType:
         tu.registerFeaturesDir(featuresDir)
         tu.registerFeaturesType(featuresType)
+    if dataSourceNum and featuresType:
         featuresFiles = tu.getSortedFeaturesFiles()
         if dataSourceNum >= len(featuresFiles):
             print(f"ERROR: dataSourceNum too big {dataSourceNum}")
@@ -298,14 +322,13 @@ def oneModel(dataDir='csvGeneral',
         if featuresFile[-5:] != '.json':
             print(f"ERROR: features file not json ({featuresFile})")
             quit()
-        # use featuresType
+    if featuresType:
         featuresPath = os.path.join(tu.featuresTypeDir, featuresFile)
         with open(featuresPath, 'r') as f:
             featuresJob = json.load(f)
         sourceFileName = featuresJob['csvFile']      #TODO
         focusColumn = featuresJob['targetColumn']
     print(f"Using source file {sourceFileName}")
-    quit()
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
     if not os.path.exists(dataSourcePath):
         print(f"ERROR: File {dataSourcePath} does not exist")
@@ -440,6 +463,7 @@ def oneModel(dataDir='csvGeneral',
                         'outputFile': sourceFileName + '.json',
                         }
 
+    baseFileName = sourceFileName[:-4]
     sdm = sdmetricsPlay.abSdmetrics(colNames, results['originalTable'],
                                     results['anonTable'], None, None, None,
                                     fileName=baseFileName, dir=os.path.join(tu.synMeasures, label),
