@@ -4,6 +4,7 @@ import stat
 import json
 import time
 import copy
+import socket
 import sdmetrics
 import sdmetrics.single_table
 import sdmetrics.reports.single_table
@@ -442,6 +443,7 @@ class sdmTools:
         myJob['focusColumn'] = focusColumn
         myJob['sampleNum'] = sampleNum
         myJob['synMethod'] = synMethod
+        myJob['hostname'] = socket.gethostname()
         if 'features' in results:
             myJob['features'] = results['features']
         print("Job Information")
@@ -630,9 +632,11 @@ class sdmTools:
             key = oneMl['csvFile'] + '_' + oneMl['column'] + '_' + oneMl['method']
             if key in allMeasures:
                 allMeasures[key]['allScores'].append(oneMl['score'])
+                allMeasures[key]['allHosts'].append(oneMl['hostname'])
             else:
                 allMeasures[key] = {
                     'allScores':[oneMl['score']],
+                    'allHosts':[oneMl['hostname']],
                     'info':oneMl,
                 }
         for key, stuff in allMeasures.items():
@@ -644,6 +648,7 @@ class sdmTools:
             outPath = os.path.join(outDir, fileName)
             info['score'] = max(stuff['allScores'])
             info['allScores'] = stuff['allScores']
+            info['allHosts'] = stuff['allHosts']
             with open(outPath, 'w') as f:
                 json.dump(info, f, indent=4)
 
