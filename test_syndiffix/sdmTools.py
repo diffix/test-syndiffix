@@ -630,6 +630,9 @@ class sdmTools:
             with open(inPath, 'r') as f:
                 oneMl = json.load(f)
             key = oneMl['csvFile'] + '_' + oneMl['column'] + '_' + oneMl['method']
+            if 'hostname' not in oneMl:
+                # for backwards compatibility
+                oneMl['hostname'] = 'no_hostname'
             if key in allMeasures:
                 allMeasures[key]['allScores'].append(oneMl['score'])
                 allMeasures[key]['allHosts'].append(oneMl['hostname'])
