@@ -72,7 +72,6 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
 
 def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=[]):
     print(f"running runAbSharp with:\n dataSourcePath {dataSourcePath}\n outPath {outPath}\n abSharpArgs '{abSharpArgs}'\n columns {columns}\n focusColumn {focusColumn}\n featuresJob {featuresJob}\n extraArgs {extraArgs}\n")
-    quit()
     thisDir = os.path.dirname(os.path.abspath(__file__))
     abSharpDir = os.path.join(tu.abSharpDir, 'src', 'SynDiffix.Debug')
 
