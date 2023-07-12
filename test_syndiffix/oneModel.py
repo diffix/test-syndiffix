@@ -253,7 +253,6 @@ def oneModel(dataDir='csvGeneral',
              abSharpArgs='',
              runsDir='runsAb',
              doMeasures=False,
-             withFocusColumn=False,
              featuresType=None,
              featuresDir=None,
              numFeatures=None,
@@ -275,7 +274,7 @@ def oneModel(dataDir='csvGeneral',
         print(f"abSharpArgs: {abSharpArgs}")
     focusColumn = None
     featuresJob = None
-    if not withFocusColumn and not featuresType:
+    if not featuresType:
         inFiles = [f for f in os.listdir(
             tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
         dataSources = []
@@ -289,13 +288,6 @@ def oneModel(dataDir='csvGeneral',
         sourceFileName = dataSources[dataSourceNum]
         baseFileName = sourceFileName[:-4]
         print(f"Using source file {sourceFileName}")
-    elif withFocusColumn:
-        tu.registerRunsDir(runsDir)
-        mc = sdmTools.measuresConfig(tu)
-        sourceFileName, focusColumn = mc.getFocusFromJobNumber(dataSourceNum)
-        if sourceFileName is None:
-            print(f"ERROR: Couldn't find focus job")
-            quit()
     else:
         tu.registerFeaturesDir(featuresDir)
         tu.registerFeaturesType(featuresType)
@@ -325,7 +317,7 @@ def oneModel(dataDir='csvGeneral',
     label = model + '_' + suffix if suffix else model
     modelsDir = os.path.join(tu.synResults, label)
     os.makedirs(modelsDir, exist_ok=True)
-    if not withFocusColumn and not featuresType:
+    if not featuresType:
         outPath = os.path.join(modelsDir, f"{sourceFileName}.json")
     else:
         # We do this whether we have featuresType or not. If we do, then we expect
