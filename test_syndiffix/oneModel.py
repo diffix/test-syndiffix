@@ -287,7 +287,6 @@ def oneModel(dataDir='csvGeneral',
             quit()
         sourceFileName = dataSources[dataSourceNum]
         baseFileName = sourceFileName[:-4]
-        print(f"Using source file {sourceFileName}")
     else:
         tu.registerFeaturesDir(featuresDir)
         tu.registerFeaturesType(featuresType)
@@ -305,6 +304,8 @@ def oneModel(dataDir='csvGeneral',
             featuresJob = json.load(f)
         sourceFileName = featuresJob['csvFile']      #TODO
         focusColumn = featuresJob['targetColumn']
+    print(f"Using source file {sourceFileName}")
+    quit()
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
     if not os.path.exists(dataSourcePath):
         print(f"ERROR: File {dataSourcePath} does not exist")
@@ -405,9 +406,7 @@ def oneModel(dataDir='csvGeneral',
                 colType = 'text'
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         extraArgs = []
-        if withFocusColumn:
-            extraArgs = ["--clustering-maincolumn", focusColumn]
-        elif clusterSpec:
+        if clusterSpec:
             transformClusterSpec(list(df.columns.values), clusterSpec)
             print("After transform:")
             pp.pprint(clusterSpec)
