@@ -350,6 +350,7 @@ def oneModel(dataDir='csvGeneral',
     if not force and os.path.exists(outPath):
         print(f"Result {outPath} already exists, skipping")
         print("oneModel:SUCCESS (skipped)")
+        quit()
     print(f"Model {label} for dataset {dataSourcePath}, focus column {focusColumn}")
 
     df = readCsv(dataSourcePath)
