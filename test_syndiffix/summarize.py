@@ -16,6 +16,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 setLabelCountsGlobal = False
 
+
 def swrite(f, wstr):
     f.write(wstr)
     f.write('\n')
@@ -76,11 +77,13 @@ def summarize(measuresDir='measuresAb',
 
     if jobs and 'combs' in jobs:
         for job in jobs['combs']:
-            doRealPlots(tu, dfReal, job['columns'], force=force, scatterHues=job['scatterHues'], basicHues=job['basicHues'])
+            doRealPlots(tu, dfReal, job['columns'], force=force,
+                        scatterHues=job['scatterHues'], basicHues=job['basicHues'])
     dfBadPriv = dfAll.query("rowType == 'privRisk' and rowValue > 0.5")
     if dfBadPriv.shape[0] > 0:
         print("Bad privacy scores:")
         print(dfBadPriv[['rowValue', 'privMethod', 'targetColumn', 'csvFile', 'synMethod']].to_string)
+
 
 def removeExtras(df):
     ''' This cleans out csv files that are not represented by all methods '''
@@ -93,6 +96,7 @@ def removeExtras(df):
             df = df.query(f"csvFile != '{csv}'")
     return df
 
+
 def makeCsvFiles(df, tu):
     for scoreType in ['columnScore', 'pairScore', 'synMlScore', 'elapsedTime', ]:
         dfTemp = df.query(f"rowType == '{scoreType}'")
@@ -102,6 +106,7 @@ def makeCsvFiles(df, tu):
         csvPath = os.path.join(tu.summariesDir, f"{scoreType}.csv")
         print(f"Writing {csvPath}")
         dfTemp.to_csv(csvPath, index=False, header=dfTemp.columns)
+
 
 def do2dimPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[None], basicHues=[None], doElapsed=False):
     print(f"-------- do2dimPlots for synMethods '{synMethods}'")
@@ -123,6 +128,7 @@ def do2dimPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[Non
         for hueCol in basicHues:
             makeElapsedGraph(df, tu, hueCol, f"2col", title, force, apples=apples)
 
+
 def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[None], basicHues=[None], doElapsed=False):
     print(f"-------- doRealPlots for synMethods '{synMethods}'")
     query = ''
@@ -143,6 +149,7 @@ def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[Non
         for hueCol in basicHues:
             makeElapsedGraph(df, tu, hueCol, 'real', title, force, apples=apples)
 
+
 def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
     if len(synMethods) != 2:
         return
@@ -156,17 +163,21 @@ def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
     print(f"    Scatter plots")
     fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(10, 15))
     for ax0, ax1, rowType, axisLabel, rowVal, doLog, limit in zip([0, 0, 1, 1, 2, 2], [0, 1, 0, 1, 0, 1],
-                ['columnScore', 'pairScore', 'synMlScore', 'synMlScore', 'elapsedTime', 'elapsedTime', ],
-                ['Marginals Score', 'Pairs Score', 'ML Score', 'ML Penality', 'Elapsed Time', 'Total Elapsed Time', ],
-                ['rowValue', 'rowValue', 'rowValue', 'mlPenalty', 'rowValue', 'totalElapsedTime', ],
-                [False, False, False, False, True, True, ],
-                [None, None, [0, 1], [-.25,1], None, None, ]):
+                                                                  ['columnScore', 'pairScore', 'synMlScore',
+                                                                   'synMlScore', 'elapsedTime', 'elapsedTime', ],
+                                                                  ['Marginals Score', 'Pairs Score', 'ML Score',
+                                                                      'ML Penality', 'Elapsed Time', 'Total Elapsed Time', ],
+                                                                  ['rowValue', 'rowValue', 'rowValue', 'mlPenalty',
+                                                                      'rowValue', 'totalElapsedTime', ],
+                                                                  [False, False, False, False, True, True, ],
+                                                                  [None, None, [0, 1], [-.25, 1], None, None, ]):
         dfTemp = df.query(f"rowType == '{rowType}'")
         if dfTemp.shape[0] > 0 and len(list(pd.unique(dfTemp['synMethod']))) == 2:
             dfBase = dfTemp.query(f"synMethod == '{synMethods[0]}'")
             dfOther = dfTemp.query(f"synMethod == '{synMethods[1]}'")
             print(f"Methods {synMethods}, score {rowType}:")
-            makeScatterWork(dfBase, dfOther, synMethods, axs[ax0][ax1], rowType, axisLabel, rowVal, hueCol, doLog, limit, axisType)
+            makeScatterWork(dfBase, dfOther, synMethods, axs[ax0][ax1],
+                            rowType, axisLabel, rowVal, hueCol, doLog, limit, axisType)
     fig.suptitle(title)
     plt.tight_layout()
     plt.savefig(figPath)
@@ -183,11 +194,11 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, rowType, axisLabel, rowVal,
     print(f"    All models with X>Y = {countX}, with Y>X = {countY}")
     # And for top-scoring models only:
     countX = len(dfMerged[(dfMerged['rowValue_x'] > dfMerged['rowValue_y']) &
-                        ((dfMerged['rowValue_x'] >= 0.8) |
-                        (dfMerged['rowValue_y'] >= 0.8))])
+                          ((dfMerged['rowValue_x'] >= 0.8) |
+                           (dfMerged['rowValue_y'] >= 0.8))])
     countY = len(dfMerged[(dfMerged['rowValue_x'] < dfMerged['rowValue_y']) &
-                        ((dfMerged['rowValue_x'] >= 0.8) |
-                        (dfMerged['rowValue_y'] >= 0.8))])
+                          ((dfMerged['rowValue_x'] >= 0.8) |
+                           (dfMerged['rowValue_y'] >= 0.8))])
     print(f"    >0.8 models with X>Y = {countX}, with Y>X = {countY}")
     # The columns get renamed after merging, so hueCol needs to be modified (to either
     # hueCol_x or hueCol_y). So long as the hueCol applies identically to the base and the other
@@ -252,6 +263,7 @@ def getBestSyndiffix(df):
     df2 = dfMerged[['synMethod', 'rowValue']]
     return pd.concat([df1, df2], axis=0)
 
+
 def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
     if what == 'lowBounds':
         dfTemp = df.query("rowType == 'privRisk'")
@@ -269,12 +281,13 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods)
     plt.tight_layout()
-    plt.xlim(0,1)
-    plt.xticks([0.01,0.1,0.2,0.5,1.0],['0.01','0.1','0.2','0.5','1.0'])
-    #plt.xscale('symlog')
+    plt.xlim(0, 1)
+    plt.xticks([0.01, 0.1, 0.2, 0.5, 1.0], ['0.01', '0.1', '0.2', '0.5', '1.0'])
+    # plt.xscale('symlog')
     plt.xlabel(xaxis)
     plt.savefig(figPath)
     plt.close()
+
 
 def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     print("    ML plots")
@@ -324,12 +337,13 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         low = dfTemp['rowValue'].min()
         if hueDf is not None:
             axs[1].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
-        #axs[1].set_xlim(max(0, low), 1.0)
+        # axs[1].set_xlim(max(0, low), 1.0)
 
     fig.suptitle(title)
     plt.tight_layout()
     plt.savefig(figPath)
     plt.close()
+
 
 def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     print("    Elapsed plots")
@@ -381,6 +395,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.tight_layout()
     plt.savefig(figPath)
     plt.close()
+
 
 def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     print("    Basic plots")
@@ -474,7 +489,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         low = dfTemp['rowValue'].min()
         if hueDf is not None:
             axs[1][1].legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
-        #axs[1][1].set_xlim(max(0, low), 1.0)
+        # axs[1][1].set_xlim(max(0, low), 1.0)
 
     dfTemp = df.query("rowType == 'elapsedTime'")
     if dfTemp.shape[0] > 0:
@@ -590,10 +605,12 @@ def computeImprovementsWork(dfTemp, measureType, targets, methods, statType, mea
                     targetErr = 1 - dfTemp[dfTemp['synMethod'] == target][measureField].mean()
                     methodErr = 1 - dfTemp[dfTemp['synMethod'] == method][measureField].mean()
                 if targetErr > methodErr:
-                    if methodErr == 0: methodErr = 0.001
+                    if methodErr == 0:
+                        methodErr = 0.001
                     improvement = round(targetErr / methodErr, 2) * -1
                 else:
-                    if targetErr == 0: targetErr = 0.001
+                    if targetErr == 0:
+                        targetErr = 0.001
                     improvement = round(methodErr / targetErr, 2)
             else:
                 if statType == 'median':
@@ -603,10 +620,12 @@ def computeImprovementsWork(dfTemp, measureType, targets, methods, statType, mea
                     targetTime = dfTemp[dfTemp['synMethod'] == target][measureField].mean()
                     methodTime = dfTemp[dfTemp['synMethod'] == method][measureField].mean()
                 if targetTime > methodTime:
-                    if methodTime == 0: methodTime = 0.001
+                    if methodTime == 0:
+                        methodTime = 0.001
                     improvement = round(targetTime / methodTime, 2) * -1
                 else:
-                    if targetTime == 0: targetTime = 0.001
+                    if targetTime == 0:
+                        targetTime = 0.001
                     improvement = round(methodTime / targetTime, 2)
             print(f"Improvement for {statType} of {target} over {method} = {improvement}")
 
@@ -632,6 +651,7 @@ def getHueDf(dfTemp, hueCol):
     if len(hues) <= 1:
         return None
     return dfTemp[hueCol]
+
 
 def getFilePath(tu, synMethods, part1, part2):
     localSorted = sorted(synMethods)

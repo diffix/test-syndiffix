@@ -20,8 +20,8 @@ def oneSynMlJob(jobNum=0, csvLib='csvAb', tempMeasuresDir='measuresAbTemp', resu
     tu.registerRunsDir(runsDir)
     sdmt = sdmTools.sdmTools(tu)
     if numJobs:
-        realJobNum = jobNum%numJobs
-        sampleNum = int(jobNum/numJobs)
+        realJobNum = jobNum % numJobs
+        sampleNum = int(jobNum / numJobs)
     else:
         realJobNum = jobNum
         sampleNum = 0

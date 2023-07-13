@@ -28,10 +28,10 @@ def oneFeaturesJob(jobNum=0, csvLib='csvAb', runsDir='runAb', featuresType='univ
     featuresPath = os.path.join(tu.featuresTypeDir, featuresFileName)
     csvPath = os.path.join(tu.csvLib, job['csvFile'])
     jobInfo = {
-        'featuresPath':featuresPath,
-        'csvPath':csvPath,
-        'targetColumn':job['targetColumn'],
-        'algInfo':job['algInfo']
+        'featuresPath': featuresPath,
+        'csvPath': csvPath,
+        'targetColumn': job['targetColumn'],
+        'algInfo': job['algInfo']
     }
     # algInfo is a list of dicts with {'alg':mlAlg, 'score':score}
     # Here is an example `jobInfo` dict:
@@ -62,7 +62,6 @@ def oneFeaturesJob(jobNum=0, csvLib='csvAb', runsDir='runAb', featuresType='univ
     '''
     # TODO: Edon your code gets called here with the info in `jobInfo`
     print(jobInfo)
-    
 
 
 def main():
