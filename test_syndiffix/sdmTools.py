@@ -758,7 +758,7 @@ python3 {testPath} \\
     --csvLib={csvLib} \\
     --resultsDir={resultsDir} \\
     --runsDir={runsDir} \\
-    --limitToFeatures={limitToFeatures}
+    --limitToFeatures={limitToFeatures} \\
     --tempMeasuresDir={tempMeasuresDir}
     '''
         with open(batchScriptPath, 'w') as f:
