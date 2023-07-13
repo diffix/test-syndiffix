@@ -14,6 +14,7 @@ for filename in files:
         lines = file.readlines()
 
     for line in lines:
+        line.strip()
         if 'SUCCESS' in line:
             if line in successes:
                 successes[line] += 1
