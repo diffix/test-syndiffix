@@ -16,6 +16,36 @@ def resultCsvPath(csvPath, method):
 
 class External(object):
 
+    def tonic(self, csvPath):
+        from tonic_api.api import TonicApi
+
+        apiToken = os.environ['TONIC_API_TOKEN']
+        workspaceId = os.environ['TONIC_WORKSPACE']
+
+        tonic = TonicApi("https://app.tonic.ai", apiToken)
+
+        # test_data_science
+        workspace = tonic.get_workspace(workspaceId)
+        models = list(workspace.models)
+
+        modelName = os.path.splitext(os.path.basename(csvPath))[0].replace('-', '_').lower()
+        df = readCsv(csvPath)
+        nRows = df.shape[0]
+        print("available models:", [m.name for m in models], "requested model name:", modelName)
+
+        model = next(m for m in models if m.name == modelName)
+        trainedModel = workspace.get_most_recent_trained_model_by_model_id(model.id)
+        print(trainedModel.describe())
+        try:
+            syntheticDf = trainedModel.sample(nRows)
+        except Exception as e:
+            print(e, 'encountered when processing', csvPath)
+            return None
+
+        syntheticDf.to_csv(resultCsvPath(csvPath, 'tonic'),
+                           index=False, sep=',', header=True)
+        print(syntheticDf.round(3))
+
     def ydata(self, csvPath, local=True):
         pd.set_option("max_colwidth", None)
 

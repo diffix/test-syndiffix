@@ -10,3 +10,4 @@ gretel-client==0.15.14
 ydata-sdk==0.6.0
 ydata-synthetic==1.0.1
 gretel-synthetics==0.21.0
+tonic-api==2.1.4
