@@ -4,6 +4,7 @@ import os
 files = os.listdir()
 
 deleteFiles = []
+successes = {}
 for filename in files:
     if filename[-3:] != 'out':
         continue
@@ -13,9 +14,18 @@ for filename in files:
         lines = file.readlines()
 
     for line in lines:
+        line.strip()
         if 'SUCCESS' in line:
+            if line in successes:
+                successes[line] += 1
+            else:
+                successes[line] = 1
             deleteFiles.append(filename)
             break
 
 for filename in deleteFiles:
     os.remove(filename)
+
+print(f"Cleaned out {len(deleteFiles)} files")
+for key, num in successes.items():
+    print(f"{key}: {num}")
