@@ -18,6 +18,7 @@ from misc.csvUtils import readCsv
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
     print("First row of data:")
     print(df.iloc[0])
@@ -71,7 +72,8 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
 
 
 def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=[]):
-    print(f"running runAbSharp with:\n dataSourcePath {dataSourcePath}\n outPath {outPath}\n abSharpArgs '{abSharpArgs}'\n columns {columns}\n focusColumn {focusColumn}\n featuresJob {featuresJob}\n extraArgs {extraArgs}\n")
+    print(
+        f"running runAbSharp with:\n dataSourcePath {dataSourcePath}\n outPath {outPath}\n abSharpArgs '{abSharpArgs}'\n columns {columns}\n focusColumn {focusColumn}\n featuresJob {featuresJob}\n extraArgs {extraArgs}\n")
     thisDir = os.path.dirname(os.path.abspath(__file__))
     abSharpDir = os.path.join(tu.abSharpDir, 'src', 'SynDiffix.Debug')
 
@@ -146,8 +148,10 @@ def makeMetadata(df):
                 metadata['classifications']['numeric'] = [colName]
     return metadata
 
+
 def getTopFeatures(featuresJob, numFeatures):
     return featuresJob['features'][:numFeatures]
+
 
 def getMlFeaturesByThreshold(featuresJob, featureThreshold):
     pp.pprint(featuresJob)
@@ -157,12 +161,12 @@ def getMlFeaturesByThreshold(featuresJob, featureThreshold):
         quit()
     # We always include the top feature
     features = [featuresJob['features'][0]]
-    topScore = featuresJob['cumulativeScore'][k-1]
+    topScore = featuresJob['cumulativeScore'][k - 1]
     print(f"topScore {topScore} for k = {k}")
     if topScore == 0:
         print("SUCCESS: (skipped because zero score)")
         quit()
-    for index in range(1,len(featuresJob['features'])):
+    for index in range(1, len(featuresJob['features'])):
         thisScore = featuresJob['cumulativeScore'][index]
         if abs(thisScore - topScore) > featureThreshold:
             features.append(featuresJob['features'][index])
@@ -171,6 +175,7 @@ def getMlFeaturesByThreshold(featuresJob, featureThreshold):
             break
     return features
 
+
 def getUniFeaturesByThreshold(featuresJob, featureThreshold):
     # We always include the top feature
     features = [featuresJob['features'][0]]
@@ -178,12 +183,13 @@ def getUniFeaturesByThreshold(featuresJob, featureThreshold):
     if topScore == 0:
         # Don't expect this, but you never know
         return features
-    for index in range(1,len(featuresJob['features'])):
-        if (featuresJob['scores'][index]/topScore) > featureThreshold:
+    for index in range(1, len(featuresJob['features'])):
+        if (featuresJob['scores'][index] / topScore) > featureThreshold:
             features.append(featuresJob['features'][index])
         else:
             break
     return features
+
 
 def transformClusterSpec(columns, clusterSpec):
     for colName, index in zip(clusterSpec['InitialCluster'], range(len(clusterSpec['InitialCluster']))):
@@ -210,22 +216,22 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
 }
     '''
     numClusters = 1
-    cSize = maxClusterSize-1
+    cSize = maxClusterSize - 1
     # Note that if cSize > len(featuresColumns), then initialCluster is only the featuresColumns
     initialCluster = featuresColumns[:cSize]
     initialCluster += [focusColumn]
     usedColumns = initialCluster.copy()
     remainColumns = featuresColumns[cSize:]
-    clusterSpec = {'InitialCluster':initialCluster, 'DerivedClusters':[]}
+    clusterSpec = {'InitialCluster': initialCluster, 'DerivedClusters': []}
     # Add the clusters
     while len(remainColumns) > 0:
         if numClusters >= maxClusters:
             break
         derivedCols = remainColumns[:cSize]
         usedColumns += derivedCols
-        clusterSpec['DerivedClusters'].append({'StitchColumns':[focusColumn],
-                                               'DerivedColumns':derivedCols,
-                                               'StitchOwner':'Shared'})
+        clusterSpec['DerivedClusters'].append({'StitchColumns': [focusColumn],
+                                               'DerivedColumns': derivedCols,
+                                               'StitchOwner': 'Shared'})
 
         remainColumns = remainColumns[cSize:]
         numClusters += 1
@@ -234,9 +240,9 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
         for column in allColumns:
             if column in featuresColumns or column == focusColumn:
                 continue
-            clusterSpec['DerivedClusters'].append({'StitchColumns':[focusColumn],
-                                                'DerivedColumns':[column],
-                                                'StitchOwner':'Left'})
+            clusterSpec['DerivedClusters'].append({'StitchColumns': [focusColumn],
+                                                   'DerivedColumns': [column],
+                                                   'StitchOwner': 'Left'})
     print("Cluster information:")
     print(f"All columns: {allColumns}")
     print(f"Features columns: {featuresColumns}")
@@ -244,6 +250,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
     print(f"Target column: {focusColumn}")
     pp.pprint(clusterSpec)
     return clusterSpec, numClusters, usedColumns
+
 
 def oneModel(dataDir='csvGeneral',
              dataSourceNum=None,
@@ -264,7 +271,6 @@ def oneModel(dataDir='csvGeneral',
              maxClusters=1000,
              doPatches=True,
              force=False):
-
     ''' There are two ways to run oneModel without features (i.e. for ctGan or syndiffix):
             1. Specify the dataSourceNum
             2. Specify the csvFile
@@ -276,7 +282,7 @@ def oneModel(dataDir='csvGeneral',
             --featuresDir=featuresAb
             --featuresType=ml
             --featuresFile="ml.census.csv.tax filer stat.json"
-        
+
         Build as many clusters of size maxClusterSize as we can until we either reach
         maxClusters or we have put all features (that pass featureThreshold) into clusters.
         If doPatches==False, then we remove all columns that are not in a cluster.
@@ -294,7 +300,7 @@ def oneModel(dataDir='csvGeneral',
             print("ERROR: can't specify featuresType or dataSourceNum along with csvFile")
         sourceFileName = csvFile
         if ((featuresDir or featuresType or featuresFile) and
-            (not featuresDir or not featuresType or not featuresFile)):
+                (not featuresDir or not featuresType or not featuresFile)):
             print("ERROR: if any of featuresDir, featuresType, or featuresFile are specified, then all must be specified")
             quit()
     if dataSourceNum and not featuresType:
@@ -325,7 +331,7 @@ def oneModel(dataDir='csvGeneral',
         featuresPath = os.path.join(tu.featuresTypeDir, featuresFile)
         with open(featuresPath, 'r') as f:
             featuresJob = json.load(f)
-        sourceFileName = featuresJob['csvFile']      #TODO
+        sourceFileName = featuresJob['csvFile']  # TODO
         focusColumn = featuresJob['targetColumn']
     print(f"Using source file {sourceFileName}")
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
@@ -377,7 +383,8 @@ def oneModel(dataDir='csvGeneral',
             if featureThreshold:
                 featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         featuresWithoutMax = len(featuresColumns)
-        clusterSpec, numClusters, usedColumns = makeClusterSpec(origColNames, featuresColumns, focusColumn, maxClusterSize, maxClusters, doPatches)
+        clusterSpec, numClusters, usedColumns = makeClusterSpec(
+            origColNames, featuresColumns, focusColumn, maxClusterSize, maxClusters, doPatches)
         if not doPatches:
             for origCol in origColNames:
                 if origCol not in usedColumns:
@@ -400,13 +407,13 @@ def oneModel(dataDir='csvGeneral',
             df.to_csv(dataSourcePath, index=False, header=df.columns)
             print(dataSourcePath)
         featuresJob['params'] = {
-             'doPatches':doPatches,
-            'featureThreshold':featureThreshold,
-            'usedFeatures':colNames,
-            'featuresWithoutMax':featuresWithoutMax,
-            'featureThreshold':featureThreshold,
-            'maxClusterSize':maxClusterSize,
-            'numClusters':numClusters,
+            'doPatches': doPatches,
+            'featureThreshold': featureThreshold,
+            'usedFeatures': colNames,
+            'featuresWithoutMax': featuresWithoutMax,
+            'featureThreshold': featureThreshold,
+            'maxClusterSize': maxClusterSize,
+            'numClusters': numClusters,
         }
     print(list(dfTest.columns.values))
     # quick test to make sure that the test and train data match columns
@@ -439,7 +446,8 @@ def oneModel(dataDir='csvGeneral',
             extraArgs = ["--no-clustering"]
         print("Extra args:")
         pp.pprint(extraArgs)
-        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=extraArgs)
+        runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns,
+                   focusColumn, testData, featuresJob, extraArgs=extraArgs)
         if madeTempDataSource:
             os.remove(dataSourcePath)
     else:
@@ -472,6 +480,7 @@ def oneModel(dataDir='csvGeneral',
     sdm.runAll()
     sdm.runMl()
     print("oneModel:SUCCESS")
+
 
 if __name__ == "__main__":
     fire.Fire(oneModel)

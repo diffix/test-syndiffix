@@ -20,6 +20,7 @@ import pprint
 from misc.csvUtils import readCsv
 pp = pprint.PrettyPrinter(indent=4)
 
+
 class sdmTools:
     def __init__(self, tu):
         self.maxEvalsPerType = 20
@@ -368,7 +369,7 @@ class sdmTools:
         json.load
         with open(featuresPath, 'r') as f:
             kfeatures = json.load(f)
-        # This will just crash if the entry isn't there... 
+        # This will just crash if the entry isn't there...
         return kfeatures[job['csvFile']][job['column']][job['method']] + [job['column']]
 
     def runSynMlJob(self, jobNum, sampleNum, limitToFeatures, force=False):
@@ -379,7 +380,8 @@ class sdmTools:
             return
         myJob = mlJobs[jobNum]
         # Check if the job is already done
-        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + myJob['column'].replace(' ','') + '.part_' + str(sampleNum) + '.ml.json'
+        measuresFile = myJob['csvFile'] + '.' + myJob['method'] + '.' + \
+            myJob['column'].replace(' ', '') + '.part_' + str(sampleNum) + '.ml.json'
         if limitToFeatures:
             synMethod = myJob['synMethod'] + '_clip'
         else:
@@ -431,7 +433,7 @@ class sdmTools:
         print(f"runSynMlJob: Starting job {myJob} at time {startTime}")
         print(f"columns {list(dfTest.columns.values)}")
         score = self._runOneMlMeasure(dfTest, dfAnon, metadata,
-                                    myJob['column'], myJob['method'], myJob['csvFile'])
+                                      myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
             print("Scores is None, quitting")
             quit()
@@ -563,7 +565,7 @@ class sdmTools:
         mc = measuresConfig(self.tu)
         mlInfo = mc.getMlInfoFromCsvOrder(csvFile)
         return self._getMetadataFromMlInfo(mlInfo)
-    
+
     def _getMetadataFromMlInfo(self, mlInfo):
         metadata = {'METADATA_SPEC_VERSION': 'SINGLE_TABLE_V1', 'columns': {}}
         for colInfo in mlInfo['colInfo']:
@@ -593,7 +595,8 @@ class sdmTools:
 
     def gatherFeatures(self):
         kfeatures = {}
-        inFileNames = [f for f in os.listdir(self.tu.featuresTypeDir) if os.path.isfile(os.path.join(self.tu.featuresTypeDir, f))]
+        inFileNames = [f for f in os.listdir(self.tu.featuresTypeDir) if os.path.isfile(
+            os.path.join(self.tu.featuresTypeDir, f))]
         for inFile in inFileNames:
             if inFile[-5:] != '.json':
                 continue
@@ -638,9 +641,9 @@ class sdmTools:
                 allMeasures[key]['allHosts'].append(oneMl['hostname'])
             else:
                 allMeasures[key] = {
-                    'allScores':[oneMl['score']],
-                    'allHosts':[oneMl['hostname']],
-                    'info':oneMl,
+                    'allScores': [oneMl['score']],
+                    'allHosts': [oneMl['hostname']],
+                    'info': oneMl,
                 }
         for key, stuff in allMeasures.items():
             ''' synMeasure csvFile.method.column.ml.json
@@ -654,6 +657,7 @@ class sdmTools:
             info['allHosts'] = stuff['allHosts']
             with open(outPath, 'w') as f:
                 json.dump(info, f, indent=4)
+
 
 class measuresConfig:
     def __init__(self, tu):
@@ -919,20 +923,23 @@ python3 {testPath} \\
         for csvFile in self.goodMlJobs.keys():
             for mlJob in self.goodMlJobs[csvFile]:
                 if mlJob['csvFile'] not in goodTableTargetCombs:
-                    goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']:[{'alg':mlJob['method'], 'score':mlJob['score']}]}
+                    goodTableTargetCombs[mlJob['csvFile']] = {mlJob['column']
+                        : [{'alg': mlJob['method'], 'score':mlJob['score']}]}
                 elif mlJob['column'] not in goodTableTargetCombs[mlJob['csvFile']]:
-                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = [{'alg':mlJob['method'], 'score':mlJob['score']}]
+                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']] = [
+                        {'alg': mlJob['method'], 'score':mlJob['score']}]
                 elif mlJob['method'] not in goodTableTargetCombs[mlJob['csvFile']][mlJob['column']]:
-                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']].append({'alg':mlJob['method'], 'score':mlJob['score']})
+                    goodTableTargetCombs[mlJob['csvFile']][mlJob['column']].append(
+                        {'alg': mlJob['method'], 'score': mlJob['score']})
         self.featuresJobs = []
         pp.pprint(goodTableTargetCombs)
         jobNum = 0
         for csvFile in goodTableTargetCombs.keys():
-            for targetColumn,algInfo in goodTableTargetCombs[csvFile].items():
-                self.featuresJobs.append({'jobNum':jobNum,
-                                          'csvFile':csvFile,
-                                          'targetColumn':targetColumn,
-                                          'algInfo':algInfo,
+            for targetColumn, algInfo in goodTableTargetCombs[csvFile].items():
+                self.featuresJobs.append({'jobNum': jobNum,
+                                          'csvFile': csvFile,
+                                          'targetColumn': targetColumn,
+                                          'algInfo': algInfo,
                                           })
                 jobNum += 1
         featuresOrderPath = os.path.join(self.tu.runsDir, 'featuresJobs.json')

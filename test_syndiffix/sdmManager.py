@@ -66,14 +66,14 @@ class SdmManager(object):
     def _addJobToResults(self, method, job, results, mlFile):
         if method not in results:
             results[method] = {
-                'max':[],
-                'avg':[],
-                'sd':[],
-                'max-min':[],
-                'max-first':[],
-                'posNeg':[],
-                '0.01ofMax':[],
-                'mlFile':[],
+                'max': [],
+                'avg': [],
+                'sd': [],
+                'max-min': [],
+                'max-first': [],
+                'posNeg': [],
+                '0.01ofMax': [],
+                'mlFile': [],
             }
         maxScore = max(job['allScores'])
         results[method]['mlFile'].append(mlFile)
@@ -81,8 +81,8 @@ class SdmManager(object):
         results[method]['avg'].append(statistics.mean(job['allScores']))
         if len(job['allScores']) > 1:
             results[method]['sd'].append(statistics.stdev(job['allScores']))
-        results[method]['max-min'].append(maxScore-min(job['allScores']))
-        results[method]['max-first'].append(maxScore-job['allScores'][0])
+        results[method]['max-min'].append(maxScore - min(job['allScores']))
+        results[method]['max-first'].append(maxScore - job['allScores'][0])
         if maxScore > 0 and min(job['allScores']) < 0:
             results[method]['posNeg'].append(1)
         else:
@@ -106,7 +106,7 @@ class SdmManager(object):
                 quit()
             self._addJobToResults(job['method'], job, results, mlFile)
             if max(job['allScores']) > 0.5:
-                self._addJobToResults(job['method']+'_good', job, results, mlFile)
+                self._addJobToResults(job['method'] + '_good', job, results, mlFile)
         pp.pprint(results)
         for method, res in results.items():
             self._printMlStats(method, res)

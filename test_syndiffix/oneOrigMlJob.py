@@ -22,8 +22,8 @@ def oneOrigMlJob(jobNum=0, csvLib='csvAb', measuresDir='measuresAb', origMlDir='
     sdmt = sdmTools.sdmTools(tu)
     sdmt.enumerateOrigMlJobs()
     if numJobs:
-        realJobNum = jobNum%numJobs
-        sampleNum = int(jobNum/numJobs)
+        realJobNum = jobNum % numJobs
+        sampleNum = int(jobNum / numJobs)
     else:
         realJobNum = jobNum
         sampleNum = 0

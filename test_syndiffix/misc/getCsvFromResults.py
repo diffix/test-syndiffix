@@ -12,6 +12,7 @@ This goes through the results and writes the anonymous data as CSV
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 def getCsv():
     outDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'resultsCsvAb')
     os.makedirs(outDir, exist_ok=True)

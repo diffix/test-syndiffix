@@ -10,6 +10,7 @@ from misc.csvUtils import readCsv
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 class resultsGather():
     def __init__(self, measuresDir='measuresAb', csvDir='csvAb'):
         self.tu = testUtils.testUtilities()
@@ -111,9 +112,9 @@ class resultsGather():
             self.tabData.append(row)
 
     def computeMlPenality(self, synScore, origScore):
-        origScore = max(origScore,0)
-        synScore = max(synScore,0)
-        return (origScore-synScore)/max(origScore,synScore)
+        origScore = max(origScore, 0)
+        synScore = max(synScore, 0)
+        return (origScore - synScore) / max(origScore, synScore)
 
     def computeFeaturesWithoutMax(self, featuresJob, featureThreshold):
         if 'kFeatures' in featuresJob:
@@ -131,8 +132,8 @@ class resultsGather():
         k = featuresJob['k']
         # We always include the top feature
         features = [featuresJob['features'][0]]
-        topScore = featuresJob['cumulativeScore'][k-1]
-        for index in range(1,len(featuresJob['features'])):
+        topScore = featuresJob['cumulativeScore'][k - 1]
+        for index in range(1, len(featuresJob['features'])):
             thisScore = featuresJob['cumulativeScore'][index]
             if abs(thisScore - topScore) > featureThreshold:
                 features.append(featuresJob['features'][index])
@@ -147,8 +148,8 @@ class resultsGather():
         if topScore == 0:
             # Don't expect this, but you never know
             return features
-        for index in range(1,len(featuresJob['features'])):
-            if (featuresJob['scores'][index]/topScore) > featureThreshold:
+        for index in range(1, len(featuresJob['features'])):
+            if (featuresJob['scores'][index] / topScore) > featureThreshold:
                 features.append(featuresJob['features'][index])
             else:
                 break
@@ -158,13 +159,13 @@ class resultsGather():
         self.setElapsedTime(tr, tr['elapsed'])
         row = self.initTabRow(tr)
         row['rowType'] = 'synMlScore'
-        row['rowValue'] = max(tr['score'],0)
+        row['rowValue'] = max(tr['score'], 0)
         row['targetColumn'] = tr['column']
         if tr['column'] in self.csvCounts[row['csvFile']]['nunique']:
             row['targetCardinality'] = self.csvCounts[row['csvFile']]['nunique'][tr['column']]
         row['mlMethod'] = tr['method']
         row['mlMethodType'] = self.sdmt.getMethodTypeFromMethod(tr['method'])
-        row['origMlScore'] = max(tr['scoreOrig'],0)
+        row['origMlScore'] = max(tr['scoreOrig'], 0)
         row['mlPenalty'] = self.computeMlPenality(tr['score'], tr['scoreOrig'])
         if 'features' in tr and 'params' in tr['features']:
             params = tr['features']['params']
