@@ -30,10 +30,11 @@ for csvFile in files:
     testPath = os.path.join(csvTestDir, csvFile)
     dfTest = readCsv(testPath).reindex(dfTrain.columns, axis=1)
     try:
-        anonPath = os.path.join(csvAnonDir, csvFile.lower())
+        anonPath = os.path.join(csvAnonDir, csvFile.lower().replace('-', '_'))
         dfAnon = readCsv(anonPath).reindex([c.lower().replace(':', '').replace('-', '_')
                                             for c in dfTrain.columns], axis=1)
     except FileNotFoundError:
+        print(csvFile, "anon DataFrame file not found")
         continue
     results = {}
     results['colNames'] = list(dfTrain.columns)
