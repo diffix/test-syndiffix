@@ -270,6 +270,7 @@ def oneModel(dataDir='csvGeneral',
              maxClusterSize=3,
              maxClusters=1000,
              doPatches=True,
+             offloadClustering=False,
              force=False):
     ''' There are two ways to run oneModel without features (i.e. for ctGan or syndiffix):
             1. Specify the dataSourceNum
@@ -383,8 +384,10 @@ def oneModel(dataDir='csvGeneral',
             if featureThreshold:
                 featuresColumns = getUniFeaturesByThreshold(featuresJob, featureThreshold)
         featuresWithoutMax = len(featuresColumns)
+
         clusterSpec, numClusters, usedColumns = makeClusterSpec(
             origColNames, featuresColumns, focusColumn, maxClusterSize, maxClusters, doPatches)
+
         if not doPatches:
             for origCol in origColNames:
                 if origCol not in usedColumns:
@@ -406,15 +409,21 @@ def oneModel(dataDir='csvGeneral',
             madeTempDataSource = True
             df.to_csv(dataSourcePath, index=False, header=df.columns)
             print(dataSourcePath)
-        featuresJob['params'] = {
-            'doPatches': doPatches,
-            'featureThreshold': featureThreshold,
-            'usedFeatures': colNames,
-            'featuresWithoutMax': featuresWithoutMax,
-            'featureThreshold': featureThreshold,
-            'maxClusterSize': maxClusterSize,
-            'numClusters': numClusters,
-        }
+
+        if not offloadClustering:
+            featuresJob['params'] = {
+                'doPatches': doPatches,
+                'featureThreshold': featureThreshold,
+                'usedFeatures': colNames,
+                'featuresWithoutMax': featuresWithoutMax,
+                'featureThreshold': featureThreshold,
+                'maxClusterSize': maxClusterSize,
+                'numClusters': numClusters,
+            }
+
+        if offloadClustering and doPatches:
+            raise Exception('Patching is not currently supported with offloaded clusters.')
+
     print(list(dfTest.columns.values))
     # quick test to make sure that the test and train data match columns
     if colNames != list(dfTest.columns.values):
@@ -436,7 +445,9 @@ def oneModel(dataDir='csvGeneral',
                 colType = 'text'
             columns.append(f"{colName}:{colTypeSymbols[colType]}")
         extraArgs = []
-        if clusterSpec:
+        if offloadClustering and featuresColumns:
+            extraArgs = ["--clustering-maincolumn", focusColumn]
+        elif clusterSpec:
             transformClusterSpec(list(df.columns.values), clusterSpec)
             print("After transform:")
             pp.pprint(clusterSpec)
