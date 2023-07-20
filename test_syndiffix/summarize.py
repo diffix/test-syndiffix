@@ -22,8 +22,7 @@ def swrite(f, wstr):
     f.write('\n')
 
 
-def summarize(measuresDir='measuresAb',
-              outDir='summAb',
+def summarize(expDir='exp_base',
               setLabelCounts=False,
               applesToApplesOnly=True,
               flush=False,       # re-gather
@@ -31,10 +30,10 @@ def summarize(measuresDir='measuresAb',
     global setLabelCountsGlobal
     setLabelCountsGlobal = setLabelCounts
     tu = testUtils.testUtilities()
-    tu.registerSummariesDirCore(outDir)
+    tu.registerExpEir(expDir)
     os.makedirs(tu.summariesDir, exist_ok=True)
     dfPath = os.path.join(tu.summariesDir, "summParquet")
-    rg = gatherResults.resultsGather(measuresDir=measuresDir)
+    rg = gatherResults.resultsGather(measuresDir=tu.synMeasures)
     if flush is False and os.path.exists(dfPath):
         print(f"Reading dfAll from {dfPath}")
         dfAll = pd.read_parquet(dfPath)

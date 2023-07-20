@@ -11,13 +11,10 @@ pp = pprint.PrettyPrinter(indent=4)
 ''' This is used in SLURM to run one features measure
 '''
 
-
-def oneFeaturesJob(jobNum=0, csvLib='csvAb', runsDir='runAb', featuresType='univariate', featuresDir='featuresAb', force=False):
+def oneFeaturesJob(jobNum=0, expDir='exp_base', featuresType='univariate', force=False):
     tu = testUtils.testUtilities()
-    tu.registerCsvLib(csvLib)
-    tu.registerFeaturesDir(featuresDir)
+    tu.registerExpDir(expDir)
     tu.registerFeaturesType(featuresType)
-    tu.registerRunsDir(runsDir)
     mc = sdmTools.measuresConfig(tu)
     featuresJobs = mc.getFeaturesJobs()
     if jobNum >= len(featuresJobs):

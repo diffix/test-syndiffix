@@ -112,24 +112,39 @@ class testUtilities:
         self.pythonDir = os.environ['AB_PYTHON_DIR']
         self.abSharpDir = os.environ['AB_SHARP_DIR']
         # These are the default directories and config file locations
-        self.csvLib = os.path.join(self.baseDir, 'csvLib', 'train')
-        self.csvLibTest = os.path.join(self.baseDir, 'csvLib', 'test')
-        self.synResults = os.path.join(self.baseDir, 'synResults')
-        self.synMeasures = os.path.join(self.baseDir, 'synMeasures')
-        self.tempSynMeasures = os.path.join(self.baseDir, 'tempSynMeasures')
-        self.origMlDir = os.path.join(self.baseDir, 'origMlAb')
-        self.tempOrigMlDir = os.path.join(self.baseDir, 'origMlAbTemp')
-        self.runsDir = os.path.join(self.baseDir, 'runs')
-        self.featuresDir = os.path.join(self.baseDir, 'featuresAb')
+        self.expDir = os.path.join(self.baseDir, 'exp_base')
+        self.setDirs()
+
+    def registerExpDir(self, expDir):
+        self.expDir = os.path.join(self.baseDir, expDir)
+        self.setDirs()
+
+    def setDirs(self):
+        self.csvLib = os.path.join(self.expDir, 'csv', 'train')
+        self.csvLibTest = os.path.join(self.expDir, 'csv', 'test')
+        self.synResults = os.path.join(self.expDir, 'results')
+        os.makedirs(self.synResults, exist_ok=True)
+        self.synMeasures = os.path.join(self.expDir, 'measures')
+        os.makedirs(self.synMeasures, exist_ok=True)
+        self.tempSynMeasures = os.path.join(self.expDir, 'measuresTemp')
+        os.makedirs(self.tempSynMeasures, exist_ok=True)
+        self.origMlDir = os.path.join(self.expDir, 'origMl')
+        os.makedirs(self.origMlDir, exist_ok=True)
+        self.tempOrigMlDir = os.path.join(self.expDir, 'origMlTemp')
+        os.makedirs(self.tempOrigMlDir, exist_ok=True)
+        self.runsDir = os.path.join(self.expDir, 'runs')
+        os.makedirs(self.runsDir, exist_ok=True)
+        self.featuresDir = os.path.join(self.expDir, 'features')
+        os.makedirs(self.featuresDir, exist_ok=True)
         self.featuresTypeDir = os.path.join(self.featuresDir, 'univariate')
-        self.sdvMetaFiles = os.path.join(self.baseDir, 'sdvMetaFiles')
-        self.tableBuildMetadataPath = os.path.join(self.baseDir, 'tables.json')
-        self.tableBuildMetadata = None
-        self.summariesDirCore = os.path.join(self.baseDir, 'summaries')
-        self.summariesDir = os.path.join(self.baseDir, 'summaries')
+        self.summariesDirCore = os.path.join(self.expDir, 'summaries')
+        os.makedirs(self.summariesDirCore, exist_ok=True)
+        self.summariesDir = os.path.join(self.expDir, 'summaries')
         os.makedirs(self.summariesDir, exist_ok=True)
-        self.configFilesDir = self.baseDir
-        os.makedirs(self.configFilesDir, exist_ok=True)
+        self.sdvMetaFiles = os.path.join(self.expDir, 'sdvMetaFiles')
+        self.tableBuildMetadataPath = os.path.join(self.expDir, 'tables.json')
+        self.tableBuildMetadata = None
+        self.configFilesDir = self.expDir
 
     def getColTypesFromDataframe(self, df):
         colTypes = []
@@ -326,70 +341,12 @@ class testUtilities:
     def registerConfigFilesDir(self, dirName):
         self.configFilesDir = os.path.join(self.baseDir, dirName)
 
-    def registerRunsDir(self, name):
-        self.runsDir = os.path.join(self.baseDir, name)
-
-    def registerCsvLib(self, name):
-        self.csvLib = os.path.join(self.baseDir, name, 'train')
-        self.csvLibTest = os.path.join(self.baseDir, name, 'test')
-
-    def registerSynResults(self, name):
-        self.synResults = os.path.join(self.baseDir, name)
-        os.makedirs(self.synResults, exist_ok=True)
-
-    def registerFeaturesDir(self, name):
-        self.featuresDir = os.path.join(self.baseDir, name)
-        os.makedirs(self.featuresDir, exist_ok=True)
-
     def registerFeaturesType(self, name):
         self.featuresTypeDir = os.path.join(self.featuresDir, name)
         os.makedirs(self.featuresTypeDir, exist_ok=True)
-
-    def registerSynMeasure(self, name):
-        self.synMeasures = os.path.join(self.baseDir, name)
-        os.makedirs(self.synMeasures, exist_ok=True)
-
-    def registerTempSynMeasure(self, name):
-        self.tempSynMeasures = os.path.join(self.baseDir, name)
-        os.makedirs(self.tempSynMeasures, exist_ok=True)
-
-    def registerTempOrigMlDir(self, name):
-        self.tempOrigMlDir = os.path.join(self.baseDir, name)
-        os.makedirs(self.tempOrigMlDir, exist_ok=True)
-
-    def registerOrigMlDir(self, name):
-        self.origMlDir = os.path.join(self.baseDir, name)
-        os.makedirs(self.origMlDir, exist_ok=True)
-
-    def registerSummariesDir(self, name):
-        self.summariesDir = os.path.join(self.summariesDirCore, name)
-        os.makedirs(self.summariesDir, exist_ok=True)
-
-    def registerSummariesDirCore(self, name):
-        self.summariesDirCore = os.path.join(self.baseDir, name)
-        self.summariesDir = self.summariesDirCore
-        os.makedirs(self.summariesDirCore, exist_ok=True)
-
-    def registerBatchConfigFile(self, name):
-        self.batchConfigFile = os.path.join(self.baseDir, name)
-        if os.path.exists(self.batchConfigFile):
-            with open(self.batchConfigFile, 'r') as f:
-                self.batchConfig = json.load(f)
 
     def synConfigFileName(self, cnt):
         return f"syn_{cnt:05d}.json"
 
     def measuresConfigFileName(self, cnt):
         return f"measure_{cnt:05d}.json"
-
-    def registerSynTestConfigFile(self, name):
-        self.synTestConfigFile = os.path.join(self.configFilesDir, name)
-        if os.path.exists(self.synTestConfigFile):
-            with open(self.synTestConfigFile, 'r') as f:
-                self.synTestConfig = json.load(f)
-
-    def registerSynMeasureConfigFile(self, name):
-        self.synMeasureConfigFile = os.path.join(self.configFilesDir, name)
-        if os.path.exists(self.synMeasureConfigFile):
-            with open(self.synMeasureConfigFile, 'r') as f:
-                self.synMeasureConfig = json.load(f)

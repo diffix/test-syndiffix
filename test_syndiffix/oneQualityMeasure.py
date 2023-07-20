@@ -12,10 +12,9 @@ pp = pprint.PrettyPrinter(indent=4)
 '''
 
 
-def oneQualityMeasure(jobNum=0, measuresDir='measuresAb', resultsDir='resultsAb', showResultsListOnly=False, force=False, doVisuals=True, synMethod=None):
+def oneQualityMeasure(jobNum=0, expDir='exp_base', showResultsListOnly=False, force=False, doVisuals=True, synMethod=None):
     tu = testUtils.testUtilities()
-    tu.registerSynMeasure(measuresDir)
-    tu.registerSynResults(resultsDir)
+    tu.registerExpDir(expDir)
     allResults = tu.getResultsPaths(synMethod)
     if showResultsListOnly:
         print(f"results to run:")

@@ -252,7 +252,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
     return clusterSpec, numClusters, usedColumns
 
 
-def oneModel(dataDir='csvGeneral',
+def oneModel(expDir='exp_base',
              dataSourceNum=None,
              csvFile=None,
              featuresFile=None,
@@ -260,10 +260,7 @@ def oneModel(dataDir='csvGeneral',
              featuresDir=None,
              model='fastMl',
              suffix='',
-             synResults='synResults',
-             synMeasures='synMeasures',
              abSharpArgs='',
-             runsDir='runsAb',
              doMeasures=False,
              numFeatures=None,
              featureThreshold=None,
@@ -290,8 +287,7 @@ def oneModel(dataDir='csvGeneral',
         Otherwise, we add the columns as patches.
     '''
     tu = testUtils.testUtilities()
-    tu.registerCsvLib(dataDir)
-    tu.registerSynResults(synResults)
+    tu.registerExpDir(expDir)
     if len(abSharpArgs) > 0:
         print(f"abSharpArgs: {abSharpArgs}")
     focusColumn = None
@@ -317,7 +313,6 @@ def oneModel(dataDir='csvGeneral',
             quit()
         sourceFileName = dataSources[dataSourceNum]
     if featuresType:
-        tu.registerFeaturesDir(featuresDir)
         tu.registerFeaturesType(featuresType)
     if dataSourceNum and featuresType:
         featuresFiles = tu.getSortedFeaturesFiles()
@@ -470,7 +465,6 @@ def oneModel(dataDir='csvGeneral',
 
     mls = testUtils.mlSupport(tu)
     mlClassInfo = mls.makeMlClassInfo(df, sourceFileName)
-    tu.registerSynMeasure(synMeasures)
     with open(outPath, 'r') as f:
         results = json.load(f)
     abInfo = {}

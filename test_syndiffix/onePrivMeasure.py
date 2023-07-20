@@ -13,11 +13,9 @@ pp = pprint.PrettyPrinter(indent=4)
 '''
 
 
-def onePrivMeasure(jobNum=0, runsDir='runAb', measuresDir='measuresAb', resultsDir='resultsAb', force=False):
+def onePrivMeasure(jobNum=0, expDir='exp_base', force=False):
     tu = testUtils.testUtilities()
-    tu.registerSynMeasure(measuresDir)
-    tu.registerSynResults(resultsDir)
-    tu.registerRunsDir(runsDir)
+    tu.registerExpDir(expDir)
     privJobsPath = os.path.join(tu.runsDir, 'privJobs.json')
     with open(privJobsPath, 'r') as f:
         privJobs = json.load(f)
