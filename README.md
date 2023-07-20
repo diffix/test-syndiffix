@@ -18,8 +18,8 @@ Under each `experiment directory` is a number of directories with pre-subscribed
 * `summaries`: contains graphs and csv files that summarize the measurements
 * `runs`: contains the commands used to run the tests, including SLURM jobs
 * `origMl`: the ML model scores against the original data
-* `origMlTemp`: temporary directory for the separate measurement samples for original ML measures
-* `measuresTemp`: temporary directory for the separate measurement samples for the ML measures of the synthetic data
+* `origMl_samples`: temporary directory for the separate measurement samples for original ML measures
+* `measures_samples`: temporary directory for the separate measurement samples for the ML measures of the synthetic data
 
 ### Synthetic data methods
 
