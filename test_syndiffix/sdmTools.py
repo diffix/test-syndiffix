@@ -695,11 +695,9 @@ class measuresConfig:
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --csvLib={self.tu.csvLib} \\
-    --runsDir={self.tu.runsDir} \\
+    --csvLib={self.tu.expDir} \\
     --featuresType={featuresType} \\
-    --force=False \\
-    --featuresDir={self.tu.featuresDir}
+    --force=False
     '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
@@ -715,11 +713,9 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --csvLib={self.tu.csvLib} \\
-    --origMlDir={self.tu.origMlDir} \\
+    --expDir={self.tu.expDir} \\
     --force=False \\
-    --numJobs={numJobs} \\
-    --measuresDir={self.tu.synMeasures}
+    --numJobs={numJobs}
     '''
         with open(batchScriptPath, 'w') as f:
             print(f"Writing to {batchScriptPath}")
@@ -759,11 +755,8 @@ python3 {testPath} \\
     --jobNum=$arrayNum \\
     --force=False \\
     --numJobs={len(self.mlJobsOrder)} \\
-    --csvLib={self.tu.csvLib} \\
-    --resultsDir={self.tu.synResults} \\
-    --runsDir={self.tu.runsDir} \\
-    --limitToFeatures={limitToFeatures} \\
-    --tempMeasuresDir={self.tu.tempSynMeasures}
+    --expDir={self.tu.expDir} \\
+    --limitToFeatures={limitToFeatures}
     '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
@@ -815,10 +808,7 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --dataSourceNum=$arrayNum \\
-    --dataDir={tu.self.csvLib} \\
-    --synResults={tu.self.synResults} \\
-    --runsDir={tu.self.runsDir} \\
-    --synMeasures={tu.self.synMeasures} \\
+    --expDir={tu.self.expDir} \\
     --model=syndiffix_focus \\
     --withFocusColumn=True
     '''
@@ -837,10 +827,9 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --resultsDir={self.tu.synResults} \\
+    --expDir={self.tu.expDir} \\
     --synMethod={synMethod} \\
-    --force=False \\
-    --measuresDir={self.tu.synMeasures}
+    --force=False
             '''
         else:
             batchScript = f'''#!/bin/sh
@@ -850,9 +839,8 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --resultsDir={resultsDir} \\
-    --force=False \\
-    --measuresDir={measuresDir}
+    --expDir={self.tu.expDir} \\
+    --force=False
             '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
@@ -909,9 +897,7 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --runsDir={self.tu.runsDir} \\
-    --resultsDir={self.tu.synResults} \\
-    --measuresDir={self.tu.synMeasures} \\
+    --expDir={self.tu.expDir} \\
     --force=False
     '''
         with open(batchScriptPath, 'w') as f:
