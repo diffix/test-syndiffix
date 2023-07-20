@@ -47,7 +47,7 @@ To build synthetic data with focus columns, it is necessary to first run `sdmMan
 
 This is currently just test software (prior to integrating features measure into syndiffix).
 
-Run `sdmManager.py makeFeatures --featuresDir=featuresDir --featuresType=featuresType` where <featuresDir> is the directory holding the features json files, and <featuresType> is 'univariate' or 'ml' or whatever else we decide. This creates the featuresDir, a file called `featuresJobs.json` in the runs directory, a SLURM batchfile called `batch_<featuresType>` in the runs directory, and a directory `logs_<featuresType>` in the runs directory.
+Run `sdmManager.py makeFeatures --featuresDir=<featuresDir> --featuresType=<featuresType>` where `<featuresDir>` is the directory holding the features json files, and `<featuresType>` is 'univariate' or 'ml' or whatever else we decide. This creates the featuresDir, a file called `featuresJobs.json` in the runs directory, a SLURM batchfile called `batch_<featuresType>` in the runs directory, and a directory `logs_<featuresType>` in the runs directory.
 
 Run `sbatch batch_<featuresType>`. This creates the SLURM jobs with `oneFeaturesJob.py`
 
@@ -60,14 +60,12 @@ To do measures on the SLURM cluster, we have the following workflow:
 * Use `sdmManager.py updateCsvInfo` whenever new tables are added to a csv directory, or when code has changed and you want to rerun the original ML measures. This creates the file `csvOrder.json` in the measures directory. Note that if a table is removed, then `csvOrder.json` should be removed first. Also remove `focusColumns.json` in the runs directory before running this.
 * Run `sdmManager.py makeOrigMlRuns` to create `batchOrigMl`. Select a temporary directory to hold the measure samples.
 * Run `sbatch batchOrigMl` to run ML measures over the original (not synthesized) datasets. The purpose of this is to determine which ML measures (i.e. column and method) have the best quality. These make the measures to use for comparison with synthetic data. This creates the original ML measures directory and populates it with one json file per model. Note that `batchOrigMlRuns` creates multiple measures per table/column/method combination, each such measure in a separate file.
-* Run `sdmManager.py mergeMlMeasures` to select the best score of multiple ml measures, create a `json` file containing that score, and place them in the original ML measures directory.
 * Run `sdmManager.py makeMlRuns` to build the SLURM configuration information for doing ML measures (creates the files `mlJobs.json`, `batchMl`, and `batchMl.sh` in the run commands directory).
   * The cmd line parameter `--synMethod=method` can be used to limit the created jobs to those of the synMethod only. In any event, `makeMlRuns` will not schedule runs if measures already exist. You must manually remove existing measures if you want to rerun them.
   * The cmd line parameter `--limitToFeatures=True|False` determines whether the measure is made over the entire table, or only over the K features found with `makeFeatures`. If `--limitToFeatures=True`, then the file `gatherFeatures.sh` is additionally created in the runs directory.
   * NOTE: `makeMlRuns` needs to be run on a machine with more memory than the "submit" machines. Suggest pinky03 or brain03.
 * Run `batchMl.sh` to do the ML measures. Note that this makes multiple measures per table/column/method combination.
-* Run `sdmManager.py mergeMlMeasures` to select the best score of multiple ml measures, create a `json` file containing that score, and move them to the measures directory.
-* In the run commands directory, do `sbatch batchMl` to do the ML measures
+* Run `sdmManager.py mergeMlMeasures`, which selects the best score of multiple ml measures, creates a json file containing that score, and places it in the appropriate measures directory.
 * Run `sdmManager.py makeQualRuns` to build the SLURM configuration information for doing quality measures (creates the file `batchQual` in the run commands directory)
 * In the run commands directory, do `sbatch batchQual` to do the 1dim and 2dim quality measures.
 * Run `summarize.py` to summarize the performance measures and place them in various plots.
