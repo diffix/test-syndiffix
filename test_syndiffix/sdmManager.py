@@ -178,6 +178,14 @@ class SdmManager(object):
 
     def help(self):
         print('''
+    def updateCsvInfo(self, expDir='exp_base'):
+    def mergeMlMeasures(self, expDir='exp_base', synMethod=None):
+    def makeOrigMlRuns(self, expDir='exp_base', numSamples=20):
+    def makeFeatures(self, expDir='exp_base', featuresType='univariate', synMethod=None):
+    def makeMlRuns(self, expDir='exp_base', synMethod=None, numSamples=20, limitToFeatures=False):
+    def makeQualRuns(self, expDir='exp_base', synMethod=None):
+    def makePrivRuns(self, expDir='exp_base', numAttacks=5000, numAttacksInference=500):
+    def makeFocusRuns(self, expDir='exp_base'):
         ''')
 
 
