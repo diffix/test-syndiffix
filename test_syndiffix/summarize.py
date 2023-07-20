@@ -79,6 +79,9 @@ def summarize(measuresDir='measuresAb',
         for job in jobs['combs']:
             doRealPlots(tu, dfReal, job['columns'], force=force,
                         scatterHues=job['scatterHues'], basicHues=job['basicHues'])
+            if len(job['columns']) > 2:
+                do2dimPlots(tu, df2col, job['columns'], force=force, doElapsed=True,
+                        scatterHues=job['scatterHues'], basicHues=job['basicHues'])
     dfBadPriv = dfAll.query("rowType == 'privRisk' and rowValue > 0.5")
     if dfBadPriv.shape[0] > 0:
         print("Bad privacy scores:")
