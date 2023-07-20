@@ -293,14 +293,14 @@ def oneModel(expDir='exp_base',
     focusColumn = None
     featuresJob = None
     if csvFile:
-        if featuresType or dataSourceNum:
+        if featuresType or dataSourceNum is not None:
             print("ERROR: can't specify featuresType or dataSourceNum along with csvFile")
         sourceFileName = csvFile
         if ((featuresDir or featuresType or featuresFile) and
                 (not featuresDir or not featuresType or not featuresFile)):
             print("ERROR: if any of featuresDir, featuresType, or featuresFile are specified, then all must be specified")
             quit()
-    if dataSourceNum and not featuresType:
+    if dataSourceNum is not None and not featuresType:
         inFiles = [f for f in os.listdir(
             tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
         dataSources = []
@@ -308,13 +308,13 @@ def oneModel(expDir='exp_base',
             if fileName[-3:] == 'csv':
                 dataSources.append(fileName)
         dataSources.sort()
-        if dataSourceNum > len(dataSources) - 1:
+        if dataSourceNum is not None and dataSourceNum > len(dataSources) - 1:
             print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
             quit()
         sourceFileName = dataSources[dataSourceNum]
     if featuresType:
         tu.registerFeaturesType(featuresType)
-    if dataSourceNum and featuresType:
+    if dataSourceNum is not None and featuresType:
         featuresFiles = tu.getSortedFeaturesFiles()
         if dataSourceNum >= len(featuresFiles):
             print(f"ERROR: dataSourceNum too big {dataSourceNum}")
