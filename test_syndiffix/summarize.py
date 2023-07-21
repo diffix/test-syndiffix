@@ -30,7 +30,7 @@ def summarize(expDir='exp_base',
     global setLabelCountsGlobal
     setLabelCountsGlobal = setLabelCounts
     tu = testUtils.testUtilities()
-    tu.registerExpEir(expDir)
+    tu.registerExpDir(expDir)
     os.makedirs(tu.summariesDir, exist_ok=True)
     dfPath = os.path.join(tu.summariesDir, "summParquet")
     rg = gatherResults.resultsGather(measuresDir=tu.synMeasures)
