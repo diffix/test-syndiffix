@@ -33,7 +33,7 @@ def summarize(expDir='exp_base',
     tu.registerExpDir(expDir)
     os.makedirs(tu.summariesDir, exist_ok=True)
     dfPath = os.path.join(tu.summariesDir, "summParquet")
-    rg = gatherResults.resultsGather(measuresDir=tu.synMeasures)
+    rg = gatherResults.resultsGather(expDir=tu.expDir)
     if flush is False and os.path.exists(dfPath):
         print(f"Reading dfAll from {dfPath}")
         dfAll = pd.read_parquet(dfPath)
