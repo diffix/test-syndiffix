@@ -12,11 +12,10 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 class resultsGather():
-    def __init__(self, measuresDir='measuresAb', csvDir='csvAb'):
+    def __init__(self, expDir='exp_base'):
         self.tu = testUtils.testUtilities()
         self.sdmt = sdmTools.sdmTools(self.tu)
-        self.tu.registerSynMeasure(measuresDir)
-        self.tu.registerCsvLib(csvDir)
+        self.tu.registerExpDir(expDir)
         self.csvCounts = {}
         self.elapsedDone = {}
 
