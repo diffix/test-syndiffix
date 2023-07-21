@@ -161,14 +161,14 @@ class SdmManager(object):
         mc = sdmTools.measuresConfig(tu)
         mc.makeQualJobsBatchScript(len(allResults) - 1, synMethod)
 
-    def makePrivRuns(self, expDir='exp_base', numAttacks=5000, numAttacksInference=500):
+    def makePrivRuns(self, expDir='exp_base', synMethod=None, numAttacks=5000, numAttacksInference=500):
         ''' This creates a set of jobs that can be run by onePrivJob.py, and puts the needed
         SLURM script in runsDir as runsDir/batchPriv
         '''
         tu = testUtils.testUtilities()
         tu.registerExpDir(expDir)
         mc = sdmTools.measuresConfig(tu)
-        mc.makePrivJobsBatchScript(numAttacks, numAttacksInference)
+        mc.makePrivJobsBatchScript(synMethod, numAttacks, numAttacksInference)
 
     def makeFocusRuns(self, expDir='exp_base'):
         tu = testUtils.testUtilities()
@@ -184,7 +184,7 @@ class SdmManager(object):
     def makeFeatures(self, expDir='exp_base', featuresType='univariate', synMethod=None):
     def makeMlRuns(self, expDir='exp_base', synMethod=None, numSamples=20, limitToFeatures=False):
     def makeQualRuns(self, expDir='exp_base', synMethod=None):
-    def makePrivRuns(self, expDir='exp_base', numAttacks=5000, numAttacksInference=500):
+    def makePrivRuns(self, expDir='exp_base', synMethod=None, numAttacks=5000, numAttacksInference=500):
     def makeFocusRuns(self, expDir='exp_base'):
         ''')
 

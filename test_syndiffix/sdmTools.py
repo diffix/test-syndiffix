@@ -845,9 +845,9 @@ python3 {testPath} \\
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def makePrivJobsBatchScript(self, numAttacks, numAttacksInference):
+    def makePrivJobsBatchScript(self, synMethod, numAttacks, numAttacksInference):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchPriv")
-        allResults = self.tu.getResultsPaths()
+        allResults = self.tu.getResultsPaths(synMethod=synMethod)
         privJobs = []
         jobNum = 0
         for result in allResults:
