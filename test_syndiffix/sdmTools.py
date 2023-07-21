@@ -682,7 +682,7 @@ class measuresConfig:
         with open(featuresJobsPath, 'r') as f:
             return json.load(f)
 
-    def makeFeaturesJobsBatchScript(self, csvLib, runsDir, featuresDir, featuresType, numJobs):
+    def makeFeaturesJobsBatchScript(self, featuresType, numJobs):
         batchFileName = f"batch_{featuresType}"
         batchScriptPath = os.path.join(self.tu.runsDir, batchFileName)
         testPath = os.path.join(self.tu.pythonDir, 'oneFeaturesJob.py')
@@ -695,16 +695,14 @@ class measuresConfig:
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --csvLib={csvLib} \\
-    --runsDir={runsDir} \\
+    --csvLib={self.tu.expDir} \\
     --featuresType={featuresType} \\
-    --force=False \\
-    --featuresDir={featuresDir}
+    --force=False
     '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def makeOrigMlJobsBatchScript(self, csvLib, measuresDir, origMlDir, numJobs, numSamples):
+    def makeOrigMlJobsBatchScript(self, numJobs, numSamples):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchOrigMl")
         testPath = os.path.join(self.tu.pythonDir, 'oneOrigMlJob.py')
         self._makeLogsDir('logs_origml')
@@ -715,17 +713,15 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --csvLib={csvLib} \\
-    --origMlDir={origMlDir} \\
+    --expDir={self.tu.expDir} \\
     --force=False \\
-    --numJobs={numJobs} \\
-    --measuresDir={measuresDir}
+    --numJobs={numJobs}
     '''
         with open(batchScriptPath, 'w') as f:
             print(f"Writing to {batchScriptPath}")
             f.write(batchScript)
 
-    def makeMlJobsBatchScript(self, csvLib, tempMeasuresDir, resultsDir, runsDir, numSamples, limitToFeatures):
+    def makeMlJobsBatchScript(self, numSamples, limitToFeatures):
         shellPath = os.path.join(self.tu.runsDir, "batchMl.sh")
         if limitToFeatures:
             gatherPath = os.path.join(self.tu.runsDir, "gatherFeatures.sh")
@@ -759,11 +755,8 @@ python3 {testPath} \\
     --jobNum=$arrayNum \\
     --force=False \\
     --numJobs={len(self.mlJobsOrder)} \\
-    --csvLib={csvLib} \\
-    --resultsDir={resultsDir} \\
-    --runsDir={runsDir} \\
-    --limitToFeatures={limitToFeatures} \\
-    --tempMeasuresDir={tempMeasuresDir}
+    --expDir={self.tu.expDir} \\
+    --limitToFeatures={limitToFeatures}
     '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
@@ -798,7 +791,7 @@ python3 {testPath} \\
             return None, None
         return focusJobs[jobNum]['csvFile'], focusJobs[jobNum]['column']
 
-    def makeFocusRunsScripts(self, csvLib, measuresDir, resultsDir, runsDir):
+    def makeFocusRunsScripts(self):
         # Start by making a jobs file
         self._makeFocusJobsFile()
         focusJobsPath = os.path.join(self.tu.runsDir, 'focusBuildJobs.json')
@@ -815,17 +808,14 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --dataSourceNum=$arrayNum \\
-    --dataDir={csvLib} \\
-    --synResults={resultsDir} \\
-    --runsDir={runsDir} \\
-    --synMeasures={measuresDir} \\
+    --expDir={tu.self.expDir} \\
     --model=syndiffix_focus \\
     --withFocusColumn=True
     '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def makeQualJobsBatchScript(self, measuresDir, resultsDir, numJobs, synMethod):
+    def makeQualJobsBatchScript(self, numJobs, synMethod):
         testPath = os.path.join(self.tu.pythonDir, 'oneQualityMeasure.py')
         batchScriptPath = os.path.join(self.tu.runsDir, "batchQual")
         self._makeLogsDir('logs_qual')
@@ -837,10 +827,9 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --resultsDir={resultsDir} \\
+    --expDir={self.tu.expDir} \\
     --synMethod={synMethod} \\
-    --force=False \\
-    --measuresDir={measuresDir}
+    --force=False
             '''
         else:
             batchScript = f'''#!/bin/sh
@@ -850,14 +839,13 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --resultsDir={resultsDir} \\
-    --force=False \\
-    --measuresDir={measuresDir}
+    --expDir={self.tu.expDir} \\
+    --force=False
             '''
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
-    def makePrivJobsBatchScript(self, runsDir, measuresDir, resultsDir, numAttacks, numAttacksInference):
+    def makePrivJobsBatchScript(self, numAttacks, numAttacksInference):
         batchScriptPath = os.path.join(self.tu.runsDir, "batchPriv")
         allResults = self.tu.getResultsPaths()
         privJobs = []
@@ -909,9 +897,7 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
-    --runsDir={runsDir} \\
-    --resultsDir={resultsDir} \\
-    --measuresDir={measuresDir} \\
+    --expDir={self.tu.expDir} \\
     --force=False
     '''
         with open(batchScriptPath, 'w') as f:

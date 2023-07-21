@@ -252,7 +252,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
     return clusterSpec, numClusters, usedColumns
 
 
-def oneModel(dataDir='csvGeneral',
+def oneModel(expDir='exp_base',
              dataSourceNum=None,
              csvFile=None,
              featuresFile=None,
@@ -260,10 +260,7 @@ def oneModel(dataDir='csvGeneral',
              featuresDir=None,
              model='fastMl',
              suffix='',
-             synResults='synResults',
-             synMeasures='synMeasures',
              abSharpArgs='',
-             runsDir='runsAb',
              doMeasures=False,
              numFeatures=None,
              featureThreshold=None,
@@ -290,21 +287,20 @@ def oneModel(dataDir='csvGeneral',
         Otherwise, we add the columns as patches.
     '''
     tu = testUtils.testUtilities()
-    tu.registerCsvLib(dataDir)
-    tu.registerSynResults(synResults)
+    tu.registerExpDir(expDir)
     if len(abSharpArgs) > 0:
         print(f"abSharpArgs: {abSharpArgs}")
     focusColumn = None
     featuresJob = None
     if csvFile:
-        if featuresType or dataSourceNum:
+        if featuresType or dataSourceNum is not None:
             print("ERROR: can't specify featuresType or dataSourceNum along with csvFile")
         sourceFileName = csvFile
         if ((featuresDir or featuresType or featuresFile) and
                 (not featuresDir or not featuresType or not featuresFile)):
             print("ERROR: if any of featuresDir, featuresType, or featuresFile are specified, then all must be specified")
             quit()
-    if dataSourceNum and not featuresType:
+    if dataSourceNum is not None and not featuresType:
         inFiles = [f for f in os.listdir(
             tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
         dataSources = []
@@ -312,14 +308,13 @@ def oneModel(dataDir='csvGeneral',
             if fileName[-3:] == 'csv':
                 dataSources.append(fileName)
         dataSources.sort()
-        if dataSourceNum > len(dataSources) - 1:
+        if dataSourceNum is not None and dataSourceNum > len(dataSources) - 1:
             print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
             quit()
         sourceFileName = dataSources[dataSourceNum]
     if featuresType:
-        tu.registerFeaturesDir(featuresDir)
         tu.registerFeaturesType(featuresType)
-    if dataSourceNum and featuresType:
+    if dataSourceNum is not None and featuresType:
         featuresFiles = tu.getSortedFeaturesFiles()
         if dataSourceNum >= len(featuresFiles):
             print(f"ERROR: dataSourceNum too big {dataSourceNum}")
@@ -470,7 +465,6 @@ def oneModel(dataDir='csvGeneral',
 
     mls = testUtils.mlSupport(tu)
     mlClassInfo = mls.makeMlClassInfo(df, sourceFileName)
-    tu.registerSynMeasure(synMeasures)
     with open(outPath, 'r') as f:
         results = json.load(f)
     abInfo = {}

@@ -12,12 +12,9 @@ pp = pprint.PrettyPrinter(indent=4)
 '''
 
 
-def oneSynMlJob(jobNum=0, csvLib='csvAb', tempMeasuresDir='measuresAbTemp', resultsDir='resultsAb', runsDir='runAb', numJobs=None, limitToFeatures=False, force=False):
+def oneSynMlJob(jobNum=0, expDir='exp_base', numJobs=None, limitToFeatures=False, force=False):
     tu = testUtils.testUtilities()
-    tu.registerCsvLib(csvLib)
-    tu.registerTempSynMeasure(tempMeasuresDir)
-    tu.registerSynResults(resultsDir)
-    tu.registerRunsDir(runsDir)
+    tu.registerExpDir(expDir)
     sdmt = sdmTools.sdmTools(tu)
     if numJobs:
         realJobNum = jobNum % numJobs

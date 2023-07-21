@@ -6,20 +6,20 @@
 
 ## Tests directory structure
 
-These tests all assume a root directory whose location is defined by the environment variable `AB_RESULTS_DIR`. The `AB_RESULTS_DIR` has a number of default subdirectories (which must be configured prior to running the tests):
+These tests all assume a root directory whose location is defined by the environment variable `AB_RESULTS_DIR`.
 
-There are eight different types of directories under the root directory:
+Underneath `AB_RESULTS_DIR` are a set of directories, each of which can be used to build and measure synthetic data for a some set of datasets. Each of these directories can be thought of as an experiment with respect to the corresponding set of data sets. We refer to these as an `experiment directory`.
 
-* csv library: contains CSV datasets for testing. The datasets must be split into `train` and `test` files, each containing half of the data, randomly selected (see `misc/splitFile.py`). These two sets are in directories labeled `train` and `test`.
-* synthetic data building results: contains the results of building synthetic data. Has one sub-directory per method (or different set of method parameters).
-* measurement results: contains the results of measuring data quality from the synthetic data.
-* measurement summaries: contains graphs that summarize the measurements
-* run commands: contains the commands used to run the tests, including SLURM jobs
-* original ML measures: the ML model scores against the original data
-* temporary directory for the separate measurement samples for original ML measures
-* temporary directory for the separate measurement samples for the ML measures of the synthetic data
+Under each `experiment directory` is a number of directories with pre-subscribed names. There are eight different types of directories:
 
-The code is setup so that there is one group of these five directories per distinct set of CSV files. They can be named anything, but by convention are csvXXX, resultsXXX, measuresXXX, summXXX, runXXX, origMlXXX, measuresXXXTemp, and origMLXXXTemp.
+* `csv`: contains CSV datasets for testing. The datasets must be split into `train` and `test` files, each containing half of the data, randomly selected (see `misc/splitFile.py`). These two sets are in directories labeled `train` and `test`.
+* `results`: contains the results of building synthetic data. Has one sub-directory per method (or different set of method parameters).
+* `measures`: contains the results of measuring data quality, ML efficacy measures, and privacy measures from the synthetic data.
+* `summaries`: contains graphs and csv files that summarize the measurements
+* `runs`: contains the commands used to run the tests, including SLURM jobs
+* `origMl`: the ML model scores against the original data
+* `origMl_samples`: temporary directory for the separate measurement samples for original ML measures
+* `measures_samples`: temporary directory for the separate measurement samples for the ML measures of the synthetic data
 
 ### Synthetic data methods
 
@@ -59,15 +59,15 @@ To do measures on the SLURM cluster, we have the following workflow:
 
 * Use `sdmManager.py updateCsvInfo` whenever new tables are added to a csv directory, or when code has changed and you want to rerun the original ML measures. This creates the file `csvOrder.json` in the measures directory. Note that if a table is removed, then `csvOrder.json` should be removed first. Also remove `focusColumns.json` in the runs directory before running this.
 * Run `sdmManager.py makeOrigMlRuns` to create `batchOrigMl`. Select a temporary directory to hold the measure samples.
-* Run `sbatch batchOrigMl` to run ML measures over the original (not synthesized) datasets. The purpose of this is to determine which ML measures (i.e. column and method) have the best quality. These make the measures to use for comparison with synthetic data. This creates the original ML measures directory and populates it with one json file per model. Note that `batchOrigMlRuns` creates multiple measures per table/column/method combination, each such measure in a separate file.
-* Run `sdmManager.py makeMlRuns` to build the SLURM configuration information for doing ML measures (creates the files `mlJobs.json`, `batchMl`, and `batchMl.sh` in the run commands directory).
+* Run `sbatch batchOrigMl` to run ML measures over the original (not synthesized) datasets. The purpose of this is to determine which ML measures (i.e. column and method) have the best quality. These make the measures to use for comparison with synthetic data. This creates the `origMl` directory and populates it with one json file per model. Note that `batchOrigMlRuns` creates multiple measures per table/column/method combination, each such measure in a separate file.
+* Run `sdmManager.py makeMlRuns` to build the SLURM configuration information for doing ML measures (creates the files `mlJobs.json`, `batchMl`, and `batchMl.sh` in the `runs` directory).
   * The cmd line parameter `--synMethod=method` can be used to limit the created jobs to those of the synMethod only. In any event, `makeMlRuns` will not schedule runs if measures already exist. You must manually remove existing measures if you want to rerun them.
-  * The cmd line parameter `--limitToFeatures=True|False` determines whether the measure is made over the entire table, or only over the K features found with `makeFeatures`. If `--limitToFeatures=True`, then the file `gatherFeatures.sh` is additionally created in the runs directory.
+  * The cmd line parameter `--limitToFeatures=True|False` determines whether the measure is made over the entire table, or only over the K features found with `makeFeatures`. If `--limitToFeatures=True`, then the file `gatherFeatures.sh` is additionally created in the `runs` directory.
   * NOTE: `makeMlRuns` needs to be run on a machine with more memory than the "submit" machines. Suggest pinky03 or brain03.
 * Run `batchMl.sh` to do the ML measures. Note that this makes multiple measures per table/column/method combination.
-* Run `sdmManager.py mergeMlMeasures`, which selects the best score of multiple ml measures, creates a json file containing that score, and places it in the appropriate measures directory.
-* Run `sdmManager.py makeQualRuns` to build the SLURM configuration information for doing quality measures (creates the file `batchQual` in the run commands directory)
-* In the run commands directory, do `sbatch batchQual` to do the 1dim and 2dim quality measures.
+* Run `sdmManager.py mergeMlMeasures`, which selects the best score of multiple ml measures, creates a json file containing that score, and places it in the appropriate `measures` subdirectory.
+* Run `sdmManager.py makeQualRuns` to build the SLURM configuration information for doing quality measures (creates the file `batchQual` in the `runs` directory)
+* In the `runs` directory, do `sbatch batchQual` to do the 1dim and 2dim quality measures.
 * Run `summarize.py` to summarize the performance measures and place them in various plots.
 
     doPlots(tu, dfAll, ['syndiffix_multi', 'syndiffix', 'ctGan', 'mostly'], force=force)
@@ -75,14 +75,14 @@ To do measures on the SLURM cluster, we have the following workflow:
 
 We use the python package `anonymeter` to measure privacy. This requires that we split all of our data files into `train` and `test` subsets. The basic idea is that `train` is synthesized, and then we use `test` as a control to test the effectiveness of attacks.
 
-* Run `misc/splitFiles.py` to generate the csv split files. These are placed into directories `train` and `test` under `csvAb` respectively
-* Generate synthesized data (e.g. using `oneModel.py`) from `train` and put them in some directory (`resultsAb` by default).
+* Run `misc/splitFiles.py` to generate the csv split files. These are placed into directories `train` and `test` under `csv` respectively
+* Generate synthesized data (e.g. using `oneModel.py`) from `train` and put them in the `results` directory.
 * (Run `sdmManager.py updateCsvInfo` if you haven't before.)
-* Run `sdmManager.py makePrivRuns` to create a jobs file `privJobs.json` and a batch script `batchPriv`, both placed in the `runAb` directory. Do `sbatch batchPriv`. This places the privacy measures in the `measuresAb` directory.
+* Run `sdmManager.py makePrivRuns` to create a jobs file `privJobs.json` and a batch script `batchPriv`, both placed in the `runs` directory. Do `sbatch batchPriv`. This places the privacy measures in the `measures` directory.
 
 ## Summarizing quality and privacy
 
-`summarize.py` reads in data from a measures directory and produces a set of summary graphs. Note that this was particularly designed to compare different PPoC parameter settings with each other.
+`summarize.py` reads in data from the `measures` directory and produces a set of summary graphs. Note that this was particularly designed to compare different PPoC parameter settings with each other.
 
 -----------------------------------------------------------
 

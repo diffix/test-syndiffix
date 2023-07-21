@@ -14,9 +14,9 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 def getCsv():
-    outDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'resultsCsvAb')
+    outDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'exp_rarePairAttack', 'results_csv')
     os.makedirs(outDir, exist_ok=True)
-    inDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'resultsAb')
+    inDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'exp_rarePairAttack', 'results')
     dirs = [entry.name for entry in os.scandir(inDir) if entry.is_dir()]
 
     for synMethod in dirs:

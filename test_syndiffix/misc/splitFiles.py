@@ -23,9 +23,9 @@ def splitFiles():
     # dataSources = ['adult.data.csv', 'BankChurnersNoId.csv', 'census_small.csv']
     dataSources = []
     # Configure the following three directories
-    inDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAb', 'original')
-    trainDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAb', 'train')
-    testDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAb', 'test')
+    inDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAttackRarePair', 'original')
+    trainDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAttackRarePair', 'train')
+    testDir = os.path.join(os.environ['AB_RESULTS_DIR'], 'csvAttackRarePair', 'test')
     os.makedirs(trainDir, exist_ok=True)
     os.makedirs(testDir, exist_ok=True)
     csvFiles = [f for f in os.listdir(inDir) if os.path.isfile(os.path.join(inDir, f))]
