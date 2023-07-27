@@ -56,6 +56,14 @@ def summarize(expDir='exp_base',
             print(f"Ignoring {synMethod}")
             query = f"synMethod != '{synMethod}'"
             dfAll = dfAll.query(query)
+    if jobs and 'rename' in jobs:
+        for job in jobs['rename']:
+            print(f"Renaming {job['from']} to {job['to']}")
+            # First remove the new name in case it is in dfAll
+            query = f"synMethod != '{job['to']}'"
+            dfAll = dfAll.query(query)
+            # Then rename
+            dfAll['synMethod'] = np.where((dfAll['synMethod'] == job['from']), job['to'], dfAll['synMethod'])
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
