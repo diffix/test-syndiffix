@@ -257,7 +257,6 @@ def oneModel(expDir='exp_base',
              csvFile=None,
              featuresFile=None,
              featuresType=None,
-             featuresDir=None,
              model='fastMl',
              suffix='',
              abSharpArgs='',
@@ -273,11 +272,10 @@ def oneModel(expDir='exp_base',
             1. Specify the dataSourceNum
             2. Specify the csvFile
         Likewise, there are two ways to run oneModel with features:
-            1. Specify the dataSourceNum, featuresType, and featuresDir
-            2. Specify the featuresFile, featuresType, and featuresDir
+            1. Specify the dataSourceNum and featuresType
+            2. Specify the featuresFile and featuresType
 
         An example of the latter is:
-            --featuresDir=featuresAb
             --featuresType=ml
             --featuresFile="ml.census.csv.tax filer stat.json"
 
@@ -296,9 +294,9 @@ def oneModel(expDir='exp_base',
         if featuresType or dataSourceNum is not None:
             print("ERROR: can't specify featuresType or dataSourceNum along with csvFile")
         sourceFileName = csvFile
-        if ((featuresDir or featuresType or featuresFile) and
-                (not featuresDir or not featuresType or not featuresFile)):
-            print("ERROR: if any of featuresDir, featuresType, or featuresFile are specified, then all must be specified")
+        if ((featuresType or featuresFile) and
+                (not featuresType or not featuresFile)):
+            print("ERROR: if any of featuresType, or featuresFile are specified, then all must be specified")
             quit()
     if dataSourceNum is not None and not featuresType:
         inFiles = [f for f in os.listdir(
