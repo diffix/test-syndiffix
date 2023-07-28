@@ -158,14 +158,21 @@ class resultsGather():
         self.setElapsedTime(tr, tr['elapsed'])
         row = self.initTabRow(tr)
         row['rowType'] = 'synMlScore'
-        row['rowValue'] = max(tr['score'], 0)
+        if 'synMethod' in tr and 'noAnon' in tr['synMethod']:
+            # This little hack is used to set the ML score for noAnon to the original
+            # computed score (versus the second run). We do this because the second run
+            # can depart quite a bit from the initial run, and explaining this would be
+            # confusing.
+            row['rowValue'] = max(tr['scoreOrig'], 0)
+        else:
+            row['rowValue'] = max(tr['score'], 0)
         row['targetColumn'] = tr['column']
         if tr['column'] in self.csvCounts[row['csvFile']]['nunique']:
             row['targetCardinality'] = self.csvCounts[row['csvFile']]['nunique'][tr['column']]
         row['mlMethod'] = tr['method']
         row['mlMethodType'] = self.sdmt.getMethodTypeFromMethod(tr['method'])
         row['origMlScore'] = max(tr['scoreOrig'], 0)
-        row['mlPenalty'] = self.computeMlPenality(tr['score'], tr['scoreOrig'])
+        row['mlPenalty'] = self.computeMlPenality(row['rowValue'], row['origMlScore'])
         if 'features' in tr and 'params' in tr['features']:
             params = tr['features']['params']
             row['featureThreshold'] = params['featureThreshold']
