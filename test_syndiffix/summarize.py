@@ -219,6 +219,7 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, rowType, axisLabel, rowVal,
     rowValue_x = f"{rowVal}_x"
     rowValue_y = f"{rowVal}_y"
     g = sns.scatterplot(x=dfMerged[rowValue_x], y=dfMerged[rowValue_y], hue=hueDf, hue_order=hue_order, s=20, ax=ax)
+    sns.set(font_scale=1.5)
     if axisType == 'equalAxis':
         low = min(dfMerged[rowValue_x].min(), dfMerged[rowValue_y].min())
         high = max(dfMerged[rowValue_x].max(), dfMerged[rowValue_y].max())
@@ -290,6 +291,7 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
     synMethods = sorted(list(pd.unique(dfTemp['synMethod'])))
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods)
+    sns.set(font_scale=1.5)
     plt.tight_layout()
     plt.xlim(0, 1)
     plt.xticks([0.01, 0.1, 0.2, 0.5, 1.0], ['0.01', '0.1', '0.2', '0.5', '1.0'])
@@ -324,6 +326,7 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -340,6 +343,7 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "quality", measureField='mlPenalty')
         sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -381,6 +385,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         printStats(dfTemp, hueCol, "time")
 
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -392,6 +397,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
 
         xaxis = 'Elapsed Time with Feature Selection'
         sns.boxplot(x=dfTemp['totalElapsedTime'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -433,6 +439,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[0][0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -454,6 +461,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[0][1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -476,6 +484,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[1][0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -492,6 +501,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "quality", measureField='mlPenalty')
         sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[1][1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -512,6 +522,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "time")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[2][0])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[2][0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -554,6 +565,7 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[0].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
@@ -575,6 +587,7 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1])
+        sns.set(font_scale=1.5)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
             axs[1].yaxis.set_ticklabels(setLabelSampleCount(dfTemp['synMethod'], synMethods))
