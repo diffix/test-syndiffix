@@ -84,7 +84,7 @@ def summarize(expDir='exp_base',
 
     if jobs and 'combs' in jobs:
         for job in jobs['combs']:
-            doRealPlots(tu, dfReal, job['columns'], force=force,
+            doRealPlots(tu, dfReal, job['columns'], force=force, doElapsed=True,
                         scatterHues=job['scatterHues'], basicHues=job['basicHues'])
             if len(job['columns']) > 2:
                 do2dimPlots(tu, df2col, job['columns'], force=force, doElapsed=True,
