@@ -11,3 +11,4 @@ ydata-sdk==0.6.0
 ydata-synthetic==1.0.1
 gretel-synthetics==0.21.0
 tonic-api==2.1.4
+scikit-learn==1.2.2
