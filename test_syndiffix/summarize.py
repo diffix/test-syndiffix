@@ -56,6 +56,14 @@ def summarize(expDir='exp_base',
             print(f"Ignoring {synMethod}")
             query = f"synMethod != '{synMethod}'"
             dfAll = dfAll.query(query)
+    if jobs and 'rename' in jobs:
+        for job in jobs['rename']:
+            print(f"Renaming {job['from']} to {job['to']}")
+            # First remove the new name in case it is in dfAll
+            query = f"synMethod != '{job['to']}'"
+            dfAll = dfAll.query(query)
+            # Then rename
+            dfAll['synMethod'] = np.where((dfAll['synMethod'] == job['from']), job['to'], dfAll['synMethod'])
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
@@ -76,7 +84,7 @@ def summarize(expDir='exp_base',
 
     if jobs and 'combs' in jobs:
         for job in jobs['combs']:
-            doRealPlots(tu, dfReal, job['columns'], force=force,
+            doRealPlots(tu, dfReal, job['columns'], force=force, doElapsed=True,
                         scatterHues=job['scatterHues'], basicHues=job['basicHues'])
             if len(job['columns']) > 2:
                 do2dimPlots(tu, df2col, job['columns'], force=force, doElapsed=True,
