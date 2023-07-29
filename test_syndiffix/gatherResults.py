@@ -12,7 +12,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 class resultsGather():
-    def __init__(self, expDir='exp_base'):
+    def __init__(self, expDir='exp_base', useOrigScore=False):
+        self.useOrigScore = useOrigScore
         self.tu = testUtils.testUtilities()
         self.sdmt = sdmTools.sdmTools(self.tu)
         self.tu.registerExpDir(expDir)
@@ -158,7 +159,7 @@ class resultsGather():
         self.setElapsedTime(tr, tr['elapsed'])
         row = self.initTabRow(tr)
         row['rowType'] = 'synMlScore'
-        if 'synMethod' in tr and 'noAnon' in tr['synMethod']:
+        if self.useOrigScore and 'synMethod' in tr and 'noAnon' in tr['synMethod']:
             # This little hack is used to set the ML score for noAnon to the original
             # computed score (versus the second run). We do this because the second run
             # can depart quite a bit from the initial run, and explaining this would be
