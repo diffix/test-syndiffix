@@ -44,7 +44,7 @@ class resultsGather():
                     self.addPrivScore(testRes)
                 else:
                     print(f"gather: don't understand file {inPath}")
-                    quit()
+                    sys.exit()
         self.dfTab = pd.DataFrame.from_records(self.tabData)
 
     def addQualityScore(self, tr):

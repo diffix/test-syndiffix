@@ -110,12 +110,12 @@ class sdmTools:
         if not force and os.path.exists(self.privMeasuresPath):
             print(f"Measures file already exists, skipping ({self.privMeasuresPath})")
             print("onePrivMeasure: SUCCESS (skipped)")
-            quit()
+            sys.exit()
         with open(resultsPath, 'r') as f:
             results = json.load(f)
         if 'originalTable' not in results:
             print(f"ERROR: Missing 'originalTable' in {resultsPath}")
-            quit()
+            sys.exit()
         self.dfOrig = pd.DataFrame(results['originalTable'], columns=results['colNames'])
         self.dfAnon = pd.DataFrame(results['anonTable'], columns=results['colNames'])
         self.dfControl = pd.DataFrame(results['testTable'], columns=results['colNames'])
@@ -134,7 +134,7 @@ class sdmTools:
                 print(f"Singling out evaluation failed with {ex}. Please re-run this cell."
                       "For more stable results increase `n_attacks`. Note that this will "
                       "make the evaluation slower.")
-                quit()
+                sys.exit()
         elif privJob['task'] == 'inference':
             # evaluate crashes if the number of attacks (guesses) is more than the number of
             # possible values to guess
@@ -436,7 +436,7 @@ class sdmTools:
                                       myJob['column'], myJob['method'], myJob['csvFile'])
         if score is None:
             print("Scores is None, quitting")
-            quit()
+            sys.exit()
         endTime = time.time()
         print(f"Score = {score}")
         myJob['score'] = score
@@ -508,8 +508,7 @@ class sdmTools:
             print(f"exception on {csvFile}, {column}, {method}")
             print(e)
             pp.pprint(metadata)
-            a = 1 / 0
-            quit()
+            sys.exit()
         return score
 
     def _getTestAndTrain(self, df):
@@ -628,7 +627,7 @@ class sdmTools:
         for inFile in inFileNames:
             if 'part_' not in inFile:
                 print(f"ERROR: unexpected file name {inFile}")
-                quit()
+                sys.exit()
             inPath = os.path.join(inDir, inFile)
             with open(inPath, 'r') as f:
                 oneMl = json.load(f)
@@ -970,7 +969,7 @@ python3 {testPath} \\
                             results = json.load(f)
                         if 'focusColumn' not in results:
                             print(f"ERROR: Could not find focusColumn in {filePath}")
-                            quit()
+                            sys.exit()
                         focusColumn = results['focusColumn']
                         print(f"    Add {focusColumn} to {fileName}")
                         focusColumns[fileName] = focusColumn
