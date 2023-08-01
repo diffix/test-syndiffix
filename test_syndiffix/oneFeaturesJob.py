@@ -19,7 +19,7 @@ def oneFeaturesJob(jobNum=0, expDir='exp_base', featuresType='univariate', force
     featuresJobs = mc.getFeaturesJobs()
     if jobNum >= len(featuresJobs):
         print(f"ERROR: jobNum {jobNum} too high")
-        quit()
+        sys.exit()
     job = featuresJobs[jobNum]
     featuresFileName = f"{featuresType}.{job['csvFile']}.{job['targetColumn']}.json"
     featuresPath = os.path.join(tu.featuresTypeDir, featuresFileName)

@@ -1,7 +1,7 @@
 import pandas as pd
+import sys
 import os
 import json
-import itertools
 
 
 class mlSupport:
@@ -72,8 +72,7 @@ class mlSupport:
                 colTypes.append('text')
             else:
                 print(f"ERROR: Unknown column data type {colType}")
-                a = 1 / 0
-                quit()
+                sys.exit()
         return colTypes
 
     def makeMetadata(self, rows, colNames=None):

@@ -118,8 +118,7 @@ def makeMetadata(df):
             colTypes.append('text')
         else:
             print(f"ERROR: Unknown column data type {colType}")
-            a = 1 / 0
-            quit()
+            sys.exit()
     metadata = {'sdvMetaData': {
         "METADATA_SPEC_VERSION": "SINGLE_TABLE_V1",
         'columns': {},
@@ -158,14 +157,14 @@ def getMlFeaturesByThreshold(featuresJob, featureThreshold):
     k = featuresJob['k']
     if k == 0:
         print("SUCCESS: (skipped because not enough features)")
-        quit()
+        sys.exit()
     # We always include the top feature
     features = [featuresJob['features'][0]]
     topScore = featuresJob['cumulativeScore'][k - 1]
     print(f"topScore {topScore} for k = {k}")
     if topScore == 0:
         print("SUCCESS: (skipped because zero score)")
-        quit()
+        sys.exit()
     for index in range(1, len(featuresJob['features'])):
         thisScore = featuresJob['cumulativeScore'][index]
         if abs(thisScore - topScore) > featureThreshold:
@@ -297,7 +296,7 @@ def oneModel(expDir='exp_base',
         if ((featuresType or featuresFile) and
                 (not featuresType or not featuresFile)):
             print("ERROR: if any of featuresType, or featuresFile are specified, then all must be specified")
-            quit()
+            sys.exit()
     if dataSourceNum is not None and not featuresType:
         inFiles = [f for f in os.listdir(
             tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
@@ -308,7 +307,7 @@ def oneModel(expDir='exp_base',
         dataSources.sort()
         if dataSourceNum is not None and dataSourceNum > len(dataSources) - 1:
             print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
-            quit()
+            sys.exit()
         sourceFileName = dataSources[dataSourceNum]
     if featuresType:
         tu.registerFeaturesType(featuresType)
@@ -316,11 +315,11 @@ def oneModel(expDir='exp_base',
         featuresFiles = tu.getSortedFeaturesFiles()
         if dataSourceNum >= len(featuresFiles):
             print(f"ERROR: dataSourceNum too big {dataSourceNum}")
-            quit()
+            sys.exit()
         featuresFile = featuresFiles[dataSourceNum]
         if featuresFile[-5:] != '.json':
             print(f"ERROR: features file not json ({featuresFile})")
-            quit()
+            sys.exit()
     if featuresType:
         featuresPath = os.path.join(tu.featuresTypeDir, featuresFile)
         with open(featuresPath, 'r') as f:
@@ -331,11 +330,11 @@ def oneModel(expDir='exp_base',
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
     if not os.path.exists(dataSourcePath):
         print(f"ERROR: File {dataSourcePath} does not exist")
-        quit()
+        sys.exit()
     testDataPath = os.path.join(tu.csvLibTest, sourceFileName)
     if not os.path.exists(testDataPath):
         print(f"ERROR: File {testDataPath} does not exist")
-        quit()
+        sys.exit()
 
     label = model + '_' + suffix if suffix else model
     modelsDir = os.path.join(tu.synResults, label)
@@ -349,7 +348,7 @@ def oneModel(expDir='exp_base',
     if not force and os.path.exists(outPath):
         print(f"Result {outPath} already exists, skipping")
         print("oneModel:SUCCESS (skipped)")
-        quit()
+        sys.exit()
     print(f"Model {label} for dataset {dataSourcePath}, focus column {focusColumn}")
 
     df = readCsv(dataSourcePath)
@@ -421,7 +420,7 @@ def oneModel(expDir='exp_base',
     # quick test to make sure that the test and train data match columns
     if colNames != list(dfTest.columns.values):
         print(f("ERROR: Train column names {colNames} don't match test column names {list(dfTest.columns.values)}"))
-        quit()
+        sys.exit()
     # Pull in training data as list, to be stored in results file as is
     testData = dfTest.values.tolist()
     print(f"Columns {colNames}")

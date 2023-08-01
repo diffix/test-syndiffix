@@ -93,7 +93,7 @@ class SdmManager(object):
                 job = json.load(f)
             if 'allScores' not in job:
                 print(f"Missing allScores on {mlPath}")
-                quit()
+                sys.exit()
             self._addJobToResults(job['method'], job, results, mlFile)
             if max(job['allScores']) > 0.5:
                 self._addJobToResults(job['method'] + '_good', job, results, mlFile)
