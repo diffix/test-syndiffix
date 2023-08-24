@@ -311,6 +311,9 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if 'noAnon' in synMethods:
         synMethods.remove('noAnon')
         synMethods.append('noAnon')
+        print("New synMethods:")
+        print(synMethods)
+        quit()
     if apples:
         figPath = getFilePath(tu, synMethods, 'ml', f"{fileTag}.{hueCol}")
     else:
