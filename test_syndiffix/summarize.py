@@ -280,6 +280,7 @@ def getBest(df, from1, from2, rename):
     if df1.shape[0] == 0 or df2.shape[0] == 0:
         return df
     dfMerged = pd.merge(df1, df2, how='inner', on=['csvFile', 'targetColumn', 'mlMethod', 'numColumns', 'rowType'])
+    print("merged:")
     print(dfMerged.to_string())
     dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['rowValue_x'], dfMerged['rowValue_y'])
