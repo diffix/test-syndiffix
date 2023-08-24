@@ -316,7 +316,7 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 0.8)
+    height = max(4, len(synMethods) * 0.8)
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'synMlScore'")
@@ -374,7 +374,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 0.3)
+    height = max(4, len(synMethods) * 0.8)
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'elapsedTime'")
@@ -428,7 +428,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 0.8)
+    height = max(4, len(synMethods) * 1.8)
     fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'columnScore'")
@@ -554,7 +554,7 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 0.3)
+    height = max(4, len(synMethods) * 0.8)
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'columnScore'")
