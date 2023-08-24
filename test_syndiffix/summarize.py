@@ -291,8 +291,8 @@ def getBest(df, from1, from2, rename):
     dfMerged['numRows'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['numRows_x'], dfMerged['numRows_y'])
     dfMerged['synMethod'] = rename
-    df1 = df[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType']]
-    df2 = dfMerged[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType']]
+    df1 = df[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType', 'totalElapsedTime']]
+    df2 = dfMerged[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType', 'totalElapsedTime']]
     return pd.concat([df1, df2], axis=0)
 
 
