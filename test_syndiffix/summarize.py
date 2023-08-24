@@ -60,6 +60,14 @@ def summarize(expDir='exp_base',
             print(f"Ignoring {synMethod}")
             query = f"synMethod != '{synMethod}'"
             dfAll = dfAll.query(query)
+    print('Before getBest:')
+    print(dfAll.to_string)
+    if jobs and 'getBest' in jobs:
+        for job in jobs['getBest']:
+            print(f"Getting best of {job['from']}, renaming as {job['to']}")
+            dfAll = getBest(dfAll, job['from'][0], job['from'][1], job['to'])
+    print('After getBest:')
+    print(dfAll.to_string)
     if jobs and 'rename' in jobs:
         for job in jobs['rename']:
             print(f"Renaming {job['from']} to {job['to']}")
@@ -68,6 +76,8 @@ def summarize(expDir='exp_base',
             dfAll = dfAll.query(query)
             # Then rename
             dfAll['synMethod'] = np.where((dfAll['synMethod'] == job['from']), job['to'], dfAll['synMethod'])
+    print('After rename:')
+    print(dfAll.to_string)
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
@@ -264,18 +274,19 @@ def setLabelSampleCount(s, labels):
             newLabels.append(f"{label}")
     return newLabels
 
-
-def getBestSyndiffix(df):
-    dfNonFocus = df.query("synMethod == 'syndiffix'")
-    dfFocus = df.query("synMethod == 'syndiffix_focus'")
-    if dfNonFocus.shape[0] == 0 or dfFocus.shape[0] == 0:
+def getBest(df, from1, from2, rename):
+    df1 = df.query(f"synMethod == '{from1}'")
+    df2 = df.query(f"synMethod == '{from2}'")
+    if df1.shape[0] == 0 or df2.shape[0] == 0:
         return df
-    dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
+    dfMerged = pd.merge(df1, df2, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
     dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['rowValue_x'], dfMerged['rowValue_y'])
-    dfMerged['synMethod'] = 'syndiffix_best'
-    df1 = df[['synMethod', 'rowValue']]
-    df2 = dfMerged[['synMethod', 'rowValue']]
+    dfMerged['mlPenalty'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
+                                    dfMerged['mlPenalty_x'], dfMerged['mlPenalty_y'])
+    dfMerged['synMethod'] = rename
+    df1 = df[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'mlMethod', 'mlPenalty']]
+    df2 = dfMerged[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'mlMethod', 'mlPenalty']]
     return pd.concat([df1, df2], axis=0)
 
 
