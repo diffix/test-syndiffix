@@ -313,7 +313,6 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         synMethods.append('noAnon')
         print("New synMethods:")
         print(synMethods)
-        quit()
     if apples:
         figPath = getFilePath(tu, synMethods, 'ml', f"{fileTag}.{hueCol}")
     else:
