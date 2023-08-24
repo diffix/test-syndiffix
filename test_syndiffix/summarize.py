@@ -61,13 +61,13 @@ def summarize(expDir='exp_base',
             query = f"synMethod != '{synMethod}'"
             dfAll = dfAll.query(query)
     print('Before getBest:')
-    print(dfAll.to_string)
+    print(dfAll.to_string())
     if jobs and 'getBest' in jobs:
         for job in jobs['getBest']:
             print(f"Getting best of {job['from']}, renaming as {job['to']}")
             dfAll = getBest(dfAll, job['from'][0], job['from'][1], job['to'])
     print('After getBest:')
-    print(dfAll.to_string)
+    print(dfAll.to_string())
     if jobs and 'rename' in jobs:
         for job in jobs['rename']:
             print(f"Renaming {job['from']} to {job['to']}")
@@ -77,7 +77,7 @@ def summarize(expDir='exp_base',
             # Then rename
             dfAll['synMethod'] = np.where((dfAll['synMethod'] == job['from']), job['to'], dfAll['synMethod'])
     print('After rename:')
-    print(dfAll.to_string)
+    print(dfAll.to_string())
     # Make a column that tags large and small 2dim tables
     print(dfAll.columns)
     dfAll['2dimSizeTag'] = 'none'
@@ -106,7 +106,7 @@ def summarize(expDir='exp_base',
     dfBadPriv = dfAll.query("rowType == 'privRisk' and rowValue > 0.5")
     if dfBadPriv.shape[0] > 0:
         print("Bad privacy scores:")
-        print(dfBadPriv[['rowValue', 'privMethod', 'targetColumn', 'csvFile', 'synMethod']].to_string)
+        print(dfBadPriv[['rowValue', 'privMethod', 'targetColumn', 'csvFile', 'synMethod']].to_string())
 
 
 def removeExtras(df):
