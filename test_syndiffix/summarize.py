@@ -308,6 +308,9 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
 def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     print("    ML plots")
     synMethods = sorted(list(pd.unique(df['synMethod'])))
+    if 'noAnon' in synMethods:
+        synMethods.remove('noAnon')
+        synMethods.append('noAnon')
     if apples:
         figPath = getFilePath(tu, synMethods, 'ml', f"{fileTag}.{hueCol}")
     else:
