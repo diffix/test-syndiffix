@@ -280,10 +280,10 @@ def getBest(df, from1, from2, rename):
     if df1.shape[0] == 0 or df2.shape[0] == 0:
         return df
     dfMerged = pd.merge(df1, df2, how='inner', on=['csvFile', 'targetColumn', 'targetColumn2', 'mlMethod', 'numColumns', 'rowType', 'mlMethodType'])
-    dfMerged[['rowValue','mlPenalty']] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
-                                    dfMerged[['rowValue_x','mlPenalty_x']], dfMerged[['rowValue_y','mlPenalty_x']])
-    #dfMerged['mlPenalty'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
-                                    #dfMerged['mlPenalty_x'], dfMerged['mlPenalty_y'])
+    dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
+                                    dfMerged['rowValue_x'], dfMerged['rowValue_y'])
+    dfMerged['mlPenalty'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
+                                    dfMerged['mlPenalty_x'], dfMerged['mlPenalty_y'])
     dfMerged['totalElapsedTime'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['totalElapsedTime_x'], dfMerged['totalElapsedTime_y'])
     dfMerged['numRows'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
