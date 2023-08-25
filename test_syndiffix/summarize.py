@@ -302,6 +302,11 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
     if dfTemp.shape[0] == 0:
         return
     synMethods = sorted(list(pd.unique(dfTemp['synMethod'])))
+    if 'noAnon' in synMethods:
+        synMethods.remove('noAnon')
+        synMethods.append('noAnon')
+        print("New synMethods:")
+        print(synMethods)
     hueDf = getHueDf(dfTemp, hueCol)
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods)
     sns.set(font_scale=fontScale)
