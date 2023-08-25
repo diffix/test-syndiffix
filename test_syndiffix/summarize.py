@@ -16,7 +16,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 setLabelCountsGlobal = False
-
+defaultHeight=3.5
 
 def swrite(f, wstr):
     f.write(wstr)
@@ -60,6 +60,10 @@ def summarize(expDir='exp_base',
             print(f"Ignoring {synMethod}")
             query = f"synMethod != '{synMethod}'"
             dfAll = dfAll.query(query)
+    if jobs and 'getBest' in jobs:
+        for job in jobs['getBest']:
+            print(f"Getting best of {job['from']}, renaming as {job['to']}")
+            dfAll = getBest(dfAll, job['from'][0], job['from'][1], job['to'])
     if jobs and 'rename' in jobs:
         for job in jobs['rename']:
             print(f"Renaming {job['from']} to {job['to']}")
@@ -96,7 +100,7 @@ def summarize(expDir='exp_base',
     dfBadPriv = dfAll.query("rowType == 'privRisk' and rowValue > 0.5")
     if dfBadPriv.shape[0] > 0:
         print("Bad privacy scores:")
-        print(dfBadPriv[['rowValue', 'privMethod', 'targetColumn', 'csvFile', 'synMethod']].to_string)
+        print(dfBadPriv[['rowValue', 'privMethod', 'targetColumn', 'csvFile', 'synMethod']].to_string())
 
 
 def removeExtras(df):
@@ -264,18 +268,23 @@ def setLabelSampleCount(s, labels):
             newLabels.append(f"{label}")
     return newLabels
 
-
-def getBestSyndiffix(df):
-    dfNonFocus = df.query("synMethod == 'syndiffix'")
-    dfFocus = df.query("synMethod == 'syndiffix_focus'")
-    if dfNonFocus.shape[0] == 0 or dfFocus.shape[0] == 0:
+def getBest(df, from1, from2, rename):
+    df1 = df.query(f"synMethod == '{from1}'")
+    df2 = df.query(f"synMethod == '{from2}'")
+    if df1.shape[0] == 0 or df2.shape[0] == 0:
         return df
-    dfMerged = pd.merge(dfNonFocus, dfFocus, how='inner', on=['csvFile', 'targetColumn', 'mlMethod'])
+    dfMerged = pd.merge(df1, df2, how='inner', on=['csvFile', 'targetColumn', 'targetColumn2', 'mlMethod', 'numColumns', 'rowType', 'mlMethodType'])
     dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['rowValue_x'], dfMerged['rowValue_y'])
-    dfMerged['synMethod'] = 'syndiffix_best'
-    df1 = df[['synMethod', 'rowValue']]
-    df2 = dfMerged[['synMethod', 'rowValue']]
+    dfMerged['mlPenalty'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
+                                    dfMerged['mlPenalty_x'], dfMerged['mlPenalty_y'])
+    dfMerged['totalElapsedTime'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
+                                    dfMerged['totalElapsedTime_x'], dfMerged['totalElapsedTime_y'])
+    dfMerged['numRows'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
+                                    dfMerged['numRows_x'], dfMerged['numRows_y'])
+    dfMerged['synMethod'] = rename
+    df1 = df[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'targetColumn2', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType', 'totalElapsedTime', 'mlMethodType']]
+    df2 = dfMerged[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'targetColumn2', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType', 'totalElapsedTime', 'mlMethodType']]
     return pd.concat([df1, df2], axis=0)
 
 
@@ -308,6 +317,11 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
 def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     print("    ML plots")
     synMethods = sorted(list(pd.unique(df['synMethod'])))
+    if 'noAnon' in synMethods:
+        synMethods.remove('noAnon')
+        synMethods.append('noAnon')
+        print("New synMethods:")
+        print(synMethods)
     if apples:
         figPath = getFilePath(tu, synMethods, 'ml', f"{fileTag}.{hueCol}")
     else:
@@ -316,7 +330,7 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 0.8)
+    height = max(defaultHeight, len(synMethods) * 0.8)
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'synMlScore'")
@@ -374,7 +388,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 0.8)
+    height = max(defaultHeight, len(synMethods) * 0.8)
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'elapsedTime'")
@@ -428,7 +442,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 1.8)
+    height = max(defaultHeight, len(synMethods) * 1.8)
     fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'columnScore'")
@@ -554,7 +568,7 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     if not force and os.path.exists(figPath):
         print(f"Skipping {figPath}")
         return
-    height = max(5, len(synMethods) * 0.8)
+    height = max(defaultHeight, len(synMethods) * 0.8)
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(15, height))
 
     dfTemp = df.query("rowType == 'columnScore'")
