@@ -308,7 +308,7 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
         print("New synMethods:")
         print(synMethods)
     hueDf = getHueDf(dfTemp, hueCol)
-    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(15, defaultHeight))
+    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(7, defaultHeight))
     sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs)
     #sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods)
     sns.set(font_scale=fontScale)
