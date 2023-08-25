@@ -279,7 +279,7 @@ def getBest(df, from1, from2, rename):
     df2 = df.query(f"synMethod == '{from2}'")
     if df1.shape[0] == 0 or df2.shape[0] == 0:
         return df
-    dfMerged = pd.merge(df1, df2, how='inner', on=['csvFile', 'targetColumn', 'mlMethod', 'numColumns', 'rowType', 'mlMethodType'])
+    dfMerged = pd.merge(df1, df2, how='inner', on=['csvFile', 'targetColumn', 'targetColumn2', 'mlMethod', 'numColumns', 'rowType', 'mlMethodType'])
     dfMerged['rowValue'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['rowValue_x'], dfMerged['rowValue_y'])
     dfMerged['mlPenalty'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
@@ -289,8 +289,8 @@ def getBest(df, from1, from2, rename):
     dfMerged['numRows'] = np.where(dfMerged['rowValue_x'] > dfMerged['rowValue_y'],
                                     dfMerged['numRows_x'], dfMerged['numRows_y'])
     dfMerged['synMethod'] = rename
-    df1 = df[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType', 'totalElapsedTime', 'mlMethodType']]
-    df2 = dfMerged[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType', 'totalElapsedTime', 'mlMethodType']]
+    df1 = df[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'targetColumn2', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType', 'totalElapsedTime', 'mlMethodType']]
+    df2 = dfMerged[['synMethod', 'rowValue', 'csvFile', 'targetColumn', 'targetColumn2', 'mlMethod', 'mlPenalty', 'numColumns', 'numRows', 'rowType', 'totalElapsedTime', 'mlMethodType']]
     return pd.concat([df1, df2], axis=0)
 
 
