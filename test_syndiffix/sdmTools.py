@@ -1066,7 +1066,6 @@ python3 {testPath} \\
         jobFilePath = os.path.join(self.tu.synthpopScriptsDir, jobFileName)
         f = open(jobFilePath, 'w')
         script = f'''
-install.packages("synthpop", lib="~/R/.lib/")
 library("synthpop")
 thisDir = getwd()
 fromDirPath <- "{self.tu.csvLib}"
