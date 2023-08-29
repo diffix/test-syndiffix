@@ -21,7 +21,7 @@ def oneSynthPopJob(jobNum=0, expDir='exp_base', force=False):
         sys.exit()
     scriptPath = os.path.join(tu.synthpopScriptsDir, scripts[jobNum])
     print(f"Running oneSynthPopJob with jobNum {jobNum}, script {scriptPath}")
-    subprocess.run(['R', 'CMD', 'BATCH', f"{scriptPath}"])
+    subprocess.run(['Rscript', '--verbose', f"{scriptPath}"])
 
 def main():
     fire.Fire(oneSynthPopJob)
