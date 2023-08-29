@@ -1068,8 +1068,8 @@ python3 {testPath} \\
         script = f'''
 library("synthpop")
 thisDir = getwd()
-fromDirPath <- "{self.tu.csvLib}/"
-toDirPath <- "{self.tu.synthpopBuildsDir}/"
+fromDirPath <- "{self.tu.csvLib}\/"
+toDirPath <- "{self.tu.synthpopBuildsDir}\/"
 
 csvFile <- '{csvFile}'
 csvPath = paste(fromDirPath,csvFile,sep='')
