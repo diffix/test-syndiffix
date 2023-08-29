@@ -10,6 +10,14 @@ import sdmTools
 pp = pprint.PrettyPrinter(indent=4)
 
 ''' This is used in SLURM to run one synthpop job
+
+    The R package "synthpop" must be installed first:
+        If you don't have root privledges:
+            Create directory `~/R/.lib/`
+            Run R and do `install.packages("synthpop", lib="~/R/.lib/")`
+            Do `export R_LIBS_USER="$HOME/R/.lib/:/usr/local/lib/R/site-library/"`
+                (or whatever is appropriate for your setup)
+                (can put this in ~\.bash_profile)
 '''
 
 def oneSynthPopJob(jobNum=0, expDir='exp_base', force=False):
