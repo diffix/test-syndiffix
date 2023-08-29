@@ -20,7 +20,7 @@ def oneSynthPopJob(jobNum=0, expDir='exp_base', force=False):
         print(f"ERROR: jobNum {jobNum} bigger than number of scripts {len(scripts)}")
         sys.exit()
     scriptPath = os.path.join(tu.synthpopScriptsDir, scripts[jobNum])
-    print(f"Running oneSynthPopJob with jobNum {jobNum}, script {scripts[jobNum]}")
+    print(f"Running oneSynthPopJob with jobNum {jobNum}, script {scriptPath}")
     subprocess.run(['R', 'CMD', 'BATCH', f"{scriptPath}"])
 
 def main():
