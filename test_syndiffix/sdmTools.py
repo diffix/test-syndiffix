@@ -1063,7 +1063,7 @@ python3 {testPath} \\
 
     def makeOneSynthpopJobsScript(self, csvFile):
         jobFileName = csvFile + '.R'
-        jobFilePath = os.path.join(tu.synthpopScriptsDir, jobFileName)
+        jobFilePath = os.path.join(self.tu.synthpopScriptsDir, jobFileName)
         f = open(jobFilePath, 'w')
         script = f'''
 library("synthpop")
