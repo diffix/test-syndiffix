@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import fire
@@ -11,18 +12,16 @@ pp = pprint.PrettyPrinter(indent=4)
 ''' This is used in SLURM to run one synthpop job
 '''
 
-def oneSynthPopJob(jobNum=0, expDir='exp_base', numJobs=None, limitToFeatures=False, force=False):
+def oneSynthPopJob(jobNum=0, expDir='exp_base', force=False):
     tu = testUtils.testUtilities()
     tu.registerExpDir(expDir)
-    sdmt = sdmTools.sdmTools(tu)
-    if numJobs:
-        realJobNum = jobNum % numJobs
-        sampleNum = int(jobNum / numJobs)
-    else:
-        realJobNum = jobNum
-        sampleNum = 0
-    sdmt.runSynthPopJob(realJobNum, sampleNum, limitToFeatures, force=force)
-
+    scripts = tu.getSynthpopScripts()
+    if len(scripts) < jobNum:
+        print(f"ERROR: jobNum {jobNum} bigger than number of scripts {len(scripts)}")
+        sys.exit()
+    scriptPath = os.path.join(tu.synthpopScriptsDir, scripts[jobNum])
+    print(f"Running oneSynthPopJob with jobNum {jobNum}, script {scripts[jobNum]}")
+    subprocess.run('R', 'CMD', 'BATCH', 'f"{scriptPath}"')
 
 def main():
     fire.Fire(oneSynthPopJob)
