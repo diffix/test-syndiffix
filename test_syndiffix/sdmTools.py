@@ -1064,12 +1064,15 @@ python3 {testPath} \\
     def makeOneSynthpopJobsScript(self, csvFile):
         jobFileName = csvFile + '.R'
         jobFilePath = os.path.join(self.tu.synthpopScriptsDir, jobFileName)
+        # R expects the trailing slash...
+        csvLib = self.tu.csvLib + '/'
+        buildDir = self.tu.synthpopBuildsDir + '/'
         f = open(jobFilePath, 'w')
         script = f'''
 library("synthpop")
 thisDir = getwd()
-fromDirPath <- "{self.tu.csvLib}\/"
-toDirPath <- "{self.tu.synthpopBuildsDir}\/"
+fromDirPath <- "{csvLib}"
+toDirPath <- "{buildDir}"
 
 csvFile <- '{csvFile}'
 csvPath = paste(fromDirPath,csvFile,sep='')
