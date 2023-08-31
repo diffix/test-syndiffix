@@ -1081,7 +1081,7 @@ elapsedPath = paste(toDirPath,elapsedFile,sep='')
 print(csvPath)
 orig <- read.csv(csvPath)
 startTime <- Sys.time()
-anon <- syn(orig, smoothing='spline', cart.minbucket=5)
+anon <- syn(orig, smoothing='spline', cart.minbucket=5, maxfaclevels=500000)
 endTime <- Sys.time()
 elapsed <- endTime - startTime
 print(elapsed)
