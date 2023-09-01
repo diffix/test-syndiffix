@@ -20,7 +20,6 @@ import pprint
 from misc.csvUtils import readCsv
 pp = pprint.PrettyPrinter(indent=4)
 
-
 class sdmTools:
     def __init__(self, tu):
         self.maxEvalsPerType = 20
@@ -1038,6 +1037,63 @@ python3 {testPath} \\
                 if fileInfo[0] == csvFile:
                     return fileInfo[1]
         return None
+
+    def makeSynthpopJobsBatchScript(self, numJobs):
+        batchScriptPath = os.path.join(self.tu.runsDir, 'batchSynthpop')
+        testPath = os.path.join(self.tu.pythonDir, 'oneSynthpopJob.py')
+        batchScript = f'''#!/bin/sh
+#SBATCH --time=7-0
+#SBATCH --array=0-{numJobs-1}
+#SBATCH --output=logs_synthpop/slurm-%A_%a.out
+arrayNum="${{SLURM_ARRAY_TASK_ID}}"
+python3 {testPath} \\
+    --jobNum=$arrayNum \\
+    --expDir={self.tu.expDir} \\
+    --force=False
+    '''
+        with open(batchScriptPath, 'w') as f:
+            f.write(batchScript)
+        pass
+
+    def makeSynthpopJobsScripts(self):
+        csvFiles = self.tu.getDataSources()
+        for csvFile in csvFiles:
+            self.makeOneSynthpopJobsScript(csvFile)
+        return len(csvFiles)
+
+    def makeOneSynthpopJobsScript(self, csvFile):
+        jobFileName = csvFile + '.R'
+        jobFilePath = os.path.join(self.tu.synthpopScriptsDir, jobFileName)
+        # R expects the trailing slash...
+        csvLib = self.tu.csvLib + '/'
+        buildDir = self.tu.synthpopBuildsDir + '/'
+        f = open(jobFilePath, 'w')
+        script = f'''
+library("synthpop")
+thisDir = getwd()
+fromDirPath <- "{csvLib}"
+toDirPath <- "{buildDir}"
+
+csvFile <- '{csvFile}'
+csvPath = paste(fromDirPath,csvFile,sep='')
+elapsedFile <- paste(csvFile,'.json',sep='')
+elapsedPath = paste(toDirPath,elapsedFile,sep='')
+print(csvPath)
+orig <- read.csv(csvPath)
+startTime <- Sys.time()
+anon <- syn(orig, smoothing='spline', cart.minbucket=5, maxfaclevels=500000)
+endTime <- Sys.time()
+elapsed <- endTime - startTime
+print(elapsed)
+print(summary(anon))
+setwd(toDirPath)
+write.syn(anon,file = csvFile, filetype = "csv")
+elapsedJson = paste('[', elapsed, ']', sep='')
+cat(elapsedJson, file=elapsedPath)
+setwd(thisDir)
+'''
+        f.write(script)
+        f.close()
 
     def makeCsvOrder(self):
         csvOrderPath = os.path.join(self.tu.synMeasures, 'csvOrder.json')

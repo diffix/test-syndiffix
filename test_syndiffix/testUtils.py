@@ -133,6 +133,10 @@ class testUtilities:
         os.makedirs(self.tempOrigMlDir, exist_ok=True)
         self.runsDir = os.path.join(self.expDir, 'runs')
         os.makedirs(self.runsDir, exist_ok=True)
+        self.synthpopBuildsDir = os.path.join(self.expDir, 'synthpop_builds')
+        os.makedirs(self.synthpopBuildsDir, exist_ok=True)
+        self.synthpopScriptsDir = os.path.join(self.runsDir, 'synthpop_jobs')
+        os.makedirs(self.synthpopScriptsDir, exist_ok=True)
         self.featuresDir = os.path.join(self.expDir, 'features')
         os.makedirs(self.featuresDir, exist_ok=True)
         self.featuresTypeDir = os.path.join(self.featuresDir, 'univariate')
@@ -287,6 +291,10 @@ class testUtilities:
         else:
             csvDir = self.csvLibTest
         files = [f for f in os.listdir(csvDir) if os.path.isfile(os.path.join(csvDir, f))]
+        return sorted(files)
+
+    def getSynthpopScripts(self):
+        files = [f for f in os.listdir(self.synthpopScriptsDir) if os.path.isfile(os.path.join(self.synthpopScriptsDir, f))]
         return sorted(files)
 
     def getOrigMlFiles(self):

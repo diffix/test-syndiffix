@@ -150,6 +150,18 @@ class SdmManager(object):
         mc.makeAndSaveMlJobsOrder(synMethod)
         mc.makeMlJobsBatchScript(numSamples, limitToFeatures)
 
+    def makeSynthpopRuns(self, expDir='exp_base'):
+        ''' This creates a set of jobs that can be run by oneSynthpop.py, posts the jobs at
+        runsDir/synthpop.json, and puts the needed SLURM script in runsDir as runsDir/batchSynthpop
+        '''
+        print(
+            f"Running with expDir={expDir}")
+        tu = testUtils.testUtilities()
+        tu.registerExpDir(expDir)
+        mc = sdmTools.measuresConfig(tu)
+        numJobs = mc.makeSynthpopJobsScripts()
+        mc.makeSynthpopJobsBatchScript(numJobs)
+
     def makeQualRuns(self, expDir='exp_base', synMethod=None):
         ''' This creates a set of jobs that can be run by oneSynQualJob.py, and puts the needed
         SLURM script in runsDir as runsDir/batchQual

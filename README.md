@@ -51,6 +51,13 @@ Run `sdmManager.py makeFeatures --featuresDir=<featuresDir> --featuresType=<feat
 
 Run `sbatch batch_<featuresType>`. This creates the SLURM jobs with `oneFeaturesJob.py`
 
+### Running synthpop
+
+* To create csv files with columns in order of least to most cardinality, edit and run `misc/prepCsvForSynthpop.py`.
+* Run `sdmManager.py makeSynthpopRuns`. This populates the directory `runs/synthpop_jobs` with R scripts, one per csv file. It also creates `runs/batchSynthpop`.
+* Run `sbatch batchSynthpop`. This generates the synthpop output in `synthpop_builds`.
+* To convert the synthpop output into the appropriate results files, edit and run `Rscripts/extractSynthpop.py`.
+
 ## Measuring quality
 
 `quicktester.py` can measure quality.
