@@ -16,6 +16,11 @@ def resultCsvPath(csvPath, method):
 
 
 class External(object):
+    """
+    Tool to generate synthetic data using external APIs for comparison.
+
+    NOTE: Not all of these work as expected. `local=True` seem to require GPU to be available to make sense.
+    """
 
     def __init__(self) -> None:
         self._gretelModelList = None
@@ -135,11 +140,17 @@ class External(object):
         print(syntheticDf.round(3))
 
     def gretelDlLogs(self, csvPath):
+        """
+        Download the logs for completed `gretel` synthetization runs.
+
+        Assumes the project is called `synthetic-data` as obtained from the `gretel` command.
+        """
         from gretel_client import configure_session
         from gretel_client.projects.jobs import Status
         from gretel_client.projects import create_or_get_unique_project
 
         if self._gretelModelList is None:
+            # This API call takes a while so catching for the sake of `many` command.
             configure_session(api_key=os.environ['GRETEL_API_KEY'], cache="yes", validate=True)
             project = create_or_get_unique_project(name="synthetic-data")
             self._gretelModelList = list(project.search_models(limit=12341234))
@@ -154,6 +165,13 @@ class External(object):
             print("model for", csvPath, "not found in Gretel API")
 
     def many(self, *csvPaths, onlyMissing=False, method=None, pick=None, logs=False):
+        """
+        Process many CSV files using a chosen `method`.
+
+        - onlyMissing - if True will only process input files for which the output files are missing
+        - pick - process only the nth position of the input `csvPaths` list
+        - logs - if True will download logs instead of processing (currently applies to gretel only)
+        """
         if method is None:
             raise ValueError("Method argument required")
 
