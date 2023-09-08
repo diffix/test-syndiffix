@@ -12,7 +12,9 @@ baseDir = os.path.join(os.environ['AB_RESULTS_DIR'])
 # This is where the output of synthpop is
 synthpopBaseDir = os.path.join(baseDir, 'exp_synthpop', 'synthpop_builds')
 # This is where the csv files are
-csvInPath = os.path.join(baseDir, 'exp_synthpop', 'csv', 'train')
+csvInPath = os.path.join(baseDir, 'exp_synthpop', 'csv')
+csvTrainPath = os.path.join(csvInPath, 'train')
+csvTestPath = os.path.join(csvInPath, 'test')
 synthpopInPath = synthpopBaseDir
 # This is where we'll put the resulting json file
 synthpopJson = os.path.join(synthpopBaseDir, 'synthpopJson')
@@ -27,9 +29,11 @@ for file in files:
 
 for fileRoot in dataSourceNames.keys():
     results = {}
-    csvPath = os.path.join(csvInPath, fileRoot)
-    dfOrigCsv = readCsv(csvPath)
-    results['colNames'] = list(dfOrigCsv.columns)
+    csvTrainPath = os.path.join(csvTrainPath, fileRoot)
+    dfTrainCsv = readCsv(csvTrainPath)
+    results['colNames'] = list(dfTrainCsv.columns)
+    csvTestPath = os.path.join(csvTestPath, fileRoot)
+    dfTestCsv = readCsv(csvTestPath)
 
     elapsedPath = os.path.join(synthpopInPath, fileRoot + '.json')
     with open(elapsedPath, 'r') as f:
@@ -45,7 +49,8 @@ for fileRoot in dataSourceNames.keys():
         renamer[cAnon] = cOrig
     dfSynCsv = dfSynCsv.rename(columns=renamer)
 
-    results['originalTable'] = dfOrigCsv.values.tolist()
+    results['originalTable'] = dfTrainCsv.values.tolist()
+    results['testTable'] = dfTestCsv.values.tolist()
     results['anonTable'] = dfSynCsv.values.tolist()
     jsonPath = os.path.join(synthpopJson, fileRoot + '.json')
     print(f"Writing {jsonPath}")
