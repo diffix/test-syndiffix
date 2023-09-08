@@ -9,9 +9,14 @@ from misc.csvUtils import readCsv
 pp = pprint.PrettyPrinter(indent=4)
 
 baseDir = os.path.join(os.environ['AB_RESULTS_DIR'])
-synthpopBaseDir = os.path.join(baseDir, 'synthpop')
-csvInPath = os.path.join(baseDir, 'csvAb')
+# This is where the output of synthpop is
+synthpopBaseDir = os.path.join(baseDir, 'exp_synthpop', 'synthpop_builds')
+# This is where the csv files are
+csvInPath = os.path.join(baseDir, 'exp_synthpop', 'csv')
+csvTrainDir = os.path.join(csvInPath, 'train')
+csvTestDir = os.path.join(csvInPath, 'test')
 synthpopInPath = synthpopBaseDir
+# This is where we'll put the resulting json file
 synthpopJson = os.path.join(synthpopBaseDir, 'synthpopJson')
 os.makedirs(synthpopJson, exist_ok=True)
 
@@ -23,10 +28,14 @@ for file in files:
         dataSourceNames[file[:-4]] = True
 
 for fileRoot in dataSourceNames.keys():
+    print(f"fileRoot is {fileRoot}")
     results = {}
-    csvPath = os.path.join(csvInPath, fileRoot)
-    dfOrigCsv = readCsv(csvPath)
-    results['colNames'] = list(dfOrigCsv.columns)
+    csvTrainPath = os.path.join(csvTrainDir, fileRoot)
+    print(f"csvTrainPath is {csvTrainPath}")
+    dfTrainCsv = readCsv(csvTrainPath)
+    results['colNames'] = list(dfTrainCsv.columns)
+    csvTestPath = os.path.join(csvTestDir, fileRoot)
+    dfTestCsv = readCsv(csvTestPath)
 
     elapsedPath = os.path.join(synthpopInPath, fileRoot + '.json')
     with open(elapsedPath, 'r') as f:
@@ -42,7 +51,8 @@ for fileRoot in dataSourceNames.keys():
         renamer[cAnon] = cOrig
     dfSynCsv = dfSynCsv.rename(columns=renamer)
 
-    results['originalTable'] = dfOrigCsv.values.tolist()
+    results['originalTable'] = dfTrainCsv.values.tolist()
+    results['testTable'] = dfTestCsv.values.tolist()
     results['anonTable'] = dfSynCsv.values.tolist()
     jsonPath = os.path.join(synthpopJson, fileRoot + '.json')
     print(f"Writing {jsonPath}")
