@@ -13,8 +13,8 @@ baseDir = os.path.join(os.environ['AB_RESULTS_DIR'])
 synthpopBaseDir = os.path.join(baseDir, 'exp_synthpop', 'synthpop_builds')
 # This is where the csv files are
 csvInPath = os.path.join(baseDir, 'exp_synthpop', 'csv')
-csvTrainPath = os.path.join(csvInPath, 'train')
-csvTestPath = os.path.join(csvInPath, 'test')
+csvTrainDir = os.path.join(csvInPath, 'train')
+csvTestDir = os.path.join(csvInPath, 'test')
 synthpopInPath = synthpopBaseDir
 # This is where we'll put the resulting json file
 synthpopJson = os.path.join(synthpopBaseDir, 'synthpopJson')
@@ -30,11 +30,11 @@ for file in files:
 for fileRoot in dataSourceNames.keys():
     print(f"fileRoot is {fileRoot}")
     results = {}
-    csvTrainPath = os.path.join(csvTrainPath, fileRoot)
+    csvTrainPath = os.path.join(csvTrainDir, fileRoot)
     print(f"csvTrainPath is {csvTrainPath}")
     dfTrainCsv = readCsv(csvTrainPath)
     results['colNames'] = list(dfTrainCsv.columns)
-    csvTestPath = os.path.join(csvTestPath, fileRoot)
+    csvTestPath = os.path.join(csvTestDir, fileRoot)
     dfTestCsv = readCsv(csvTestPath)
 
     elapsedPath = os.path.join(synthpopInPath, fileRoot + '.json')
