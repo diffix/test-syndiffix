@@ -9,9 +9,12 @@ from misc.csvUtils import readCsv
 pp = pprint.PrettyPrinter(indent=4)
 
 baseDir = os.path.join(os.environ['AB_RESULTS_DIR'])
-synthpopBaseDir = os.path.join(baseDir, 'synthpop')
-csvInPath = os.path.join(baseDir, 'csvAb')
+# This is where the output of synthpop is
+synthpopBaseDir = os.path.join(baseDir, 'exp_synthpop', 'synthpop_builds')
+# This is where the csv files are
+csvInPath = os.path.join(baseDir, 'exp_synthpop', 'csv', 'train')
 synthpopInPath = synthpopBaseDir
+# This is where we'll put the resulting json file
 synthpopJson = os.path.join(synthpopBaseDir, 'synthpopJson')
 os.makedirs(synthpopJson, exist_ok=True)
 
