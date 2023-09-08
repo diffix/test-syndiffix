@@ -28,8 +28,10 @@ for file in files:
         dataSourceNames[file[:-4]] = True
 
 for fileRoot in dataSourceNames.keys():
+    print(f"fileRoot is {fileRoot}")
     results = {}
     csvTrainPath = os.path.join(csvTrainPath, fileRoot)
+    print(f"csvTrainPath is {csvTrainPath}")
     dfTrainCsv = readCsv(csvTrainPath)
     results['colNames'] = list(dfTrainCsv.columns)
     csvTestPath = os.path.join(csvTestPath, fileRoot)
