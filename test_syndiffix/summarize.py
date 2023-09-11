@@ -54,6 +54,9 @@ def summarize(expDir='exp_base',
             jobs = json.load(f)
     print("Before ignore:")
     print(dfAll.columns)
+    print("synMethods in dfAll:")
+    synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
+    print(synMethods)
     makeCsvFiles(dfAll, tu)
     if jobs and 'ignore' in jobs:
         for synMethod in jobs['ignore']:
