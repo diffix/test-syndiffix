@@ -77,7 +77,6 @@ To do measures on the SLURM cluster, we have the following workflow:
 * In the `runs` directory, do `sbatch batchQual` to do the 1dim and 2dim quality measures.
 * Run `summarize.py` to summarize the performance measures and place them in various plots.
 
-    doPlots(tu, dfAll, ['syndiffix_multi', 'syndiffix', 'ctGan', 'mostly'], force=force)
 ## Measuring privacy
 
 We use the python package `anonymeter` to measure privacy. This requires that we split all of our data files into `train` and `test` subsets. The basic idea is that `train` is synthesized, and then we use `test` as a control to test the effectiveness of attacks.
@@ -89,7 +88,11 @@ We use the python package `anonymeter` to measure privacy. This requires that we
 
 ## Summarizing quality and privacy
 
-`summarize.py` reads in data from the `measures` directory and produces a set of summary graphs. Note that this was particularly designed to compare different PPoC parameter settings with each other.
+`summarize.py` reads in data from the `measures` directory and produces a set of summary graphs. This reads in a configuration file `summarize.json`. An example of `summarize.json` can be found in `misc/`. `summarize.json` can be used to do a number of things:
+* Ignore listed synMethods
+* Rename synMethods (used to change labels in the plots)
+* Select the best ML measures from a pair of synMethods (note when using this feature, 2col quality scores are lost)
+* Select which combinations of synMethods should be plotted together
 
 -----------------------------------------------------------
 
