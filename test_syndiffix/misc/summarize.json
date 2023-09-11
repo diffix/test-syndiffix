@@ -1,0 +1,39 @@
+{ "ignore": [
+           ""
+        ],
+    "getBest": [
+        {"from":["ctGan","ctGan_clip"], "to":"ctGan_best"},
+        {"from":["gretel","gretel_clip"], "to":"gretel_best"},
+        {"from":["mostly","mostly_clip"], "to":"mostly_best"},
+        {"from":["noAnon","noAnon_clip"], "to":"noAnon_best"},
+        {"from":["sdx_release","sdx_release_clip"], "to":"sdx_release_best"}
+    ],
+    "rename": [
+        {"from":"ctGan_best", "to":"ctGan"},
+        {"from":"gretel_best", "to":"gretel"},
+        {"from":"mostly_best", "to":"mostly"},
+        {"from":"noAnon_best", "to":"noAnon"},
+        {"from":"synthpop", "to":"synthpop"},
+        {"from":"sdx_release_best", "to":"syndiffix"}
+    ],
+    "combs": [
+        {"columns":["ctGan","syndiffix", "gretel", "mostly", "noAnon","ctGan_clip","sdx_release_clip", "gretel_clip", "mostly_clip", "noAnon_clip"],
+                "scatterHues":[null, "mlMethodType"],
+                "basicHues":[null, "mlMethodType"]},
+        {"columns":["ctGan","syndiffix", "gretel", "mostly", "noAnon"],
+                "scatterHues":[null, "mlMethodType"],
+                "basicHues":[null, "mlMethodType"]},
+        {"columns":["ctGan","syndiffix", "gretel", "mostly", "synthpop", "noAnon"],
+                "scatterHues":[null, "mlMethodType"],
+                "basicHues":[null, "mlMethodType"]},
+        {"columns":["ctGan","syndiffix", "gretel", "mostly"],
+                "scatterHues":[null, "mlMethodType"],
+                "basicHues":[null, "mlMethodType"]},
+        {"columns":["mostly","syndiffix"],
+                "scatterHues":[null, "mlMethodType"],
+                "basicHues":[null, "mlMethodType"]},
+        {"columns":["synthpop","syndiffix"],
+                "scatterHues":[null, "mlMethodType"],
+                "basicHues":[null, "mlMethodType"]}
+    ]
+}
