@@ -79,6 +79,7 @@ def summarize(expDir='exp_base',
         dfAll['numRows'] < 8000)), '7k rows', dfAll['2dimSizeTag'])
     dfAll['2dimSizeTag'] = np.where(((dfAll['numColumns'] == 2) & (
         dfAll['numRows'] > 27000)), '28k rows', dfAll['2dimSizeTag'])
+    print("synMethods in dfAll:")
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     print(f"Privacy plot")
@@ -86,6 +87,12 @@ def summarize(expDir='exp_base',
     df2col = dfAll.query(f"numColumns == 2")
     doPrivPlot(tu, dfReal, force)
     doPrivPlot(tu, dfReal, force, what='all')
+    print("synMethods in dfReal:")
+    synMethodsReal = sorted(list(pd.unique(dfReal['synMethod'])))
+    print(synMethodsReal)
+    print("synMethods in df2col:")
+    synMethods2col = sorted(list(pd.unique(df2col['synMethod'])))
+    print(synMethods2col)
 
     do2dimPlots(tu, df2col, synMethods, force=force, doElapsed=True)
     doRealPlots(tu, dfReal, synMethods, force=force, doElapsed=True)
