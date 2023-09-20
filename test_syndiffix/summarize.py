@@ -58,6 +58,13 @@ def summarize(expDir='exp_base',
     synMethods = sorted(list(pd.unique(dfAll['synMethod'])))
     print(synMethods)
     makeCsvFiles(dfAll, tu)
+    if jobs and 'colors' in jobs:
+        boxColors = {}
+        rgbColors = sns.color_palette('husl', len(jobs['colors']))
+        for i in range(len(jobs['colors'])):
+            boxColors[jobs['colors'][i]] = rgbColors[i]
+    else:
+        boxColors = None
     if jobs and 'ignore' in jobs:
         for synMethod in jobs['ignore']:
             print(f"Ignoring {synMethod}")
@@ -88,8 +95,8 @@ def summarize(expDir='exp_base',
     print(f"Privacy plot")
     dfReal = dfAll.query(f"numColumns != 2")
     df2col = dfAll.query(f"numColumns == 2")
-    doPrivPlot(tu, dfReal, force)
-    doPrivPlot(tu, dfReal, force, what='all')
+    doPrivPlot(tu, dfReal, force, boxColors)
+    doPrivPlot(tu, dfReal, force, boxColors, what='all')
     print("synMethods in dfReal:")
     synMethodsReal = sorted(list(pd.unique(dfReal['synMethod'])))
     print(synMethodsReal)
@@ -97,15 +104,15 @@ def summarize(expDir='exp_base',
     synMethods2col = sorted(list(pd.unique(df2col['synMethod'])))
     print(synMethods2col)
 
-    do2dimPlots(tu, df2col, synMethods, force=force, doElapsed=True)
-    doRealPlots(tu, dfReal, synMethods, force=force, doElapsed=True)
+    do2dimPlots(tu, df2col, synMethods, boxColors, force=force, doElapsed=True)
+    doRealPlots(tu, dfReal, synMethods, boxColors, force=force, doElapsed=True)
 
     if jobs and 'combs' in jobs:
         for job in jobs['combs']:
-            doRealPlots(tu, dfReal, job['columns'], force=force, doElapsed=True,
+            doRealPlots(tu, dfReal, job['columns'], boxColors, force=force, doElapsed=True,
                         scatterHues=job['scatterHues'], basicHues=job['basicHues'])
             if len(job['columns']) > 2:
-                do2dimPlots(tu, df2col, job['columns'], force=force, doElapsed=True,
+                do2dimPlots(tu, df2col, job['columns'], boxColors, force=force, doElapsed=True,
                         scatterHues=job['scatterHues'], basicHues=job['basicHues'])
     dfBadPriv = dfAll.query("rowType == 'privRisk' and rowValue > 0.5")
     if dfBadPriv.shape[0] > 0:
@@ -136,7 +143,7 @@ def makeCsvFiles(df, tu):
         dfTemp.to_csv(csvPath, index=False, header=dfTemp.columns)
 
 
-def do2dimPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[None], basicHues=[None], doElapsed=False):
+def do2dimPlots(tu, dfIn, synMethods, boxColors, apples=True, force=False, scatterHues=[None], basicHues=[None], doElapsed=False):
     print(f"-------- do2dimPlots for synMethods '{synMethods}'")
     query = ''
 
@@ -151,13 +158,13 @@ def do2dimPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[Non
     for hueCol in scatterHues:
         makeScatter(df, tu, synMethods, hueCol, 'equalAxis', f"2col", title, force)
     for hueCol in basicHues:
-        makeAccuracyGraph(df, tu, hueCol, f"2col", title, force, apples=apples)
+        makeAccuracyGraph(df, tu, hueCol, f"2col", title, force, boxColors, apples=apples)
     if doElapsed:
         for hueCol in basicHues:
-            makeElapsedGraph(df, tu, hueCol, f"2col", title, force, apples=apples)
+            makeElapsedGraph(df, tu, hueCol, f"2col", title, force, boxColors, apples=apples)
 
 
-def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[None], basicHues=[None], doElapsed=False):
+def doRealPlots(tu, dfIn, synMethods, boxColors, apples=True, force=False, scatterHues=[None], basicHues=[None], doElapsed=False):
     print(f"-------- doRealPlots for synMethods '{synMethods}'")
     query = ''
     for synMethod in synMethods:
@@ -172,10 +179,10 @@ def doRealPlots(tu, dfIn, synMethods, apples=True, force=False, scatterHues=[Non
     for hueCol in scatterHues:
         makeScatter(df, tu, synMethods, hueCol, 'equalAxis', f"real", title, force)
     for hueCol in basicHues:
-        makeMlGraph(df, tu, hueCol, 'real', title, force, apples=apples)
+        makeMlGraph(df, tu, hueCol, 'real', title, force, boxColors, apples=apples)
     if doElapsed:
         for hueCol in basicHues:
-            makeElapsedGraph(df, tu, hueCol, 'real', title, force, apples=apples)
+            makeElapsedGraph(df, tu, hueCol, 'real', title, force, boxColors, apples=apples)
 
 
 def makeScatter(df, tu, synMethods, hueCol, axisType, fileTag, title, force):
@@ -232,7 +239,7 @@ def makeScatterWork(dfBase, dfOther, synMethods, ax, rowType, axisLabel, rowVal,
     # hueCol_x or hueCol_y). So long as the hueCol applies identically to the base and the other
     # data, it doesn't matter which.
     hueCol = hueCol + '_x' if hueCol else None
-    hueDf = getHueDf(dfMerged, hueCol)
+    hueDf,boxColorsLoc = getHueDfAndColors(dfMerged, hueCol, None, None)
     hue_order = sorted(list(pd.unique(dfMerged[hueCol]))) if hueCol else None
     rowValue_x = f"{rowVal}_x"
     rowValue_y = f"{rowVal}_y"
@@ -298,7 +305,7 @@ def getBest(df, from1, from2, rename):
     return pd.concat([df1, df2], axis=0)
 
 
-def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
+def doPrivPlot(tu, df, force, boxColors, what='lowBounds', hueCol=None):
     if what == 'lowBounds':
         dfTemp = df.query("rowType == 'privRisk'")
         xaxis = 'Privacy Risk'
@@ -317,10 +324,10 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
         synMethods.append('noAnon')
         print("New synMethods:")
         print(synMethods)
-    hueDf = getHueDf(dfTemp, hueCol)
+    hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
     fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(7, defaultHeight))
-    sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs)
-    #sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods)
+    sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs)
+    #sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods)
     sns.set(font_scale=fontScale)
     plt.tight_layout()
     plt.xlim(0, 1)
@@ -331,7 +338,7 @@ def doPrivPlot(tu, df, force, what='lowBounds', hueCol=None):
     plt.close()
 
 
-def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
+def makeMlGraph(df, tu, hueCol, fileTag, title, force, boxColors, pples=True):
     print("    ML plots")
     synMethods = sorted(list(pd.unique(df['synMethod'])))
     if 'noAnon' in synMethods:
@@ -355,12 +362,12 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         if apples:
             dfTemp = removeExtras(dfTemp)
         xaxis = 'ML Score'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[0])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -372,12 +379,12 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         axs[0].set_xlim(max(0, low), 1.0)
 
         xaxis = 'ML Penalty'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality", measureField='mlPenalty')
-        sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1])
+        sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[1])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -394,7 +401,7 @@ def makeMlGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.close()
 
 
-def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
+def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, boxColors, apples=True):
     print("    Elapsed plots")
     synMethods = sorted(list(pd.unique(df['synMethod'])))
     if apples:
@@ -413,13 +420,13 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         if apples:
             dfTemp = removeExtras(dfTemp)
         xaxis = 'Elapsed Time (seconds) (log)'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "time")
 
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[0])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -431,7 +438,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         axs[0].set_xlabel(xaxis)
 
         xaxis = 'Elapsed Time with Feature Selection'
-        sns.boxplot(x=dfTemp['totalElapsedTime'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1])
+        sns.boxplot(x=dfTemp['totalElapsedTime'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[1])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -448,7 +455,7 @@ def makeElapsedGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.close()
 
 
-def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
+def makeBasicGraph(df, tu, hueCol, fileTag, title, force, boxColors, apples=True):
     print("    Basic plots")
     synMethods = sorted(list(pd.unique(df['synMethod'])))
     if apples:
@@ -468,12 +475,12 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             dfTemp = removeExtras(dfTemp)
         # dfMerged = pd.merge(dfBase, dfOther, how='inner', on = ['csvFile','targetColumn','mlMethod'])
         xaxis = 'Marginal columns quality'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][0])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[0][0])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -490,12 +497,12 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         if apples:
             dfTemp = removeExtras(dfTemp)
         xaxis = 'Column pairs quality'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0][1])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[0][1])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -513,12 +520,12 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         if apples:
             dfTemp = removeExtras(dfTemp)
         xaxis = 'ML Score'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][0])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[1][0])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -530,12 +537,12 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         axs[1][0].set_xlim(max(0, low), 1.0)
 
         xaxis = 'ML Penalty'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality", measureField='mlPenalty')
-        sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1][1])
+        sns.boxplot(x=dfTemp['mlPenalty'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[1][1])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -551,12 +558,12 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         if apples:
             dfTemp = removeExtras(dfTemp)
         xaxis = 'Elapsed Time (seconds) (log)'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "time")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[2][0])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[2][0])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -574,7 +581,7 @@ def makeBasicGraph(df, tu, hueCol, fileTag, title, force, apples=True):
     plt.close()
 
 
-def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, apples=True):
+def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, boxColors, apples=True):
     print("    Accuracy plots")
     synMethods = sorted(list(pd.unique(df['synMethod'])))
     if apples:
@@ -594,12 +601,12 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, apples=True):
             dfTemp = removeExtras(dfTemp)
         # dfMerged = pd.merge(dfBase, dfOther, how='inner', on = ['csvFile','targetColumn','mlMethod'])
         xaxis = 'Marginal columns quality'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[0])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[0])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -616,12 +623,12 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, apples=True):
         if apples:
             dfTemp = removeExtras(dfTemp)
         xaxis = 'Column pairs quality'
-        hueDf = getHueDf(dfTemp, hueCol)
+        hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
         print(figPath)
         print(title)
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
-        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], hue=hueDf, order=synMethods, ax=axs[1])
+        sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[1])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)
         if len(sampleCounts) == len(synMethods):
@@ -702,13 +709,19 @@ def printStats(dfTemp, hueCol, measureType, measureField='rowValue'):
     print('Num csv files:', len(list(pd.unique(dfTemp['csvFile']))))
 
 
-def getHueDf(dfTemp, hueCol):
+def getHueDfAndColors(dfTemp, hueCol, boxColors, catCol):
     if hueCol is None:
-        return None
+        return None, boxColors
+    boxColorsLoc = boxColors.copy()
+    cats = list(pd.unique(dfTemp[catCol]))
+    for cat in cats:
+        if cat not in boxColorsLoc:
+            boxColorsLoc = None
+            break
     hues = list(pd.unique(dfTemp[hueCol]))
     if len(hues) <= 1:
-        return None
-    return dfTemp[hueCol]
+        return None, boxColorsLoc
+    return dfTemp[hueCol], None
 
 
 def getFilePath(tu, synMethods, part1, part2):
