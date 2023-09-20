@@ -607,6 +607,7 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, boxColors, apples=T
         print(xaxis)
         printStats(dfTemp, hueCol, "quality")
         print('just before:', list(pd.unique(dfTemp['synMethod'])))
+        print('just before:', synMethods)
         sns.boxplot(x=dfTemp['rowValue'], y=dfTemp['synMethod'], palette=boxColorsLoc, hue=hueDf, order=synMethods, ax=axs[0])
         sns.set(font_scale=fontScale)
         sampleCounts = setLabelSampleCount(dfTemp['synMethod'], synMethods)

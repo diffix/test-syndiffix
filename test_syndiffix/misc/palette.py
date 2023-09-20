@@ -30,15 +30,18 @@ df = pd.DataFrame({
 # Print the DataFrame
 print(df)
 
-sns.boxplot(x='val', y='cat', data=df, palette=colors)
+#sns.boxplot(x='val', y='cat', data=df, palette=colors)
+sns.boxplot(x=df['val'], y=df['cat'],  palette=colors)
 plt.savefig("out.png")
 plt.close()
 
-sns.boxplot(x='val', y='cat', data=df, palette=None)
+#sns.boxplot(x='val', y='cat', data=df, palette=None)
+sns.boxplot(x=df['val'], y=df['cat'],  palette=None)
 plt.savefig("out2.png")
 plt.close()
 
 df1 = df.query("cat == 'a' or cat == 'b' or cat == 'c'")
-sns.boxplot(x='val', y='cat', data=df1, palette=colors)
+#sns.boxplot(x='val', y='cat', data=df1, palette=colors)
+sns.boxplot(x=df1['val'], y=df1['cat'],  palette=colors)
 plt.savefig("out1.png")
 plt.close()
