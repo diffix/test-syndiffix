@@ -602,6 +602,7 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, boxColors, apples=T
         # dfMerged = pd.merge(dfBase, dfOther, how='inner', on = ['csvFile','targetColumn','mlMethod'])
         xaxis = 'Marginal columns quality'
         hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
+        synMethods = sorted(list(pd.unique(dfTemp['synMethod'])))
         print(figPath)
         print(title)
         print(xaxis)
@@ -626,6 +627,7 @@ def makeAccuracyGraph(df, tu, hueCol, fileTag, title, force, boxColors, apples=T
             dfTemp = removeExtras(dfTemp)
         xaxis = 'Column pairs quality'
         hueDf,boxColorsLoc = getHueDfAndColors(dfTemp, hueCol, boxColors, 'synMethod')
+        synMethods = sorted(list(pd.unique(dfTemp['synMethod'])))
         print(figPath)
         print(title)
         print(xaxis)
