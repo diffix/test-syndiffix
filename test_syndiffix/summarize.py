@@ -717,7 +717,7 @@ def getHueDfAndColors(dfTemp, hueCol, boxColors, catCol):
     cats = list(pd.unique(dfTemp[catCol]))
     print("cats:", cats)
     for cat in cats:
-        if cat not in boxColorsLoc:
+        if cat not in boxColors.keys():
             boxColorsLoc = None
             break
     hues = list(pd.unique(dfTemp[hueCol]))
