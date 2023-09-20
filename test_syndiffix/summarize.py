@@ -710,9 +710,6 @@ def printStats(dfTemp, hueCol, measureType, measureField='rowValue'):
 
 
 def getHueDfAndColors(dfTemp, hueCol, boxColors, catCol):
-    if hueCol is None:
-        print(f"getHueDfAndColors: boxColors {boxColors}")
-        return None, boxColors
     boxColorsLoc = boxColors.copy()
     cats = list(pd.unique(dfTemp[catCol]))
     print("cats:", cats)
@@ -720,11 +717,14 @@ def getHueDfAndColors(dfTemp, hueCol, boxColors, catCol):
         if cat not in boxColors.keys():
             boxColorsLoc = None
             break
+    if hueCol is None:
+        print(f"getHueDfAndColors1: boxColors {boxColorsLoc}")
+        return None, boxColorsLoc
     hues = list(pd.unique(dfTemp[hueCol]))
     if len(hues) <= 1:
-        print(f"getHueDfAndColors: boxColors {boxColorsLoc}")
+        print(f"getHueDfAndColors2: boxColors {boxColorsLoc}")
         return None, boxColorsLoc
-    print(f"getHueDfAndColors: boxColors None")
+    print(f"getHueDfAndColors3: boxColors None")
     return dfTemp[hueCol], None
 
 
