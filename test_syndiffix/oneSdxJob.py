@@ -19,7 +19,7 @@ def runSdx(tu, job):
         for colName in job['synColumns']:
             colName = colName.replace(' ','_')
             colName = colName.replace('-','_')
-            tableName.append('_'+colName)
+            tableName += '_'+colName
     resFileName = tableName + '.csv'
     resPath = os.path.join(tu.synResults, job['synMethod'], resFileName)
     print("Generating synthetic data at:")
