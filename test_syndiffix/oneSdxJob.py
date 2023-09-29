@@ -20,6 +20,9 @@ def runSdx(tu, job):
             colName = colName.replace(' ','_')
             colName = colName.replace('-','_')
     resFileName = tableName + '.csv'
+    resPath = os.path.join(tu.synResults, resFileName)
+    print("Generating synthetic data at:")
+    print(resPath)
     pass
 
 def oneSdxJob(jobNum=0, expDir='exp_base', force=False):
