@@ -941,6 +941,7 @@ python3 {testPath} \\
                 'synColumns':colNames,
                 'aidCol':aidCol,
                 'tableBase':con['tableBase'],
+                'synMethod':synMethod,
                 'index':index,
                 'csvName':con['csvName'],
             })
@@ -955,6 +956,7 @@ python3 {testPath} \\
                         'synColumns':synColumns,
                         'aidCol':aidCol,
                         'tableBase':con['tableBase'],
+                        'synMethod':synMethod,
                         'index':index,
                         'csvName':con['csvName'],
                         })
