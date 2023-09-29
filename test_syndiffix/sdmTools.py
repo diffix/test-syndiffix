@@ -906,7 +906,7 @@ python3 {testPath} \\
         with open(configPath, 'r') as f:
             config = json.load(f)
         for con in config:
-            print(tu.csvLib)
+            print(self.tu.csvLib)
             quit()
             inPath = os.path.join(tu.csvLib)
             df = pandas.read_csv(inPath, low_memory=False)
