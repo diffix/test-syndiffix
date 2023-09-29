@@ -917,7 +917,7 @@ python3 {testPath} \\
             if 'aidCols' in con and len(con['aidCols']) != 0:
                 # TODO: Note here we aren't handling multiple AIDs properly
                 aidCol = con['aidCols'][0]
-                colNames.remove[aidCol]
+                colNames.remove(aidCol)
                 print("Columns after removing AID")
                 pp.pprint(colNames)
         pass
