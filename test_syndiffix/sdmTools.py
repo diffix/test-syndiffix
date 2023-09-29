@@ -957,6 +957,7 @@ python3 {testPath} \\
     def makeColCombsBatchScript(self, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, 'batchCombs')
         testPath = os.path.join(self.tu.pythonDir, 'oneSdxJob.py')
+        self._makeLogsDir('logs_sdx')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
 #SBATCH --array=0-{numJobs-1}
