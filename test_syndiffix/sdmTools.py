@@ -920,6 +920,17 @@ python3 {testPath} \\
                 colNames.remove(aidCol)
                 print("Columns after removing AID")
                 pp.pprint(colNames)
+            # Now pair up the paired columns, if any
+            colBasis = []
+            done = []
+            for pair in con['pairs']:
+                colBasis.append(pair)
+                for col in pair:
+                    done.append(col)
+            for col in colNames:
+                if col not in done:
+                    colBasis.append([col])
+            pp.pprint(colBasis)
         pass
 
     def makeColCombsBatchScript(self):
