@@ -906,13 +906,10 @@ python3 {testPath} \\
         with open(configPath, 'r') as f:
             config = json.load(f)
         for con in config:
-            print(self.tu.csvLib)
-            quit()
-            inPath = os.path.join(tu.csvLib)
-            df = pandas.read_csv(inPath, low_memory=False)
+            inPath = os.path.join(self.tu.csvLib, con['csvFile'])
+            df = pd.read_csv(inPath, low_memory=False)
             colNames = list(df.columns.values)
             print(colNames)
-            pp.pprint(con)
         pass
 
     def makeColCombsBatchScript(self):
