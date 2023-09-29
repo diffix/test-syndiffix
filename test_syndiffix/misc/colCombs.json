@@ -1,6 +1,7 @@
 [
     {"csvName":"taxi-one-day.csv",
      "aidCols":["hack"],
+     "tableBase":"taxi",
      "pairs":[
         ["pickup_longitude", "pickup_latitude"],
         ["dropoff_longitude", "dropoff_latitude"]
@@ -9,7 +10,8 @@
     },
     {"csvName":"census.csv",
      "aidCols":[],
+     "tableBase":"census",
      "pairs":[],
-     "maxComb": 4
+     "maxComb": 3
     }
 ]
