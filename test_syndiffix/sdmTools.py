@@ -937,7 +937,9 @@ python3 {testPath} \\
             allCombs = []
             for dim in range(1,con['maxComb']+1):
                 for comb in itertools.combinations(colBasis, dim):
-                    print(comb)
+                    allCombs.append(comb)
+            pp.pprint(allCombs)
+            print(len(allCombs))
         pass
 
     def makeColCombsBatchScript(self):
