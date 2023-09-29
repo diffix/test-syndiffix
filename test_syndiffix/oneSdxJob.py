@@ -32,7 +32,7 @@ def oneSdxJob(jobNum=0, expDir='exp_base', force=False):
     print(f"jobsPath:{jobsPath}")
     with open(jobsPath, 'r') as f:
         jobs = json.load(f)
-    if len(jobs) > jobNum+1:
+    if len(jobs) < jobNum+1:
         print(f"SUCCESS: ERROR: jobNum too high")
         quit()
     runSdx(tu, jobs[jobNum])
