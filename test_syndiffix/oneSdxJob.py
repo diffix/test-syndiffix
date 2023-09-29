@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import pandas as pd
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import fire
@@ -28,6 +29,8 @@ def runSdx(tu, job):
     inCsvPath = os.path.join(tu.csvLib, job['csvName'])
     print("Reading CSV file at:")
     print(inCsvPath)
+    df = pd.read_csv(inCsvPath, low_memory=False)
+    #df['Address'].to_csv(output_file)
     pass
 
 def oneSdxJob(jobNum=0, expDir='exp_base', force=False):
