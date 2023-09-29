@@ -138,6 +138,21 @@ class SdmManager(object):
         mc.makeAndSaveFeaturesJobOrder()
         mc.makeFeaturesJobsBatchScript(featuresType, len(mc.featuresJobs))
 
+    def makeColCombs(self, expDir='exp_combs', synMethod=None):
+        ''' This creates a set of jobs that can be run by oneComb.py,
+            posts the jobs at runsDir/combs.json, and puts the needed SLURM script in runsDir as runsDir/batchCombs.
+            It uses runsDir/colCombs.json as its input configuration (see
+                misc/colCombs.json for an example).
+            It generates an output for each column combination.
+        '''
+        print(
+            f"Running with expDir={expDir},synMethod={synMethod}")
+        tu = testUtils.testUtilities()
+        tu.registerExpDir(expDir)
+        mc = sdmTools.measuresConfig(tu)
+        mc.makeAndSaveColCombs(synMethod)
+        mc.makeColCombsBatchScript()
+
     def makeMlRuns(self, expDir='exp_base', synMethod=None, numSamples=20, limitToFeatures=False):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at
         runsDir/mlJobs.json, and puts the needed SLURM script in runsDir as runsDir/batchMl

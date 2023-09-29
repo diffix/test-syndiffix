@@ -901,6 +901,17 @@ python3 {testPath} \\
         with open(batchScriptPath, 'w') as f:
             f.write(batchScript)
 
+    def makeAndSaveColCombs(self, synMethod):
+        configPath = os.path.join(self.tu.runsDir, 'colCombs.json')
+        json
+        with open(configPath, 'r') as f:
+            config = json.load(f)
+        pp.pprint(config)
+        pass
+
+    def makeColCombsBatchScript(self):
+        pass
+
     def makeAndSaveFeaturesJobOrder(self):
         self.initGoodMlJobs()
         goodTableTargetCombs = {}
