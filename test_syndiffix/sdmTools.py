@@ -939,6 +939,7 @@ python3 {testPath} \\
             allCombs.append({
                 'synColumns':colNames,
                 'aidCol':aidCol,
+                'csvName':con['csvName'],
             })
             for dim in range(1,con['maxComb']+1):
                 for comb in itertools.combinations(colBasis, dim):
@@ -948,7 +949,9 @@ python3 {testPath} \\
                             synColumns.append(thing[i])
                     allCombs.append({
                         'synColumns':synColumns,
-                        'aidCol':aidCol,})
+                        'aidCol':aidCol,
+                        'csvName':con['csvName'],
+                        })
         jobsPath = os.path.join(self.tu.runsDir, 'colCombJobs.json')
         with open(jobsPath, 'w') as f:
             json.dump(allCombs, f, indent=4)
