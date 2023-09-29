@@ -906,7 +906,8 @@ python3 {testPath} \\
         json
         with open(configPath, 'r') as f:
             config = json.load(f)
-        pp.pprint(config)
+        for con in config:
+            pp.pprint(con)
         pass
 
     def makeColCombsBatchScript(self):
