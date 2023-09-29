@@ -949,14 +949,26 @@ python3 {testPath} \\
                     allCombs.append({
                         'synColumns':synColumns,
                         'aidCol':aidCol,})
-            pp.pprint(allCombs)
-            print(len(allCombs))
         jobsPath = os.path.join(self.tu.runsDir, 'colCombJobs.json')
         with open(jobsPath, 'w') as f:
             json.dump(allCombs, f, indent=4)
+        return(len(allCombs))
 
-    def makeColCombsBatchScript(self):
-        pass
+    def makeColCombsBatchScript(self, numJobs):
+        batchScriptPath = os.path.join(self.tu.runsDir, 'batchCombs')
+        testPath = os.path.join(self.tu.pythonDir, 'oneSdxJob.py')
+        batchScript = f'''#!/bin/sh
+#SBATCH --time=7-0
+#SBATCH --array=0-{numJobs-1}
+#SBATCH --output=logs_sdx/slurm-%A_%a.out
+arrayNum="${{SLURM_ARRAY_TASK_ID}}"
+python3 {testPath} \\
+    --jobNum=$arrayNum \\
+    --expDir={self.tu.expDir} \\
+    --force=False
+    '''
+        with open(batchScriptPath, 'w') as f:
+            f.write(batchScript)
 
     def makeAndSaveFeaturesJobOrder(self):
         self.initGoodMlJobs()
