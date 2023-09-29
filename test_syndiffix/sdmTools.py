@@ -5,6 +5,7 @@ import json
 import time
 import copy
 import socket
+import itertools
 import sdmetrics
 import sdmetrics.single_table
 import sdmetrics.reports.single_table
@@ -934,8 +935,9 @@ python3 {testPath} \\
             # ok, now colBasis contains a list of columns and column pairs
             # We want to make combinations of these
             allCombs = []
-            for dim in range(1,con['maxComb']):
-                print(dim)
+            for dim in range(1,con['maxComb']+1):
+                for comb in itertools.combinations(self.colBasis, dim):
+                    print(comb)
         pass
 
     def makeColCombsBatchScript(self):
