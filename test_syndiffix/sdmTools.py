@@ -903,10 +903,15 @@ python3 {testPath} \\
 
     def makeAndSaveColCombs(self, synMethod):
         configPath = os.path.join(self.tu.runsDir, 'colCombs.json')
-        json
         with open(configPath, 'r') as f:
             config = json.load(f)
         for con in config:
+            print(tu.csvLib)
+            quit()
+            inPath = os.path.join(tu.csvLib)
+            df = pandas.read_csv(inPath, low_memory=False)
+            colNames = list(df.columns.values)
+            print(colNames)
             pp.pprint(con)
         pass
 
