@@ -22,8 +22,12 @@ def runSdx(tu, job):
             tableName += '_'+colName
     resFileName = tableName + '.csv'
     resPath = os.path.join(tu.synResults, job['synMethod'], resFileName)
+    print(f"Table name is {tableName}")
     print("Generating synthetic data at:")
     print(resPath)
+    inCsvPath = os.path.join(tu.csvLib, job['csvName'])
+    print("Reading CSV file at:")
+    print(inCsvPath)
     pass
 
 def oneSdxJob(jobNum=0, expDir='exp_base', force=False):
