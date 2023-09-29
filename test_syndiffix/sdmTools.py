@@ -909,7 +909,17 @@ python3 {testPath} \\
             inPath = os.path.join(self.tu.csvLib, con['csvName'])
             df = pd.read_csv(inPath, low_memory=False)
             colNames = list(df.columns.values)
-            print(colNames)
+            # We'll be including the AID column in any event, so remove
+            # it from the colNames
+            aidCol = None
+            print("Columns before removing AID")
+            pp.pprint(colNames)
+            if 'aidCols' in con and len(con['aidCols']) != 0:
+                # TODO: Note here we aren't handling multiple AIDs properly
+                aidCol = con['aidCols'][0]
+                colNames.remove[aidCol]
+                print("Columns after removing AID")
+                pp.pprint(colNames)
         pass
 
     def makeColCombsBatchScript(self):
