@@ -13,6 +13,13 @@ pp = pprint.PrettyPrinter(indent=4)
 '''
 
 def runSdx(tu, job):
+    # Make the file name
+    tableName = job['tableBase']
+    if len(job['synColumns']) < 6:
+        for colName in job['synColumns']:
+            colName = colName.replace(' ','_')
+            colName = colName.replace('-','_')
+    resFileName = tableName + '.csv'
     pass
 
 def oneSdxJob(jobNum=0, expDir='exp_base', force=False):
