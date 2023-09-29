@@ -936,7 +936,7 @@ python3 {testPath} \\
             # We want to make combinations of these
             allCombs = []
             for dim in range(1,con['maxComb']+1):
-                for comb in itertools.combinations(self.colBasis, dim):
+                for comb in itertools.combinations(colBasis, dim):
                     print(comb)
         pass
 
