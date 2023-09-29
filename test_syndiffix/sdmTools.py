@@ -906,6 +906,7 @@ python3 {testPath} \\
         configPath = os.path.join(self.tu.runsDir, 'colCombs.json')
         with open(configPath, 'r') as f:
             config = json.load(f)
+        allCombs = []
         for con in config:
             inPath = os.path.join(self.tu.csvLib, con['csvName'])
             df = pd.read_csv(inPath, low_memory=False)
@@ -934,13 +935,25 @@ python3 {testPath} \\
             pp.pprint(colBasis)
             # ok, now colBasis contains a list of columns and column pairs
             # We want to make combinations of these
-            allCombs = []
+            # First make a table with all columns
+            allCombs.append({
+                'synColumns':colNames,
+                'aidCol':aidCol,
+            })
             for dim in range(1,con['maxComb']+1):
                 for comb in itertools.combinations(colBasis, dim):
-                    allCombs.append(comb)
+                    synColumns = []
+                    for thing in comb:
+                        for i in range(len(thing)):
+                            synColumns.append(thing[i])
+                    allCombs.append({
+                        'synColumns':synColumns,
+                        'aidCol':aidCol,})
             pp.pprint(allCombs)
             print(len(allCombs))
-        pass
+        jobsPath = os.path.join(self.tu.runsDir, 'colCombJobs.json')
+        with open(jobsPath, 'w') as f:
+            json.dump(allCombs, f, indent=4)
 
     def makeColCombsBatchScript(self):
         pass
