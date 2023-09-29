@@ -939,6 +939,7 @@ python3 {testPath} \\
             allCombs.append({
                 'synColumns':colNames,
                 'aidCol':aidCol,
+                'tableBase':con['tableBase'],
                 'csvName':con['csvName'],
             })
             for dim in range(1,con['maxComb']+1):
@@ -950,6 +951,7 @@ python3 {testPath} \\
                     allCombs.append({
                         'synColumns':synColumns,
                         'aidCol':aidCol,
+                        'tableBase':con['tableBase'],
                         'csvName':con['csvName'],
                         })
         jobsPath = os.path.join(self.tu.runsDir, 'colCombJobs.json')
