@@ -29,6 +29,7 @@ def oneSdxJob(jobNum=0, expDir='exp_base', force=False):
     tu = testUtils.testUtilities()
     tu.registerExpDir(expDir)
     jobsPath = os.path.join(tu.runsDir, 'colCombJobs.json')
+    print(f"jobsPath:{jobsPath}")
     with open(jobsPath, 'r') as f:
         jobs = json.load(f)
     if len(jobs) > jobNum+1:
