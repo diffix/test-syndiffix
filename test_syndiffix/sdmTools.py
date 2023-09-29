@@ -931,6 +931,11 @@ python3 {testPath} \\
                 if col not in done:
                     colBasis.append([col])
             pp.pprint(colBasis)
+            # ok, now colBasis contains a list of columns and column pairs
+            # We want to make combinations of these
+            allCombs = []
+            for dim in range(1,con['maxComb']):
+                print(dim)
         pass
 
     def makeColCombsBatchScript(self):
