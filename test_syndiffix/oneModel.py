@@ -315,7 +315,6 @@ def oneModel(expDir='exp_base',
         sourceFileName = job['csvName']
         resFileName = tableName + '.csv'
         outPath = os.path.join(tu.synResults, job['synMethod'], resFileName)
-        sys.exit()   #zzzz
     else:
         if csvFile:
             if featuresType or dataSourceNum is not None:
