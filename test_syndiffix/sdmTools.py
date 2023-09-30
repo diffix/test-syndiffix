@@ -941,6 +941,7 @@ python3 {testPath} \\
                 'synColumns':colNames,
                 'aidCol':aidCol,
                 'tableBase':con['tableBase'],
+                'tableName':con['tableBase'],
                 'synMethod':synMethod,
                 'index':index,
                 'csvName':con['csvName'],
@@ -951,11 +952,17 @@ python3 {testPath} \\
                     for thing in comb:
                         for i in range(len(thing)):
                             synColumns.append(thing[i])
+                    tableName = con['tableBase']
+                    for colName in con['synColumns']:
+                        colName = colName.replace(' ','_')
+                        colName = colName.replace('-','_')
+                        tableName += '_'+colName
                     index = len(allCombs)
                     allCombs.append({
                         'synColumns':synColumns,
                         'aidCol':aidCol,
                         'tableBase':con['tableBase'],
+                        'tableName':tableName,
                         'synMethod':synMethod,
                         'index':index,
                         'csvName':con['csvName'],
