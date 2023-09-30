@@ -71,7 +71,7 @@ def runTest(runModel, metaData, df, colNames, outPath, dataSourceNum, testData):
         json.dump(outJson, f, indent=4)
 
 
-def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=[]):
+def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, testData, featuresJob, extraArgs=[], job=None):
     print(
         f"running runAbSharp with:\n dataSourcePath {dataSourcePath}\n outPath {outPath}\n abSharpArgs '{abSharpArgs}'\n columns {columns}\n focusColumn {focusColumn}\n featuresJob {featuresJob}\n extraArgs {extraArgs}\n")
     thisDir = os.path.dirname(os.path.abspath(__file__))
@@ -97,6 +97,8 @@ def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, t
         outJson['focusColumn'] = focusColumn
     if featuresJob:
         outJson['features'] = featuresJob
+    if job:
+        outJson['colCombsJob'] = job
     print("featuresJob:")
     pp.pprint(featuresJob)
 
@@ -487,7 +489,7 @@ def oneModel(expDir='exp_base',
         print("extraArgs:")
         pp.pprint(extraArgs)
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns,
-                   focusColumn, testData, featuresJob, extraArgs=extraArgs)
+                   focusColumn, testData, featuresJob, extraArgs=extraArgs, job=job)
         if madeTempDataSource:
             os.remove(dataSourcePath)
     else:
