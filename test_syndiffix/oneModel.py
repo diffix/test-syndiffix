@@ -254,6 +254,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
 def oneModel(expDir='exp_base',
              dataSourceNum=None,
              jobsPath=None,
+             jobNum=None,
              csvFile=None,
              featuresFile=None,
              featuresType=None,
@@ -287,7 +288,18 @@ def oneModel(expDir='exp_base',
     tu = testUtils.testUtilities()
     tu.registerExpDir(expDir)
     if jobsPath:
-        print("Got jobsPath {jobsPath}")
+        jobsPath = os.path.join(tu.runsDir, jobsPath)
+        print(f"jobsPath:{jobsPath}")
+        with open(jobsPath, 'r') as f:
+            jobs = json.load(f)
+        if not jobNum:
+            print("Must specify jobNum with jobsPath")
+            quit()
+        if len(jobs) < jobNum+1:
+            print(f"SUCCESS: ERROR: jobNum too high")
+            quit()
+        job = jobs['jobNum']
+        pp.pprint(job)
         quit()
     if len(abSharpArgs) > 0:
         print(f"abSharpArgs: {abSharpArgs}")
