@@ -151,7 +151,7 @@ class SdmManager(object):
         tu.registerExpDir(expDir)
         mc = sdmTools.measuresConfig(tu)
         numCombs = mc.makeAndSaveColCombs(synMethod)
-        mc.makeColCombsBatchScript(numCombs)
+        mc.makeColCombsBatchScript(numCombs, synMethod)
 
     def makeMlRuns(self, expDir='exp_base', synMethod=None, numSamples=20, limitToFeatures=False):
         ''' This creates a set of jobs that can be run by oneSynMLJob.py, posts the jobs at

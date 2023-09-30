@@ -965,7 +965,7 @@ python3 {testPath} \\
             json.dump(allCombs, f, indent=4)
         return(len(allCombs))
 
-    def makeColCombsBatchScript(self, numJobs):
+    def makeColCombsBatchScript(self, numJobs, synMethod):
         batchScriptPath = os.path.join(self.tu.runsDir, 'batchCombs')
         testPath = os.path.join(self.tu.pythonDir, 'oneModel.py')
         self._makeLogsDir('logs_sdx')
@@ -976,6 +976,7 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
+    --model={synMethod} \\
     --expDir={self.tu.expDir} \\
     --jobsPath=colCombJobs.json \\
     --force=False

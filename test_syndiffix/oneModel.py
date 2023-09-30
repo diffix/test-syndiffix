@@ -287,6 +287,8 @@ def oneModel(expDir='exp_base',
     '''
     tu = testUtils.testUtilities()
     tu.registerExpDir(expDir)
+    aidColumn=None,
+    synColumns=None
     if jobsPath:
         jobsPath = os.path.join(tu.runsDir, jobsPath)
         print(f"jobsPath:{jobsPath}")
@@ -300,6 +302,8 @@ def oneModel(expDir='exp_base',
             quit()
         job = jobs[jobNum]
         pp.pprint(job)
+        aidColumn = job['aidCol']
+        synColumns = job['synColumns']
         quit()
     if len(abSharpArgs) > 0:
         print(f"abSharpArgs: {abSharpArgs}")
