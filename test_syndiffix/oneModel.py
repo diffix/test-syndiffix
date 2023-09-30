@@ -315,7 +315,7 @@ def oneModel(expDir='exp_base',
         synColumns = job['synColumns']
         tableName = job['tableName']
         sourceFileName = job['csvName']
-        resFileName = tableName + '.csv'
+        resFileName = tableName + '.json'
         outPath = os.path.join(tu.synResults, job['synMethod'], resFileName)
     else:
         if csvFile:
