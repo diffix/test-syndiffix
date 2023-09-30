@@ -287,8 +287,15 @@ def oneModel(expDir='exp_base',
     '''
     tu = testUtils.testUtilities()
     tu.registerExpDir(expDir)
+    if len(abSharpArgs) > 0:
+        print(f"abSharpArgs: {abSharpArgs}")
+    focusColumn = None
+    featuresJob = None
+    sourceFileName = None
+    outPath = None
     aidColumn=None,
     synColumns=None
+    job=None
     if jobsPath:
         jobsPath = os.path.join(tu.runsDir, jobsPath)
         print(f"jobsPath:{jobsPath}")
@@ -296,56 +303,63 @@ def oneModel(expDir='exp_base',
             jobs = json.load(f)
         if not jobNum:
             print("Must specify jobNum with jobsPath")
-            quit()
+            sys.exit()
         if len(jobs) < jobNum+1:
             print(f"SUCCESS: ERROR: jobNum too high")
-            quit()
+            sys.exit()
         job = jobs[jobNum]
         pp.pprint(job)
         aidColumn = job['aidCol']
         synColumns = job['synColumns']
-        quit()
-    if len(abSharpArgs) > 0:
-        print(f"abSharpArgs: {abSharpArgs}")
-    focusColumn = None
-    featuresJob = None
-    if csvFile:
-        if featuresType or dataSourceNum is not None:
-            print("ERROR: can't specify featuresType or dataSourceNum along with csvFile")
-        sourceFileName = csvFile
-        if ((featuresType or featuresFile) and
-                (not featuresType or not featuresFile)):
-            print("ERROR: if any of featuresType, or featuresFile are specified, then all must be specified")
-            sys.exit()
-    if dataSourceNum is not None and not featuresType:
-        inFiles = [f for f in os.listdir(
-            tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
-        dataSources = []
-        for fileName in inFiles:
-            if fileName[-3:] == 'csv':
-                dataSources.append(fileName)
-        dataSources.sort()
-        if dataSourceNum is not None and dataSourceNum > len(dataSources) - 1:
-            print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
-            sys.exit()
-        sourceFileName = dataSources[dataSourceNum]
-    if featuresType:
-        tu.registerFeaturesType(featuresType)
-    if dataSourceNum is not None and featuresType:
-        featuresFiles = tu.getSortedFeaturesFiles()
-        if dataSourceNum >= len(featuresFiles):
-            print(f"ERROR: dataSourceNum too big {dataSourceNum}")
-            sys.exit()
-        featuresFile = featuresFiles[dataSourceNum]
-        if featuresFile[-5:] != '.json':
-            print(f"ERROR: features file not json ({featuresFile})")
-            sys.exit()
-    if featuresType:
-        featuresPath = os.path.join(tu.featuresTypeDir, featuresFile)
-        with open(featuresPath, 'r') as f:
-            featuresJob = json.load(f)
-        sourceFileName = featuresJob['csvFile']  # TODO
-        focusColumn = featuresJob['targetColumn']
+        tableName = job['tableName']
+        sourceFileName = job['csvName']
+        resFileName = tableName + '.csv'
+        outPath = os.path.join(tu.synResults, job['synMethod'], resFileName)
+        sys.exit()   #zzzz
+    else:
+        if csvFile:
+            if featuresType or dataSourceNum is not None:
+                print("ERROR: can't specify featuresType or dataSourceNum along with csvFile")
+            sourceFileName = csvFile
+            if ((featuresType or featuresFile) and
+                    (not featuresType or not featuresFile)):
+                print("ERROR: if any of featuresType, or featuresFile are specified, then all must be specified")
+                sys.exit()
+        if dataSourceNum is not None and not featuresType:
+            inFiles = [f for f in os.listdir(
+                tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
+            dataSources = []
+            for fileName in inFiles:
+                if fileName[-3:] == 'csv':
+                    dataSources.append(fileName)
+            dataSources.sort()
+            if dataSourceNum is not None and dataSourceNum > len(dataSources) - 1:
+                print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
+                sys.exit()
+            sourceFileName = dataSources[dataSourceNum]
+        if featuresType:
+            tu.registerFeaturesType(featuresType)
+        if dataSourceNum is not None and featuresType:
+            featuresFiles = tu.getSortedFeaturesFiles()
+            if dataSourceNum >= len(featuresFiles):
+                print(f"ERROR: dataSourceNum too big {dataSourceNum}")
+                sys.exit()
+            featuresFile = featuresFiles[dataSourceNum]
+            if featuresFile[-5:] != '.json':
+                print(f"ERROR: features file not json ({featuresFile})")
+                sys.exit()
+        if featuresType:
+            featuresPath = os.path.join(tu.featuresTypeDir, featuresFile)
+            with open(featuresPath, 'r') as f:
+                featuresJob = json.load(f)
+            sourceFileName = featuresJob['csvFile']  # TODO
+            focusColumn = featuresJob['targetColumn']
+        if not featuresType:
+            outPath = os.path.join(modelsDir, f"{sourceFileName}.json")
+        else:
+            # We do this whether we have featuresType or not. If we do, then we expect
+            # the model name to reflect the featureType...
+            outPath = os.path.join(modelsDir, f"{sourceFileName}.{focusColumn}.json")
     print(f"Using source file {sourceFileName}")
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
     if not os.path.exists(dataSourcePath):
@@ -359,12 +373,6 @@ def oneModel(expDir='exp_base',
     label = model + '_' + suffix if suffix else model
     modelsDir = os.path.join(tu.synResults, label)
     os.makedirs(modelsDir, exist_ok=True)
-    if not featuresType:
-        outPath = os.path.join(modelsDir, f"{sourceFileName}.json")
-    else:
-        # We do this whether we have featuresType or not. If we do, then we expect
-        # the model name to reflect the featureType...
-        outPath = os.path.join(modelsDir, f"{sourceFileName}.{focusColumn}.json")
     if not force and os.path.exists(outPath):
         print(f"Result {outPath} already exists, skipping")
         print("oneModel:SUCCESS (skipped)")
@@ -444,6 +452,8 @@ def oneModel(expDir='exp_base',
     # Pull in training data as list, to be stored in results file as is
     testData = dfTest.values.tolist()
     print(f"Columns {colNames}")
+    if synColumns:
+        print(f"Synthesized columns {synColumns}")
     mls = testUtils.mlSupport(tu)
     metaData = makeMetadata(df)
     if model == 'abSharp' or 'syndiffix' in model or 'sdx_' in model:
@@ -451,6 +461,8 @@ def oneModel(expDir='exp_base',
         colTypes = tu.getColTypesFromDataframe(df)
         columns = []
         for colName, colType in zip(colNames, colTypes):
+            if synColumns and colName not in synColumns:
+                continue
             if colType is None:
                 # This means that we couldn't assign a type. I'm guessing that 'text' is a robust
                 # type that absharp can handle regardless of what the value are...
@@ -468,6 +480,12 @@ def oneModel(expDir='exp_base',
         elif featuresJob:
             extraArgs = ["--no-clustering"]
         print("Extra args:")
+        if aidColumn:    # TODO note we only handle a single AID here
+            extraArgs.append("--aidcolumns")
+            extraArgs.append(aidColumn)
+        if synColumns:
+            pass
+        print("extraArgs:")
         pp.pprint(extraArgs)
         runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns,
                    focusColumn, testData, featuresJob, extraArgs=extraArgs)
