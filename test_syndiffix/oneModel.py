@@ -253,6 +253,7 @@ def makeClusterSpec(allColumns, featuresColumns, focusColumn, maxClusterSize, ma
 
 def oneModel(expDir='exp_base',
              dataSourceNum=None,
+             jobsPath=None,
              csvFile=None,
              featuresFile=None,
              featuresType=None,
@@ -285,6 +286,9 @@ def oneModel(expDir='exp_base',
     '''
     tu = testUtils.testUtilities()
     tu.registerExpDir(expDir)
+    if jobsPath:
+        print("Got jobsPath {jobsPath}")
+        quit()
     if len(abSharpArgs) > 0:
         print(f"abSharpArgs: {abSharpArgs}")
     focusColumn = None

@@ -967,7 +967,7 @@ python3 {testPath} \\
 
     def makeColCombsBatchScript(self, numJobs):
         batchScriptPath = os.path.join(self.tu.runsDir, 'batchCombs')
-        testPath = os.path.join(self.tu.pythonDir, 'oneSdxJob.py')
+        testPath = os.path.join(self.tu.pythonDir, 'oneModel.py')
         self._makeLogsDir('logs_sdx')
         batchScript = f'''#!/bin/sh
 #SBATCH --time=7-0
@@ -977,6 +977,7 @@ arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
     --expDir={self.tu.expDir} \\
+    --jobsPath=colCombJobs.json \\
     --force=False
     '''
         with open(batchScriptPath, 'w') as f:
