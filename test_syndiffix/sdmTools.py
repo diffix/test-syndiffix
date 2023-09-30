@@ -953,7 +953,7 @@ python3 {testPath} \\
                         for i in range(len(thing)):
                             synColumns.append(thing[i])
                     tableName = con['tableBase']
-                    for colName in con['synColumns']:
+                    for colName in synColumns:
                         colName = colName.replace(' ','_')
                         colName = colName.replace('-','_')
                         tableName += '_'+colName
