@@ -298,7 +298,7 @@ def oneModel(expDir='exp_base',
         if len(jobs) < jobNum+1:
             print(f"SUCCESS: ERROR: jobNum too high")
             quit()
-        job = jobs['jobNum']
+        job = jobs[jobNum]
         pp.pprint(job)
         quit()
     if len(abSharpArgs) > 0:
