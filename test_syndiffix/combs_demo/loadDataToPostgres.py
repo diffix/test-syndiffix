@@ -8,8 +8,8 @@ import combsTables
 pp = pprint.PrettyPrinter(indent=4)
 
 expDir = 'exp_combs'
-#synMethod = 'sdx_release'
-synMethod = 'sdx_test'
+synMethod = 'sdx_release'
+#synMethod = 'sdx_test'
 databaseName = 'sdx_demo'
 addTable = False
 
