@@ -16,9 +16,14 @@ class sqlIo:
     def tableExists(self, tableName, numRows):
         sql = f"SELECT EXISTS ( SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = '{tableName}' ) "
         ans = self.querySql(sql)
-        print(ans)
-        quit()
-        pass
+        if ans[0][0] is False:
+            return False
+        # table is there, so let's find out if all the columns are there
+        sql = f"SELECT count(*) FROM {tableName}"
+        ans = self.querySql(sql)
+        if ans[0][0] == numRows:
+            return True
+        return False
 
     def modSql(self, sql):
         self.executeSql(sql)

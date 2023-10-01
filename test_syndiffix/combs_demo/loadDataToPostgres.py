@@ -50,11 +50,9 @@ for fileName in files:
         print("Length of dfOrig")
         print(dfOrig.shape[0])
         tableName = job['tableBase'] + '_orig_'
-        if sio.tableExists(tableName, 0):
-            pass
-        quit()
         # Check and see if we've already loaded in the table!
-        sio.loadDataFrame(dfOrig, tableName)
+        if not sio.tableExists(tableName, 0):
+            sio.loadDataFrame(dfOrig, tableName)
         quit()
     dfAnon = pd.DataFrame(data['anonTable'], columns=data['colNames'])
     pass
