@@ -5,6 +5,7 @@ import json
 import time
 import copy
 import socket
+import itertools
 import sdmetrics
 import sdmetrics.single_table
 import sdmetrics.reports.single_table
@@ -896,6 +897,95 @@ arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --jobNum=$arrayNum \\
     --expDir={self.tu.expDir} \\
+    --force=False
+    '''
+        with open(batchScriptPath, 'w') as f:
+            f.write(batchScript)
+
+    def makeAndSaveColCombs(self, synMethod):
+        configPath = os.path.join(self.tu.runsDir, 'colCombs.json')
+        with open(configPath, 'r') as f:
+            config = json.load(f)
+        allCombs = []
+        for con in config:
+            inPath = os.path.join(self.tu.csvLib, con['csvName'])
+            df = pd.read_csv(inPath, low_memory=False)
+            colNames = list(df.columns.values)
+            # We'll be including the AID column in any event, so remove
+            # it from the colNames
+            aidCol = None
+            print("Columns before removing AID")
+            pp.pprint(colNames)
+            if 'aidCols' in con and len(con['aidCols']) != 0:
+                # TODO: Note here we aren't handling multiple AIDs properly
+                aidCol = con['aidCols'][0]
+                colNames.remove(aidCol)
+                print("Columns after removing AID")
+                pp.pprint(colNames)
+            # Now pair up the paired columns, if any
+            colBasis = []
+            done = []
+            for pair in con['pairs']:
+                colBasis.append(pair)
+                for col in pair:
+                    done.append(col)
+            for col in colNames:
+                if col not in done:
+                    colBasis.append([col])
+            pp.pprint(colBasis)
+            # ok, now colBasis contains a list of columns and column pairs
+            # We want to make combinations of these
+            # First make a table with all columns
+            index = len(allCombs)
+            allCombs.append({
+                'synColumns':colNames,
+                'aidCol':aidCol,
+                'tableBase':con['tableBase'],
+                'tableName':con['tableBase'],
+                'synMethod':synMethod,
+                'index':index,
+                'csvName':con['csvName'],
+            })
+            for dim in range(1,con['maxComb']+1):
+                for comb in itertools.combinations(colBasis, dim):
+                    synColumns = []
+                    for thing in comb:
+                        for i in range(len(thing)):
+                            synColumns.append(thing[i])
+                    tableName = con['tableBase']
+                    for colName in synColumns:
+                        colName = colName.replace(' ','_')
+                        colName = colName.replace('-','_')
+                        tableName += '_'+colName
+                    index = len(allCombs)
+                    allCombs.append({
+                        'synColumns':synColumns,
+                        'aidCol':aidCol,
+                        'tableBase':con['tableBase'],
+                        'tableName':tableName,
+                        'synMethod':synMethod,
+                        'index':index,
+                        'csvName':con['csvName'],
+                        })
+        jobsPath = os.path.join(self.tu.runsDir, 'colCombJobs.json')
+        with open(jobsPath, 'w') as f:
+            json.dump(allCombs, f, indent=4)
+        return(len(allCombs))
+
+    def makeColCombsBatchScript(self, numJobs, synMethod):
+        batchScriptPath = os.path.join(self.tu.runsDir, 'batchCombs')
+        testPath = os.path.join(self.tu.pythonDir, 'oneModel.py')
+        self._makeLogsDir('logs_sdx')
+        batchScript = f'''#!/bin/sh
+#SBATCH --time=7-0
+#SBATCH --array=0-{numJobs-1}
+#SBATCH --output=logs_sdx/slurm-%A_%a.out
+arrayNum="${{SLURM_ARRAY_TASK_ID}}"
+python3 {testPath} \\
+    --jobNum=$arrayNum \\
+    --model={synMethod} \\
+    --expDir={self.tu.expDir} \\
+    --jobsPath=colCombJobs.json \\
     --force=False
     '''
         with open(batchScriptPath, 'w') as f:
