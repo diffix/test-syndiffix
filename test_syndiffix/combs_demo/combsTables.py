@@ -14,7 +14,7 @@ class sqlIo:
         df.to_sql(tableName, self.engine)
 
     def tableExists(self, tableName, numRows):
-        sql = f"select * from information_schema.tables where table_name={tableName}"
+        sql = f"select * from information_schema.tables "
         ans = self.querySql(sql)
         print(ans)
         quit()
