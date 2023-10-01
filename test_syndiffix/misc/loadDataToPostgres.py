@@ -27,9 +27,7 @@ cur.execute(sql)
 ans = cur.fetchall()
 print(ans)
 
-quit()
-
-if createDatabase:
+if createDatabase and len(ans) == 0:
     # Create database
     sql = f"CREATE DATABASE {databaseName}"
     print(sql)
