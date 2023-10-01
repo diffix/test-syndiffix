@@ -1,11 +1,17 @@
 import psycopg2
+import sqlalchemy as sq
 
 class sqlIo:
     def __init__(self, pgHost, dbName, pgUser, pgPass, port=5432):
         connStr = str(
-            f"host={pgHost} port={5432} dbname={dbName} user={pgUser} password={pgPass}")
+            f"host={pgHost} port={port} dbname={dbName} user={pgUser} password={pgPass}")
         self.con = psycopg2.connect(connStr)
         self.cur = self.con.cursor()
+        self.engine = sq.create_engine(f"postgresql://{pgUser}:{pgPass}@{pgHost}:{port}/{dbName}")
+        #engine = sq.create_engine(f'postgresql+psycopg2://{pgUser}:{pgPass}@{pgHost}:5432/{databaseName}')
+
+    def loadDataFrame(self, df, tableName):
+        df.to_sql(tableName, self.engine)
 
     def modSql(self, sql):
         self.executeSql(sql)
