@@ -23,7 +23,7 @@ class sqlIo:
 
     def querySql(self, sql):
         self.executeSql(sql)
-        return self.cur.fetchAll()
+        return self.cur.fetchall()
 
 class combsMetaData:
     def __init__(self, sio):
