@@ -51,7 +51,7 @@ for fileName in files:
         print(dfOrig.shape[0])
         tableName = job['tableBase'] + '_orig_'
         # Check and see if we've already loaded in the table!
-        if not sio.tableExists(tableName, 0):
+        if not sio.tableExists(tableName, dfOrig.shape[0]):
             print(f"Loading table {tableName}")
             sio.loadDataFrame(dfOrig, tableName)
         else:
