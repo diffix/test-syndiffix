@@ -34,6 +34,8 @@ class combsMetaData:
         metaTableName = tableBase + '_meta'
         sql = f'''SELECT column FROM {metaTableName}'''
         ans = self.sio.querySql(sql)
+        print(ans)
+        quit()
         pass
 
     def putMetaData(self, tableBase, columns):

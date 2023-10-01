@@ -22,7 +22,9 @@ sio = combsTables.sqlIo(pgHost, databaseName, pgUser, pgPass)
 sql = f"SELECT * FROM pg_database WHERE datname = '{databaseName}'"
 ans = sio.querySql(sql)
 print(ans)
-quit()
+
+cmd = combsTables.combsMetaData(sio)
+ct = combsTables.combsTables()
 
 engine = sq.create_engine(f'postgresql://{pgUser}:{pgPass}@{pgHost}:5432/{databaseName}')
 #engine = sq.create_engine(f'postgresql+psycopg2://{pgUser}:{pgPass}@{pgHost}:5432/{databaseName}')
@@ -41,6 +43,9 @@ for fileName in files:
     job = data['colCombsJob']
     if job['tableBase'] == job['tableName']:
         # This is a dataset with all columns
-        pass
+        cmd.putMetaData(job['tableBase'], job['synColumns'])
+        ans = cmd.getMetaData(job['tableBase'])
+        print(ans)
+        quit()
     dfAnon = pd.DataFrame(data['anonTable'], columns=data['colNames'])
     pass
