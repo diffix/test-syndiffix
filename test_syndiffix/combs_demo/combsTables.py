@@ -28,7 +28,7 @@ class sqlIo:
         print(ans)
         if ans[0][0] == numRows:
             return True
-        sql = f"DROP TABLE IF EXISTS{tableName}"
+        sql = f"DROP TABLE IF EXISTS {tableName}"
         self.modSql(sql)
         return False
 
