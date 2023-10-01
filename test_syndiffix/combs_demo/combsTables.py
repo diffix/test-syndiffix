@@ -13,6 +13,13 @@ class sqlIo:
     def loadDataFrame(self, df, tableName):
         df.to_sql(tableName, self.engine)
 
+    def tableExists(self, tableName, numRows):
+        sql = f"select * from information_schema.tables where table_name={tableName}"
+        ans = self.querySql(sql)
+        print(ans)
+        quit()
+        pass
+
     def modSql(self, sql):
         self.executeSql(sql)
         self.con.commit()
