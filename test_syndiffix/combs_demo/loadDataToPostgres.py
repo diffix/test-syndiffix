@@ -59,4 +59,5 @@ for fileName in files:
         tableName = job['tableBase'] + '_syn_'
     else:
         tableName = ct.makeTableFromColumns(list(dfAnon.columns.values), job['tableBase'])
-    sio.loadDataFrame(dfAnon, tableName)
+    print(f"tableName = {tableName}")
+    #sio.loadDataFrame(dfAnon, tableName)

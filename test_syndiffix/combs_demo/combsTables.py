@@ -1,5 +1,7 @@
 import psycopg2
 import sqlalchemy as sq
+import hashlib
+import re
 
 class sqlIo:
     def __init__(self, pgHost, dbName, pgUser, pgPass, port=5432):
@@ -85,9 +87,16 @@ class combsTables:
             col = "".join([c if c.isalnum() else "_" for c in col])
             table += f"_{col}"
         # This is to deal with table names over the postgres limit.
-        # Bit of a hack, and doesn't guarantee that all table names will be unique!
-        table = table[0:61]
+        if len(table) > 60:
+            alphaHash = self._alphanumeric_hash(table)
+            table = table[:30] + alphaHash[:30]
         return table
+
+    def _alphanumeric_hash(self, input_string):
+        hash_object = hashlib.sha256(input_string.encode())
+        hex_hash = hash_object.hexdigest()
+        alphanumeric_hash = re.sub(r'\W+', '', hex_hash)
+        return alphanumeric_hash
 
     def _sortColsByLen(self, columns):
         columns.sort()
