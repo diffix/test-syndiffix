@@ -40,7 +40,7 @@ print(ans)
 if createDatabase and len(ans) == 0:
     # Create database
     sql = f"CREATE DATABASE {databaseName}"
-    runSql(sql, cur)
+    runSql(cur, sql)
     conn.close()
     quit()
 
