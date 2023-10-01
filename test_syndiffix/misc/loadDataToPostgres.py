@@ -14,4 +14,13 @@ synMethod = 'sdx_release'
 resultsDir = os.path.join(os.environ['AB_RESULTS_DIR'], expDir, 'results', synMethod)
 files = [f for f in os.listdir(resultsDir) if os.path.isfile(os.path.join(resultsDir, f))]
 pp.pprint(files)
-quit()
+
+for fileName in files:
+    if fileName[-5:] != '.json':
+        print(f"Bad filename {fileName}")
+        quit()
+    filePath = os.path.join(resultsDir, fileName)
+    with open(filePath, 'r') as f:
+        data = json.load(f)
+    pp.pprint(data['colCombsJob'])
+    pass
