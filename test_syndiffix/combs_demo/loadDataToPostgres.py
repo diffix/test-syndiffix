@@ -52,7 +52,10 @@ for fileName in files:
         tableName = job['tableBase'] + '_orig_'
         # Check and see if we've already loaded in the table!
         if not sio.tableExists(tableName, 0):
+            print(f"Loading table {tableName}")
             sio.loadDataFrame(dfOrig, tableName)
+        else:
+            print(f"Table {tableName} already loaded, skipping")
         quit()
     dfAnon = pd.DataFrame(data['anonTable'], columns=data['colNames'])
     pass
