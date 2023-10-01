@@ -14,7 +14,7 @@ class sqlIo:
         df.to_sql(tableName, self.engine)
 
     def tableExists(self, tableName, numRows):
-        sql = f"SELECT EXISTS ( SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = '{tableName}' "
+        sql = f"SELECT EXISTS ( SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = '{tableName}' ) "
         ans = self.querySql(sql)
         print(ans)
         quit()
@@ -69,7 +69,6 @@ class combsTables:
         sortedCols = self._sortColsByLen(columns)
         table = tableBase
         for col in sortedCols:
-            # This generates a (most likely) unique string with only
             # postgres allowed characters
             col = "".join([c if c.isalnum() else "_" for c in col])
             table += f"_{col}"
