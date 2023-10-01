@@ -84,6 +84,9 @@ class combsTables:
             # postgres allowed characters
             col = "".join([c if c.isalnum() else "_" for c in col])
             table += f"_{col}"
+        # This is to deal with table names over the postgres limit.
+        # Bit of a hack, and doesn't guarantee that all table names will be unique!
+        table = table[0:61]
         return table
 
     def _sortColsByLen(self, columns):
