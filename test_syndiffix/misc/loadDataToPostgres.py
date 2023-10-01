@@ -29,27 +29,14 @@ pgUser = os.environ['GDA_POSTGRES_USER']
 pgPass = os.environ['GDA_POSTGRES_PASS']
 print(f"Connect to {pgHost} as user {pgUser} and password {pgPass}")
 connStr = str(
-            f"host={pgHost} port={5432} dbname={'postgres'} user={pgUser} password={pgPass}")
+            f"host={pgHost} port={5432} dbname=sdx_demo user={pgUser} password={pgPass}")
 conn = psycopg2.connect(connStr)
 cur = conn.cursor()
 sql = f"SELECT FROM pg_database WHERE datname = '{databaseName}'"
 cur.execute(sql)
 ans = cur.fetchall()
 print(ans)
-
-if createDatabase and len(ans) == 0:
-    # Create database
-    sql = f"CREATE DATABASE {databaseName}"
-    runSql(cur, sql)
-    conn.close()
-    quit()
-
 quit()
-connStr = str(
-            f"host={pgHost} port={5432} dbname={'banking'} user={'direct_user'} password={'demo'}")
-conn = psycopg2.connect(connStr)
-cur = conn.cursor()
-
 
 resultsDir = os.path.join(os.environ['AB_RESULTS_DIR'], expDir, 'results', synMethod)
 files = [f for f in os.listdir(resultsDir) if os.path.isfile(os.path.join(resultsDir, f))]
