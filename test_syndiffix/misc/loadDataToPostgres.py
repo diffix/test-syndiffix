@@ -32,8 +32,8 @@ connStr = str(
             f"host={pgHost} port={5432} dbname=sdx_demo user={pgUser} password={pgPass}")
 conn = psycopg2.connect(connStr)
 cur = conn.cursor()
-sql = f"SELECT FROM pg_database WHERE datname = '{databaseName}'"
-cur.execute(sql)
+sql = f"SELECT * FROM pg_database WHERE datname = '{databaseName}'"
+runSql(cur, sql)
 ans = cur.fetchall()
 print(ans)
 quit()
