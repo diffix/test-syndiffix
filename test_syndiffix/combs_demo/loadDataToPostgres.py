@@ -44,8 +44,8 @@ for fileName in files:
     if job['tableBase'] == job['tableName']:
         # This is a dataset with all columns
         cmd.putMetaData(job['tableBase'], job['synColumns'])
-        ans = cmd.getMetaData(job['tableBase'])
-        print(ans)
+        allColumns = cmd.getMetaData(job['tableBase'])
+        print(allColumns)
         quit()
     dfAnon = pd.DataFrame(data['anonTable'], columns=data['colNames'])
     pass
