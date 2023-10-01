@@ -1,42 +1,32 @@
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pandas as pd
-import psycopg2
+import sqlalchemy as sq
 import json
 import pprint
-from misc.csvUtils import readCsv
+import combsTables
 
 pp = pprint.PrettyPrinter(indent=4)
 
 expDir = 'exp_combs'
-synMethod = 'sdx_release'
+#synMethod = 'sdx_release'
+synMethod = 'sdx_test'
 databaseName = 'sdx_demo'
-createDatabase = True
-
-def runSql(cur, sql):
-    print(sql)
-    try:
-        cur.execute(sql)
-    except Exception as err:
-        print ("cur.execute() error:", err)
-        print ("Exception TYPE:", type(err))
-    else:
-        print("SQL ok")
+addTable = False
 
 pgHost = os.environ['GDA_POSTGRES_HOST']
 pgUser = os.environ['GDA_POSTGRES_USER']
 pgPass = os.environ['GDA_POSTGRES_PASS']
 print(f"Connect to {pgHost} as user {pgUser} and password {pgPass}")
-connStr = str(
-            f"host={pgHost} port={5432} dbname=sdx_demo user={pgUser} password={pgPass}")
-conn = psycopg2.connect(connStr)
-cur = conn.cursor()
+sio = combsTables.sqlIo(pgHost, databaseName, pgUser, pgPass)
 sql = f"SELECT * FROM pg_database WHERE datname = '{databaseName}'"
-runSql(cur, sql)
-ans = cur.fetchall()
+ans = sio.querySql(sql)
 print(ans)
 quit()
+
+engine = sq.create_engine(f'postgresql://{pgUser}:{pgPass}@{pgHost}:5432/{databaseName}')
+#engine = sq.create_engine(f'postgresql+psycopg2://{pgUser}:{pgPass}@{pgHost}:5432/{databaseName}')
+#df.to_sql('table_name', engine)
 
 resultsDir = os.path.join(os.environ['AB_RESULTS_DIR'], expDir, 'results', synMethod)
 files = [f for f in os.listdir(resultsDir) if os.path.isfile(os.path.join(resultsDir, f))]
@@ -48,6 +38,9 @@ for fileName in files:
     filePath = os.path.join(resultsDir, fileName)
     with open(filePath, 'r') as f:
         data = json.load(f)
-    pp.pprint(data['colCombsJob'])
+    job = data['colCombsJob']
+    if job['tableBase'] == job['tableName']:
+        # This is a dataset with all columns
+        pass
     dfAnon = pd.DataFrame(data['anonTable'], columns=data['colNames'])
     pass
