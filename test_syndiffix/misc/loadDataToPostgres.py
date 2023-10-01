@@ -14,6 +14,16 @@ synMethod = 'sdx_release'
 databaseName = 'sdx_demo'
 createDatabase = True
 
+def runSql(cur, sql):
+    print(sql)
+    try:
+        cur.execute(sql)
+    except Exception as err:
+        print ("cur.execute() error:", err)
+        print ("Exception TYPE:", type(err))
+    else:
+        print("SQL ok")
+
 pgHost = os.environ['GDA_POSTGRES_HOST']
 pgUser = os.environ['GDA_POSTGRES_USER']
 pgPass = os.environ['GDA_POSTGRES_PASS']
@@ -30,8 +40,7 @@ print(ans)
 if createDatabase and len(ans) == 0:
     # Create database
     sql = f"CREATE DATABASE {databaseName}"
-    print(sql)
-    cur.execute(sql)
+    runSql(sql, cur)
     conn.close()
     quit()
 
