@@ -15,7 +15,7 @@ pgPass = os.environ['GDA_POSTGRES_PASS']
 print(f"Connect to {pgHost} as user {pgUser} and password {pgPass}")
 
 connStr = str(
-            f"host={pgHost} port={5432} database={'postgres'} user={pgUser} password={pgPass}")
+            f"host={pgHost} port={5432} dbname={'postgres'} user={pgUser} password={pgPass}")
 conn = psycopg2.connect(connStr)
 cur = conn.cursor()
 quit()
