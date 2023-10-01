@@ -271,10 +271,11 @@ def oneModel(expDir='exp_base',
              doPatches=True,
              offloadClustering=False,
              force=False):
-    ''' There are two ways to run oneModel without features (i.e. for ctGan or syndiffix):
+    ''' There are three ways to run oneModel without features (i.e. for ctGan or syndiffix):
             1. Specify the dataSourceNum
             2. Specify the csvFile
-        Likewise, there are two ways to run oneModel with features:
+            3. Specify jobsPath and jobNum (for building column combinations)
+        There are two ways to run oneModel with features:
             1. Specify the dataSourceNum and featuresType
             2. Specify the featuresFile and featuresType
 

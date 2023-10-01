@@ -51,6 +51,13 @@ Run `sdmManager.py makeFeatures --featuresDir=<featuresDir> --featuresType=<feat
 
 Run `sbatch batch_<featuresType>`. This creates the SLURM jobs with `oneFeaturesJob.py`
 
+### Running syndiffix with column combinations
+
+There is a way to produce many syndiffix tables from the same original table, each with a different combination of columns.
+* Place a file `colCombs.json` in the runs directory. See example under `misc`.
+* Run `sdmManager makeColCombs --synMethod=sdx_whatever`. This produces the files `colcombJobs.json` and `batchCombs` in the runs directory.
+* Do `sbatch batchCombs`
+
 ### Running synthpop
 
 * To create csv files with columns in order of least to most cardinality, edit and run `misc/prepCsvForSynthpop.py`.
