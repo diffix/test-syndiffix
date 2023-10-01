@@ -21,6 +21,7 @@ class sqlIo:
         # table is there, so let's find out if all the columns are there
         sql = f"SELECT count(*) FROM {tableName}"
         ans = self.querySql(sql)
+        print(ans)
         if ans[0][0] == numRows:
             return True
         return False
