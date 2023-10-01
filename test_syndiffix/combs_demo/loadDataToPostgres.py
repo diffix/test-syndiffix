@@ -60,4 +60,4 @@ for fileName in files:
     else:
         tableName = ct.makeTableFromColumns(list(dfAnon.columns.values), job['tableBase'])
     print(f"tableName = {tableName}")
-    #sio.loadDataFrame(dfAnon, tableName)
+    sio.loadDataFrame(dfAnon, tableName)
