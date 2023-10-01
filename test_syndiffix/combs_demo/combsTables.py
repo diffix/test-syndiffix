@@ -32,7 +32,7 @@ class combsMetaData:
 
     def getMetaData(self, tableBase):
         metaTableName = tableBase + '_meta'
-        sql = f'''SELECT column FROM {metaTableName}'''
+        sql = f'''SELECT columnName FROM {metaTableName}'''
         ans = self.sio.querySql(sql)
         print(ans)
         quit()
@@ -42,7 +42,7 @@ class combsMetaData:
         metaTableName = tableBase + '_meta'
         sql = f"DROP TABLE IF EXISTS {metaTableName}"
         self.sio.modSql(sql)
-        sql = f"CREATE TABLE {metaTableName} (column TEXT)"
+        sql = f"CREATE TABLE {metaTableName} (columnName TEXT)"
         self.sio.modSql(sql)
         for column in columns:
             sql = f'''INSERT INTO {metaTableName} VALUES("{column}")'''
