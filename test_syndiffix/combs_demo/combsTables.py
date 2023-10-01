@@ -89,7 +89,7 @@ class combsTables:
         # This is to deal with table names over the postgres limit.
         if len(table) > 60:
             alphaHash = self._alphanumeric_hash(table)
-            table = table[:30] + alphaHash[:30]
+            table = table[:50] + alphaHash[:10]
         return table
 
     def _alphanumeric_hash(self, input_string):
