@@ -41,6 +41,7 @@ for fileName in files:
         # This is a dataset with all columns
         # save the column metadata
         cmd.putMetaData(job['tableBase'], job['synColumns'])
+        # This not really necessary, but just shows that the put worked
         allColumns = cmd.getMetaData(job['tableBase'])
         print(allColumns)
         # make a dataframe from the original data
@@ -51,11 +52,11 @@ for fileName in files:
         print(dfOrig.shape[0])
         tableName = job['tableBase'] + '_orig_'
         # Check and see if we've already loaded in the table!
-        if not sio.tableExists(tableName, dfOrig.shape[0]):
-            print(f"Loading table {tableName}")
-            sio.loadDataFrame(dfOrig, tableName)
-        else:
-            print(f"Table {tableName} already loaded, skipping")
-        quit()
+        sio.loadDataFrame(dfOrig, tableName)
+    # Now do the synthetic data
     dfAnon = pd.DataFrame(data['anonTable'], columns=data['colNames'])
-    pass
+    if job['tableBase'] == job['tableName']:
+        tableName = job['tableBase'] + '_syn_'
+    else:
+        tableName = ct.makeTableFromColumns(list(dfAnon.columns.values), job['tableBase'])
+    sio.loadDataFrame(dfAnon, tableName)

@@ -11,7 +11,11 @@ class sqlIo:
         #engine = sq.create_engine(f'postgresql+psycopg2://{pgUser}:{pgPass}@{pgHost}:5432/{databaseName}')
 
     def loadDataFrame(self, df, tableName):
-        df.to_sql(tableName, self.engine)
+        if not self.tableExists(tableName, df.shape[0]):
+            print(f"Loading table {tableName}")
+            df.to_sql(tableName, self.engine)
+        else:
+            print(f"Table {tableName} already loaded, skipping")
 
     def tableExists(self, tableName, numRows):
         sql = f"SELECT EXISTS ( SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = '{tableName}' ) "
