@@ -45,7 +45,7 @@ class combsMetaData:
         sql = f"CREATE TABLE {metaTableName} (columnName TEXT)"
         self.sio.modSql(sql)
         for column in columns:
-            sql = f'''INSERT INTO {metaTableName} VALUES("{column}")'''
+            sql = f'''INSERT INTO {metaTableName} (columnName) VALUES('{column}')'''
             self.sio.modSql(sql)
 
 class combsTables:
