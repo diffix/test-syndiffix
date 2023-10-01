@@ -14,7 +14,7 @@ class sqlIo:
         df.to_sql(tableName, self.engine)
 
     def tableExists(self, tableName, numRows):
-        sql = f"select * from information_schema.tables "
+        sql = f"SELECT EXISTS ( SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = '{tableName}' "
         ans = self.querySql(sql)
         print(ans)
         quit()
