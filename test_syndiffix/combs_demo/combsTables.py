@@ -3,13 +3,33 @@ import sqlalchemy as sq
 import hashlib
 import re
 
+class QueryHandler:
+    def __init__(self, pgHost=None, pgUser=None, pgPass=None, dbName='sdx_demo', port=5432):
+        pass
+
 class sqlIo:
-    def __init__(self, pgHost, dbName, pgUser, pgPass, port=5432):
+    def __init__(self, pgHost, dbName, pgUser, pgPass, port=5432, connect=True):
+        self.pgHost = pgHost
+        self.dbName = dbName
+        self.pgUser = pgUser
+        self.pgPass = pgPass
+        self.port = port
+        if connect:
+            self.connect()
+            self.createEngine()
+
+    def connect(self):
         connStr = str(
-            f"host={pgHost} port={port} dbname={dbName} user={pgUser} password={pgPass}")
+            f"host={self.pgHost} port={self.port} dbname={self.dbName} user={self.pgUser} password={self.pgPass}")
         self.con = psycopg2.connect(connStr)
         self.cur = self.con.cursor()
-        self.engine = sq.create_engine(f"postgresql://{pgUser}:{pgPass}@{pgHost}:{port}/{dbName}")
+
+    def close(self):
+        self.cur.close()
+        self.con.close()
+
+    def createEngine(self):
+        self.engine = sq.create_engine(f"postgresql://{self.pgUser}:{self.pgPass}@{self.pgHost}:{self.port}/{self.dbName}")
         #engine = sq.create_engine(f'postgresql+psycopg2://{pgUser}:{pgPass}@{pgHost}:5432/{databaseName}')
 
     def loadDataFrame(self, df, tableName):
