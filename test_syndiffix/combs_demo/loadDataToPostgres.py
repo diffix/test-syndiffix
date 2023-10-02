@@ -32,7 +32,7 @@ resultsDir = os.path.join(os.environ['AB_RESULTS_DIR'], expDir, 'results', synMe
 files = [f for f in os.listdir(resultsDir) if os.path.isfile(os.path.join(resultsDir, f))]
 
 filesPerPart = int(len(files) / totalParts)
-filesStart = min(0,(filesPerPart * (part-1)) - 5)
+filesStart = max(0,(filesPerPart * (part-1)) - 5)
 filesEnd = (filesPerPart * part) + 5
 print(filesStart, filesEnd)
 quit()
