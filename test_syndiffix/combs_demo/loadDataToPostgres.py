@@ -42,7 +42,6 @@ class loadData(object):
         filesStart = filesPerPart * (self.fromPart-1)
         filesEnd = filesPerPart * self.fromPart
         print(f"Do files from {filesStart} to {filesEnd}")
-        quit()
 
         for fileName in files[filesStart:filesEnd]:
             if fileName[-5:] != '.json':
