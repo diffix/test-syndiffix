@@ -34,8 +34,7 @@ files = [f for f in os.listdir(resultsDir) if os.path.isfile(os.path.join(result
 filesPerPart = int(len(files) / totalParts)
 filesStart = max(0,(filesPerPart * (part-1)) - 5)
 filesEnd = (filesPerPart * part) + 5
-print(filesStart, filesEnd)
-quit()
+print(f"Do files from {filesStart} to {filesEnd}")
 
 for fileName in files[filesStart:filesEnd]:
     if fileName[-5:] != '.json':
