@@ -12,6 +12,8 @@ synMethod = 'sdx_release'
 #synMethod = 'sdx_test'
 databaseName = 'sdx_demo'
 addTable = False
+part = 2
+totalParts = 5
 
 pgHost = os.environ['GDA_POSTGRES_HOST']
 pgUser = os.environ['GDA_POSTGRES_USER']
@@ -29,7 +31,13 @@ ct = combsTables.combsTables()
 resultsDir = os.path.join(os.environ['AB_RESULTS_DIR'], expDir, 'results', synMethod)
 files = [f for f in os.listdir(resultsDir) if os.path.isfile(os.path.join(resultsDir, f))]
 
-for fileName in files:
+filesPerPart = int(len(files) / totalParts)
+filesStart = min(0,(filesPerPart * (part-1)) - 5)
+filesEnd = (filesPerPart * part) + 5
+print(filesStart, filesEnd)
+quit()
+
+for fileName in files[filesStart:filesEnd]:
     if fileName[-5:] != '.json':
         print(f"Bad filename {fileName}")
         quit()
