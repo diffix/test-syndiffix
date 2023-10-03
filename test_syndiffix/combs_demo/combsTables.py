@@ -1,15 +1,93 @@
 import psycopg2
+import pandas as pd
 import sqlalchemy as sq
 import hashlib
 import re
+import os
+
+class queryHandler:
+    ''' This is for determining the correct combs table to query from an
+        SQL query
+    '''
+    def __init__(self, pgHost=None, pgUser=None, pgPass=None, dbName='sdx_demo', port=5432, doPrint=False):
+        self.p = doPrint
+        self.pgHost = pgHost
+        self.dbName = dbName
+        self.pgUser = pgUser
+        self.pgPass = pgPass
+        self.port = port
+        if not self.pgHost:
+            self.pgHost = os.environ['GDA_POSTGRES_HOST']
+        if not self.pgUser:
+            self.pgUser = os.environ['GDA_POSTGRES_USER']
+        if not self.pgPass:
+            self.pgPass = os.environ['GDA_POSTGRES_PASS']
+        self.sio = sqlIo(self.pgHost, self.dbName, self.pgUser, self.pgPass, self.port, connect=True)
+        self.cmd = combsMetaData(self.sio, doPrint=self.p)
+        self.ct = combsTables(doPrint=self.p)
+
+    def query(self, sqlOrig):
+        sqlSyn = self.getSynSql(sqlOrig)
+        # sqlOrig is the original sql for the original table,
+        # and sqlSyn is the sql modified to work on the appropriate synthetic
+        # table
+        dfOrig = self.sio.querySqlDf(sqlOrig)
+        dfSyn = self.sio.querySqlDf(sqlSyn)
+        return dfOrig, dfSyn
+
+    def getSynSql(self, sqlOrig):
+        sqlCopy = str(sqlOrig)
+        tableOrig = self._findTable(sqlOrig)
+        # tableOrig is the table term in the original sql
+        tableBase = tableOrig.replace('_orig_','')
+        metaData = self.cmd.getMetaData(tableBase)
+        sortedMetaData = self.ct.sortColsByLen(metaData)
+        # sortedMetaData contains all possible columns, sorted from longest
+        # to shortest, and then alphabetically
+        queryColumns = []
+        for column in sortedMetaData:
+            if column in sqlCopy:
+                queryColumns.append(column)
+                sqlCopy = sqlCopy.replace(column, '')
+        # queryColumns contains the columns from original sql query
+        tableSyn = self.ct.makeTableFromColumns(queryColumns, tableBase)
+        # tableSyn is the synthetic table we should be using
+        sqlSyn = sqlOrig.replace(tableOrig, tableSyn)
+        return sqlSyn
+
+    def _findTable(self, sql):
+        # Assume that there is one table in the query, it contains no
+        # spaces, it ends with '_orig_', and there is only one such term
+        # in the query
+        terms = sql.split()
+        for term in terms:
+            if '_orig_' in term:
+                return term
 
 class sqlIo:
-    def __init__(self, pgHost, dbName, pgUser, pgPass, port=5432):
+    def __init__(self, pgHost, dbName, pgUser, pgPass, port=5432, connect=True, doPrint=False):
+        self.p = doPrint
+        self.pgHost = pgHost
+        self.dbName = dbName
+        self.pgUser = pgUser
+        self.pgPass = pgPass
+        self.port = port
+        if connect:
+            self.connect()
+            self.createEngine()
+
+    def connect(self):
         connStr = str(
-            f"host={pgHost} port={port} dbname={dbName} user={pgUser} password={pgPass}")
+            f"host={self.pgHost} port={self.port} dbname={self.dbName} user={self.pgUser} password={self.pgPass}")
         self.con = psycopg2.connect(connStr)
         self.cur = self.con.cursor()
-        self.engine = sq.create_engine(f"postgresql://{pgUser}:{pgPass}@{pgHost}:{port}/{dbName}")
+
+    def close(self):
+        self.cur.close()
+        self.con.close()
+
+    def createEngine(self):
+        self.engine = sq.create_engine(f"postgresql://{self.pgUser}:{self.pgPass}@{self.pgHost}:{self.port}/{self.dbName}")
         #engine = sq.create_engine(f'postgresql+psycopg2://{pgUser}:{pgPass}@{pgHost}:5432/{databaseName}')
 
     def loadDataFrame(self, df, tableName):
@@ -39,21 +117,29 @@ class sqlIo:
         self.con.commit()
 
     def executeSql(self, sql):
-        print(sql)
+        if self.p: print(sql)
         try:
             self.cur.execute(sql)
         except Exception as err:
             print ("cur.execute() error:", err)
             print ("Exception TYPE:", type(err))
         else:
-            print("SQL ok")
+            pass
+            if self.p: print("SQL ok")
 
     def querySql(self, sql):
         self.executeSql(sql)
         return self.cur.fetchall()
 
+    def querySqlDf(self, sql):
+        self.executeSql(sql)
+        df = pd.DataFrame(self.cur.fetchall())
+        df.columns = [desc[0] for desc in self.cur.description]
+        return df
+
 class combsMetaData:
-    def __init__(self, sio):
+    def __init__(self, sio, doPrint=False):
+        self.p = doPrint
         self.sio = sio
         pass
 
@@ -74,13 +160,16 @@ class combsMetaData:
             self.sio.modSql(sql)
 
 class combsTables:
-    def __init__(self):
+    def __init__(self, doPrint=False):
+        self.p = doPrint
         pass
 
     def makeTableFromColumns(self, columns, tableBase):
         # order columns longest to shortest (this to avoid cases where a
         # shorter column is a substring of a longer column)
-        sortedCols = self._sortColsByLen(columns)
+        if len(columns) == 0:
+            return tableBase + '_syn_'
+        sortedCols = self.sortColsByLen(columns)
         table = tableBase
         for col in sortedCols:
             # postgres allowed characters
@@ -98,7 +187,7 @@ class combsTables:
         alphanumeric_hash = re.sub(r'\W+', '', hex_hash)
         return alphanumeric_hash
 
-    def _sortColsByLen(self, columns):
+    def sortColsByLen(self, columns):
         columns.sort()
         colLen = []
         for column in columns:
@@ -107,7 +196,40 @@ class combsTables:
         return [x[0] for x in colLen]
 
 if __name__ == '__main__':
-    ct = combsTables()
-    table = ct.makeTableFromColumns(['a', 'b', 'c ba', 'ba c'], 'taxi')
-    print(table)
-    pass
+    "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' limit 20;"
+    qh = queryHandler(doPrint=True)
+    "census_num_persons_worked_for_employer_migration_c708d72893b"
+    sql = '''
+        SELECT education, count(*) as cnt
+        FROM census_orig_
+        GROUP BY 1
+    '''
+    dfOrig, dfSyn = qh.query(sql)
+    print(dfOrig)
+    print(dfSyn)
+    quit()
+    sql = f'''
+        SELECT "marital stat", "migration code-change in msa", "num persons worked for employer"
+        FROM census_orig_
+        LIMIT 5
+    '''
+    dfOrig, dfSyn = qh.query(sql)
+    print(dfOrig)
+    print(dfSyn)
+    sql = f'''
+        SELECT age, "migration code-move within reg", "capital gains"
+        FROM census_orig_
+        LIMIT 5
+    '''
+    dfOrig, dfSyn = qh.query(sql)
+    print(dfOrig)
+    print(dfSyn)
+
+    sql = f'''
+        SELECT *
+        FROM census_orig_
+        LIMIT 5
+    '''
+    dfOrig, dfSyn = qh.query(sql)
+    print(dfOrig)
+    print(dfSyn)
