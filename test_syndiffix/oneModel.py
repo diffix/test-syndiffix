@@ -304,7 +304,7 @@ def oneModel(expDir='exp_base',
         print(f"jobsPath:{jobsPath}")
         with open(jobsPath, 'r') as f:
             jobs = json.load(f)
-        if not jobNum:
+        if jobNum is None:
             print("Must specify jobNum with jobsPath")
             sys.exit()
         if len(jobs) < jobNum+1:
