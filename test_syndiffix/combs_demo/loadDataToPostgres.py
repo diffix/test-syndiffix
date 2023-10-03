@@ -13,7 +13,7 @@ class loadData(object):
     def __init__(self):
         pass
 
-    def doLoad(self, expDir='exp_combs', synMethod='sdx_release', dbName='sdx_demo', fromPart=1, totalParts=1):
+    def doLoad(self, expDir='exp_combs', synMethod='sdx_release', dbName='sdx_demo', fromPart=1, totalParts=1, fileName=None):
         self.expDir = expDir
         self.synMethod = synMethod
         self.databaseName = dbName
@@ -33,6 +33,11 @@ class loadData(object):
         ct = combsTables.combsTables()
 
         resultsDir = os.path.join(os.environ['AB_RESULTS_DIR'], self.expDir, 'results', self.synMethod)
+
+        if fileName:
+            self.doOneFile(ct, sio, cmd, resultsDir, fileName)
+            quit()
+
         files = [f for f in os.listdir(resultsDir) if os.path.isfile(os.path.join(resultsDir, f))]
         files.sort()
 
@@ -44,37 +49,40 @@ class loadData(object):
         print(f"Do files from {filesStart} to {filesEnd}")
 
         for fileName in files[filesStart:filesEnd]:
-            if fileName[-5:] != '.json':
-                print(f"Bad filename {fileName}")
-                quit()
-            filePath = os.path.join(resultsDir, fileName)
-            with open(filePath, 'r') as f:
-                data = json.load(f)
-            job = data['colCombsJob']
-            if job['tableBase'] == job['tableName']:
-                # This is a dataset with all columns
-                # save the column metadata
-                cmd.putMetaData(job['tableBase'], job['synColumns'])
-                # This not really necessary, but just shows that the put worked
-                allColumns = cmd.getMetaData(job['tableBase'])
-                print(allColumns)
-                # make a dataframe from the original data
-                dfOrig = pd.DataFrame(data['originalTable'], columns=data['colNames'])
-                print("Columns of dfOrig")
-                print(list(dfOrig.columns.values))
-                print("Length of dfOrig")
-                print(dfOrig.shape[0])
-                tableName = job['tableBase'] + '_orig_'
-                # Check and see if we've already loaded in the table!
-                sio.loadDataFrame(dfOrig, tableName)
-            # Now do the synthetic data
-            dfAnon = pd.DataFrame(data['anonTable'], columns=data['colNames'])
-            if job['tableBase'] == job['tableName']:
-                tableName = job['tableBase'] + '_syn_'
-            else:
-                tableName = ct.makeTableFromColumns(list(dfAnon.columns.values), job['tableBase'])
-            print(f"tableName = {tableName}")
-            sio.loadDataFrame(dfAnon, tableName)
+            self.doOneFile(ct, sio, cmd, resultsDir, fileName)
+
+    def doOneFile(self, ct, sio, cmd, resultsDir, fileName):
+        if fileName[-5:] != '.json':
+            print(f"Bad filename {fileName}")
+            quit()
+        filePath = os.path.join(resultsDir, fileName)
+        with open(filePath, 'r') as f:
+            data = json.load(f)
+        job = data['colCombsJob']
+        if job['tableBase'] == job['tableName']:
+            # This is a dataset with all columns
+            # save the column metadata
+            cmd.putMetaData(job['tableBase'], job['synColumns'])
+            # This not really necessary, but just shows that the put worked
+            allColumns = cmd.getMetaData(job['tableBase'])
+            print(allColumns)
+            # make a dataframe from the original data
+            dfOrig = pd.DataFrame(data['originalTable'], columns=data['colNames'])
+            print("Columns of dfOrig")
+            print(list(dfOrig.columns.values))
+            print("Length of dfOrig")
+            print(dfOrig.shape[0])
+            tableName = job['tableBase'] + '_orig_'
+            # Check and see if we've already loaded in the table!
+            sio.loadDataFrame(dfOrig, tableName)
+        # Now do the synthetic data
+        dfAnon = pd.DataFrame(data['anonTable'], columns=data['colNames'])
+        if job['tableBase'] == job['tableName']:
+            tableName = job['tableBase'] + '_syn_'
+        else:
+            tableName = ct.makeTableFromColumns(list(dfAnon.columns.values), job['tableBase'])
+        print(f"tableName = {tableName}")
+        sio.loadDataFrame(dfAnon, tableName)
 
 def main():
     fire.Fire(loadData)
