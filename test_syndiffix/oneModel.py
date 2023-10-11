@@ -340,6 +340,11 @@ def oneModel(expDir='exp_base',
     aidColumn = None,
     synColumns = None
     job = None
+
+    label = model + '_' + suffix if suffix else model
+    modelsDir = os.path.join(tu.synResults, label)
+    os.makedirs(modelsDir, exist_ok=True)
+
     if jobsPath:
         jobsPath = os.path.join(tu.runsDir, jobsPath)
         print(f"jobsPath:{jobsPath}")
@@ -403,6 +408,7 @@ def oneModel(expDir='exp_base',
             # We do this whether we have featuresType or not. If we do, then we expect
             # the model name to reflect the featureType...
             outPath = os.path.join(modelsDir, f"{sourceFileName}.{focusColumn}.json")
+
     print(f"Using source file {sourceFileName}")
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
     if not os.path.exists(dataSourcePath):
@@ -413,9 +419,6 @@ def oneModel(expDir='exp_base',
         print(f"ERROR: File {testDataPath} does not exist")
         sys.exit()
 
-    label = model + '_' + suffix if suffix else model
-    modelsDir = os.path.join(tu.synResults, label)
-    os.makedirs(modelsDir, exist_ok=True)
     if not force and os.path.exists(outPath):
         print(f"Result {outPath} already exists, skipping")
         print("oneModel:SUCCESS (skipped)")
