@@ -16,6 +16,12 @@ from misc.csvUtils import readCsv
 ''' This is used to run the SDMetrics synthetic data models in SLURM
 '''
 
+syndiffix_py_dir = os.environ.get('SYNDIFFIX_PY_DIR')
+
+if syndiffix_py_dir and os.path.exists(syndiffix_py_dir):
+    sys.path.append(syndiffix_py_dir)
+
+
 pp = pprint.PrettyPrinter(indent=4)
 
 
@@ -101,6 +107,41 @@ def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, t
         outJson['colCombsJob'] = job
     print("featuresJob:")
     pp.pprint(featuresJob)
+
+    print(f"Writing output to {outPath}")
+    with open(outPath, 'w') as f:
+        json.dump(outJson, f, indent=4)
+
+
+def runSynDiffix(df, outPath, focusColumn, doPatches, testData, job=None):
+    from syndiffix.clustering.strategy import DefaultClustering, MlClustering
+    from syndiffix.synthesizer import Synthesizer
+
+    if focusColumn:
+        clustering_strategy = MlClustering(target_column=focusColumn, drop_non_features=(not doPatches))
+    else:
+        clustering_strategy = DefaultClustering()
+
+    synthesizer = Synthesizer(raw_data=df, clustering=clustering_strategy)
+
+    start = time.time()
+
+    synData = synthesizer.sample()
+
+    end = time.time()
+
+    print(synData.head())
+
+    outJson = {}
+    outJson['elapsedTime'] = end - start
+    outJson['colNames'] = list(df.columns.values)
+    outJson['originalTable'] = df.values.tolist()
+    outJson['anonTable'] = synData.values.tolist()
+    outJson['testTable'] = testData
+    if focusColumn:
+        outJson['focusColumn'] = focusColumn
+    if job:
+        outJson['colCombsJob'] = job
 
     print(f"Writing output to {outPath}")
     with open(outPath, 'w') as f:
@@ -296,9 +337,9 @@ def oneModel(expDir='exp_base',
     featuresJob = None
     sourceFileName = None
     outPath = None
-    aidColumn=None,
-    synColumns=None
-    job=None
+    aidColumn = None,
+    synColumns = None
+    job = None
     if jobsPath:
         jobsPath = os.path.join(tu.runsDir, jobsPath)
         print(f"jobsPath:{jobsPath}")
@@ -307,7 +348,7 @@ def oneModel(expDir='exp_base',
         if jobNum is None:
             print("Must specify jobNum with jobsPath")
             sys.exit()
-        if len(jobs) < jobNum+1:
+        if len(jobs) < jobNum + 1:
             print(f"SUCCESS: ERROR: jobNum too high")
             sys.exit()
         job = jobs[jobNum]
@@ -458,7 +499,12 @@ def oneModel(expDir='exp_base',
         print(f"Synthesized columns {synColumns}")
     mls = testUtils.mlSupport(tu)
     metaData = makeMetadata(df)
-    if model == 'abSharp' or 'syndiffix' in model or 'sdx_' in model:
+
+    if 'syndiffix_py' in model or 'sdx_py' in model:
+        if featuresJob:
+            raise Exception('featuresJob is not currently supported with syndiffix_py.')
+        runSynDiffix(df, outPath, focusColumn, doPatches, testData, job)
+    elif model == 'abSharp' or 'syndiffix' in model or 'sdx_' in model:
         colTypeSymbols = {'text': 's', 'real': 'r', 'datetime': 't', 'int': 'i', 'boolean': 'b'}
         colTypes = tu.getColTypesFromDataframe(df)
         columns = []
