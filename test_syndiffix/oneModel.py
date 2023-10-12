@@ -118,11 +118,18 @@ def runSynDiffix(df, outPath, focusColumn, doPatches, testData, job=None):
     from syndiffix.synthesizer import Synthesizer
 
     if focusColumn:
+        print(f'Running with ML target {focusColumn}...')
         clustering_strategy = MlClustering(target_column=focusColumn, drop_non_features=(not doPatches))
     else:
+        print('Using default clustering...')
         clustering_strategy = DefaultClustering()
 
     synthesizer = Synthesizer(raw_data=df, clustering=clustering_strategy)
+
+    print('Column clusters:')
+    print('Initial=', synthesizer.clusters.initial_cluster)
+    for cluster in synthesizer.clusters.derived_clusters:
+        print('Derived=', cluster)
 
     start = time.time()
 
@@ -310,6 +317,7 @@ def oneModel(expDir='exp_base',
              maxClusterSize=3,
              maxClusters=1000,
              doPatches=True,
+             withFocusColumn=False,
              offloadClustering=False,
              force=False):
     ''' There are three ways to run oneModel without features (i.e. for ctGan or syndiffix):
@@ -373,7 +381,14 @@ def oneModel(expDir='exp_base',
                     (not featuresType or not featuresFile)):
                 print("ERROR: if any of featuresType, or featuresFile are specified, then all must be specified")
                 sys.exit()
-        if dataSourceNum is not None and not featuresType:
+
+        if dataSourceNum is not None and withFocusColumn:
+            mc = sdmTools.measuresConfig(tu)
+            sourceFileName, focusColumn = mc.getFocusFromJobNumber(dataSourceNum)
+            if sourceFileName is None:
+                print(f"ERROR: Couldn't find focus job")
+                sys.exit()
+        elif dataSourceNum is not None and not featuresType:
             inFiles = [f for f in os.listdir(
                 tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
             dataSources = []
@@ -385,8 +400,10 @@ def oneModel(expDir='exp_base',
                 print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
                 sys.exit()
             sourceFileName = dataSources[dataSourceNum]
+
         if featuresType:
             tu.registerFeaturesType(featuresType)
+
         if dataSourceNum is not None and featuresType:
             featuresFiles = tu.getSortedFeaturesFiles()
             if dataSourceNum >= len(featuresFiles):
@@ -396,13 +413,15 @@ def oneModel(expDir='exp_base',
             if featuresFile[-5:] != '.json':
                 print(f"ERROR: features file not json ({featuresFile})")
                 sys.exit()
+
         if featuresType:
             featuresPath = os.path.join(tu.featuresTypeDir, featuresFile)
             with open(featuresPath, 'r') as f:
                 featuresJob = json.load(f)
             sourceFileName = featuresJob['csvFile']  # TODO
             focusColumn = featuresJob['targetColumn']
-        if not featuresType:
+
+        if not withFocusColumn and not featuresType:
             outPath = os.path.join(modelsDir, f"{sourceFileName}.json")
         else:
             # We do this whether we have featuresType or not. If we do, then we expect
