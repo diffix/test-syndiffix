@@ -337,6 +337,8 @@ def oneModel(expDir='exp_base',
         If doPatches==False, then we remove all columns that are not in a cluster.
         Otherwise, we add the columns as patches.
     '''
+    print(f'Model {model}')  # Useful to know whether the SLURM script has started or not.
+
     tu = testUtils.testUtilities()
     tu.registerExpDir(expDir)
     if len(abSharpArgs) > 0:
