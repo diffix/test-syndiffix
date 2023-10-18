@@ -124,14 +124,14 @@ def runSynDiffix(df, outPath, focusColumn, doPatches, testData, job=None):
         print('Using default clustering...')
         clustering_strategy = DefaultClustering()
 
+    start = time.time()
+
     synthesizer = Synthesizer(raw_data=df, clustering=clustering_strategy)
 
     print('Column clusters:')
     print('Initial=', synthesizer.clusters.initial_cluster)
     for cluster in synthesizer.clusters.derived_clusters:
         print('Derived=', cluster)
-
-    start = time.time()
 
     synData = synthesizer.sample()
 
