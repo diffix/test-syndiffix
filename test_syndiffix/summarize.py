@@ -96,6 +96,7 @@ def summarize(expDir='exp_base',
     dfReal = dfAll.query(f"numColumns != 2")
     df2col = dfAll.query(f"numColumns == 2")
     doPrivPlot(tu, dfReal, force, boxColors)
+    doPrivPlot(tu, dfReal, force, boxColors, privMethod='inference')
     doPrivPlot(tu, dfReal, force, boxColors, what='all')
     print("synMethods in dfReal:")
     synMethodsReal = sorted(list(pd.unique(dfReal['synMethod'])))
