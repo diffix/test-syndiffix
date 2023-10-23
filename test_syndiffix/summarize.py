@@ -312,7 +312,7 @@ def doPrivPlot(tu, df, force, boxColors, what='lowBounds', hueCol=None, privMeth
         xaxis = 'Privacy Risk'
         printStats(dfTemp, hueCol, "priv high confidence, all methods")
         figPath = os.path.join(tu.summariesDir, 'priv.png')
-    elif what != 'all' and privMethod == 'all':
+    elif what == 'all' and privMethod == 'all':
         dfTemp = df.query("rowType == 'privRisk' or rowType == 'privRiskHigh'")
         xaxis = 'Privacy Risk (including low confidence scores)'
         printStats(dfTemp, hueCol, "priv high and low confidence, all methods")
@@ -322,7 +322,7 @@ def doPrivPlot(tu, df, force, boxColors, what='lowBounds', hueCol=None, privMeth
         xaxis = 'Privacy Risk'
         printStats(dfTemp, hueCol, "priv high confidence, inference only")
         figPath = os.path.join(tu.summariesDir, 'privInference.png')
-    elif what != 'all' and privMethod == 'inference':
+    elif what == 'all' and privMethod == 'inference':
         dfTemp = df.query("rowType == 'privRisk' or rowType == 'privRiskHigh' and privMethod == 'inference'")
         xaxis = 'Privacy Risk (including low confidence scores)'
         printStats(dfTemp, hueCol, "priv high and low confidence, inference only")
