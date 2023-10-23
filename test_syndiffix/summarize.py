@@ -96,6 +96,7 @@ def summarize(expDir='exp_base',
     dfReal = dfAll.query(f"numColumns != 2")
     df2col = dfAll.query(f"numColumns == 2")
     doPrivPlot(tu, dfReal, force, boxColors)
+    doPrivPlot(tu, dfReal, force, boxColors, privMethod='inference')
     doPrivPlot(tu, dfReal, force, boxColors, what='all')
     print("synMethods in dfReal:")
     synMethodsReal = sorted(list(pd.unique(dfReal['synMethod'])))
@@ -305,17 +306,27 @@ def getBest(df, from1, from2, rename):
     return pd.concat([df1, df2], axis=0)
 
 
-def doPrivPlot(tu, df, force, boxColors, what='lowBounds', hueCol=None):
-    if what == 'lowBounds':
+def doPrivPlot(tu, df, force, boxColors, what='lowBounds', hueCol=None, privMethod='all'):
+    if what == 'lowBounds' and privMethod == 'all':
         dfTemp = df.query("rowType == 'privRisk'")
         xaxis = 'Privacy Risk'
-        printStats(dfTemp, hueCol, "priv high confidence")
+        printStats(dfTemp, hueCol, "priv high confidence, all methods")
         figPath = os.path.join(tu.summariesDir, 'priv.png')
-    else:
+    elif what == 'all' and privMethod == 'all':
         dfTemp = df.query("rowType == 'privRisk' or rowType == 'privRiskHigh'")
         xaxis = 'Privacy Risk (including low confidence scores)'
-        printStats(dfTemp, hueCol, "priv high and low confidence")
+        printStats(dfTemp, hueCol, "priv high and low confidence, all methods")
         figPath = os.path.join(tu.summariesDir, 'privLowConf.png')
+    elif what == 'lowBounds' and privMethod == 'inference':
+        dfTemp = df.query("rowType == 'privRisk' and privMethod == 'inference'")
+        xaxis = 'Privacy Risk'
+        printStats(dfTemp, hueCol, "priv high confidence, inference only")
+        figPath = os.path.join(tu.summariesDir, 'privInference.png')
+    elif what == 'all' and privMethod == 'inference':
+        dfTemp = df.query("rowType == 'privRisk' or rowType == 'privRiskHigh' and privMethod == 'inference'")
+        xaxis = 'Privacy Risk (including low confidence scores)'
+        printStats(dfTemp, hueCol, "priv high and low confidence, inference only")
+        figPath = os.path.join(tu.summariesDir, 'privLowConfInference.png')
     if dfTemp.shape[0] == 0:
         return
     synMethods = sorted(list(pd.unique(dfTemp['synMethod'])))
