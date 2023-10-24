@@ -527,6 +527,7 @@ def oneModel(expDir='exp_base',
     if 'syndiffix_py' in model or 'sdx_py' in model:
         if featuresJob:
             raise Exception('featuresJob is not currently supported with syndiffix_py.')
+        tu.getColTypesFromDataframe(df)  # Converts datetime columns in-place.
         runSynDiffix(df, outPath, focusColumn, doPatches, testData, job)
     elif model == 'abSharp' or 'syndiffix' in model or 'sdx_' in model:
         colTypeSymbols = {'text': 's', 'real': 'r', 'datetime': 't', 'int': 'i', 'boolean': 'b'}
