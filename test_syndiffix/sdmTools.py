@@ -807,7 +807,7 @@ python3 {testPath} \\
 arrayNum="${{SLURM_ARRAY_TASK_ID}}"
 python3 {testPath} \\
     --dataSourceNum=$arrayNum \\
-    --expDir={tu.self.expDir} \\
+    --expDir={self.tu.expDir} \\
     --model=syndiffix_focus \\
     --withFocusColumn=True
     '''

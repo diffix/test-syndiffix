@@ -16,6 +16,12 @@ from misc.csvUtils import readCsv
 ''' This is used to run the SDMetrics synthetic data models in SLURM
 '''
 
+syndiffix_py_dir = os.environ.get('SYNDIFFIX_PY_DIR')
+
+if syndiffix_py_dir and os.path.exists(syndiffix_py_dir):
+    sys.path.append(syndiffix_py_dir)
+
+
 pp = pprint.PrettyPrinter(indent=4)
 
 
@@ -101,6 +107,48 @@ def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, t
         outJson['colCombsJob'] = job
     print("featuresJob:")
     pp.pprint(featuresJob)
+
+    print(f"Writing output to {outPath}")
+    with open(outPath, 'w') as f:
+        json.dump(outJson, f, indent=4)
+
+
+def runSynDiffix(df, outPath, focusColumn, doPatches, testData, job=None):
+    from syndiffix.clustering.strategy import DefaultClustering, MlClustering
+    from syndiffix.synthesizer import Synthesizer
+
+    if focusColumn:
+        print(f'Running with ML target {focusColumn}...')
+        clustering_strategy = MlClustering(target_column=focusColumn, drop_non_features=(not doPatches))
+    else:
+        print('Using default clustering...')
+        clustering_strategy = DefaultClustering()
+
+    start = time.time()
+
+    synthesizer = Synthesizer(raw_data=df, clustering=clustering_strategy)
+
+    print('Column clusters:')
+    print('Initial=', synthesizer.clusters.initial_cluster)
+    for cluster in synthesizer.clusters.derived_clusters:
+        print('Derived=', cluster)
+
+    synData = synthesizer.sample()
+
+    end = time.time()
+
+    print(synData.head())
+
+    outJson = {}
+    outJson['elapsedTime'] = end - start
+    outJson['colNames'] = list(df.columns.values)
+    outJson['originalTable'] = df.values.tolist()
+    outJson['anonTable'] = synData.values.tolist()
+    outJson['testTable'] = testData
+    if focusColumn:
+        outJson['focusColumn'] = focusColumn
+    if job:
+        outJson['colCombsJob'] = job
 
     print(f"Writing output to {outPath}")
     with open(outPath, 'w') as f:
@@ -269,6 +317,7 @@ def oneModel(expDir='exp_base',
              maxClusterSize=3,
              maxClusters=1000,
              doPatches=True,
+             withFocusColumn=False,
              offloadClustering=False,
              force=False):
     ''' There are three ways to run oneModel without features (i.e. for ctGan or syndiffix):
@@ -288,6 +337,8 @@ def oneModel(expDir='exp_base',
         If doPatches==False, then we remove all columns that are not in a cluster.
         Otherwise, we add the columns as patches.
     '''
+    print(f'Model {model}')  # Useful to know whether the SLURM script has started or not.
+
     tu = testUtils.testUtilities()
     tu.registerExpDir(expDir)
     if len(abSharpArgs) > 0:
@@ -296,9 +347,14 @@ def oneModel(expDir='exp_base',
     featuresJob = None
     sourceFileName = None
     outPath = None
-    aidColumn=None,
-    synColumns=None
-    job=None
+    aidColumn = None,
+    synColumns = None
+    job = None
+
+    label = model + '_' + suffix if suffix else model
+    modelsDir = os.path.join(tu.synResults, label)
+    os.makedirs(modelsDir, exist_ok=True)
+
     if jobsPath:
         jobsPath = os.path.join(tu.runsDir, jobsPath)
         print(f"jobsPath:{jobsPath}")
@@ -307,7 +363,7 @@ def oneModel(expDir='exp_base',
         if jobNum is None:
             print("Must specify jobNum with jobsPath")
             sys.exit()
-        if len(jobs) < jobNum+1:
+        if len(jobs) < jobNum + 1:
             print(f"SUCCESS: ERROR: jobNum too high")
             sys.exit()
         job = jobs[jobNum]
@@ -327,7 +383,14 @@ def oneModel(expDir='exp_base',
                     (not featuresType or not featuresFile)):
                 print("ERROR: if any of featuresType, or featuresFile are specified, then all must be specified")
                 sys.exit()
-        if dataSourceNum is not None and not featuresType:
+
+        if dataSourceNum is not None and withFocusColumn:
+            mc = sdmTools.measuresConfig(tu)
+            sourceFileName, focusColumn = mc.getFocusFromJobNumber(dataSourceNum)
+            if sourceFileName is None:
+                print(f"ERROR: Couldn't find focus job")
+                sys.exit()
+        elif dataSourceNum is not None and not featuresType:
             inFiles = [f for f in os.listdir(
                 tu.csvLib) if os.path.isfile(os.path.join(tu.csvLib, f))]
             dataSources = []
@@ -339,8 +402,10 @@ def oneModel(expDir='exp_base',
                 print(f"ERROR: There are not enough datasources (dataSourceNum={dataSourceNum})")
                 sys.exit()
             sourceFileName = dataSources[dataSourceNum]
+
         if featuresType:
             tu.registerFeaturesType(featuresType)
+
         if dataSourceNum is not None and featuresType:
             featuresFiles = tu.getSortedFeaturesFiles()
             if dataSourceNum >= len(featuresFiles):
@@ -350,18 +415,21 @@ def oneModel(expDir='exp_base',
             if featuresFile[-5:] != '.json':
                 print(f"ERROR: features file not json ({featuresFile})")
                 sys.exit()
+
         if featuresType:
             featuresPath = os.path.join(tu.featuresTypeDir, featuresFile)
             with open(featuresPath, 'r') as f:
                 featuresJob = json.load(f)
             sourceFileName = featuresJob['csvFile']  # TODO
             focusColumn = featuresJob['targetColumn']
-        if not featuresType:
+
+        if not withFocusColumn and not featuresType:
             outPath = os.path.join(modelsDir, f"{sourceFileName}.json")
         else:
             # We do this whether we have featuresType or not. If we do, then we expect
             # the model name to reflect the featureType...
             outPath = os.path.join(modelsDir, f"{sourceFileName}.{focusColumn}.json")
+
     print(f"Using source file {sourceFileName}")
     dataSourcePath = os.path.join(tu.csvLib, sourceFileName)
     if not os.path.exists(dataSourcePath):
@@ -372,9 +440,6 @@ def oneModel(expDir='exp_base',
         print(f"ERROR: File {testDataPath} does not exist")
         sys.exit()
 
-    label = model + '_' + suffix if suffix else model
-    modelsDir = os.path.join(tu.synResults, label)
-    os.makedirs(modelsDir, exist_ok=True)
     if not force and os.path.exists(outPath):
         print(f"Result {outPath} already exists, skipping")
         print("oneModel:SUCCESS (skipped)")
@@ -458,7 +523,13 @@ def oneModel(expDir='exp_base',
         print(f"Synthesized columns {synColumns}")
     mls = testUtils.mlSupport(tu)
     metaData = makeMetadata(df)
-    if model == 'abSharp' or 'syndiffix' in model or 'sdx_' in model:
+
+    if 'syndiffix_py' in model or 'sdx_py' in model:
+        if featuresJob:
+            raise Exception('featuresJob is not currently supported with syndiffix_py.')
+        tu.getColTypesFromDataframe(df)  # Converts datetime columns in-place.
+        runSynDiffix(df, outPath, focusColumn, doPatches, testData, job)
+    elif model == 'abSharp' or 'syndiffix' in model or 'sdx_' in model:
         colTypeSymbols = {'text': 's', 'real': 'r', 'datetime': 't', 'int': 'i', 'boolean': 'b'}
         colTypes = tu.getColTypesFromDataframe(df)
         columns = []
