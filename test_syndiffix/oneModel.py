@@ -347,7 +347,7 @@ def oneModel(expDir='exp_base',
     featuresJob = None
     sourceFileName = None
     outPath = None
-    aidColumn = None,
+    aidColumn = None
     synColumns = None
     job = None
 
