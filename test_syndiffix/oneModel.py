@@ -7,6 +7,7 @@ import fire
 import shlex
 import time
 import subprocess
+from datetime import date, datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import testUtils
 import sdmetricsPlay
@@ -113,6 +114,13 @@ def runAbSharp(tu, dataSourcePath, outPath, abSharpArgs, columns, focusColumn, t
         json.dump(outJson, f, indent=4)
 
 
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        return super().default(obj)
+
+
 def runSynDiffix(df, outPath, focusColumn, doPatches, testData, job=None):
     from syndiffix.clustering.strategy import DefaultClustering, MlClustering
     from syndiffix.synthesizer import Synthesizer
@@ -152,7 +160,7 @@ def runSynDiffix(df, outPath, focusColumn, doPatches, testData, job=None):
 
     print(f"Writing output to {outPath}")
     with open(outPath, 'w') as f:
-        json.dump(outJson, f, indent=4)
+        json.dump(outJson, f, indent=4, cls=CustomEncoder)
 
 
 def makeMetadata(df):

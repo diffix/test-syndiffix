@@ -3,6 +3,7 @@
 * `AB_RESULTS_DIR` is the path to the test configuration directory
 * `AB_PYTHON_DIR` is the path to the directory containing the python test programs
 * `AB_SHARP_DIR` is the path to the directory containing AB Sharp SynDiffix code (the `adaptive-buckets-sharp` directory)
+* `SYNDIFFIX_PY_DIR` is the path to the directory root of the SynDiffix Python implementation.
 
 ## Tests directory structure
 
