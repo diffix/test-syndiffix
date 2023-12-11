@@ -544,6 +544,7 @@ def oneModel(expDir='exp_base',
         for colName, colType in zip(colNames, colTypes):
             if synColumns and colName not in synColumns:
                 continue
+            
             if colType is None:
                 # This means that we couldn't assign a type. I'm guessing that 'text' is a robust
                 # type that absharp can handle regardless of what the value are...

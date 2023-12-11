@@ -94,3 +94,7 @@ ENV/
 synAll.R
 
 data/
+
+# for dataPrep
+*.csv
+*.pbz2
