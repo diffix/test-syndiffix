@@ -25,6 +25,7 @@ def getDf(fileName):
     return pd.read_pickle(fileName, compression='bz2')
 
 def saveDf(fileName, df, dataDir=dataSetDir):
+    print(f"Save {fileName}")
     fn_pbz2 = os.path.join(dataDir, fileName + '.pbz2')
     fn_csv = os.path.join(dataDir, fileName + '.csv')
     with bz2.BZ2File(fn_pbz2, 'w') as f:
@@ -80,11 +81,14 @@ for fileNameRoot in filesToSynthesize:
         print(f"Already did {fileName}")
         continue
     df = getDf(fileName)
+    columns = list(df.columns)
     metadata = SingleTableMetadata()
     metadata.detect_from_dataframe(df)
+    if 'account' in columns:
+        metadata.update_column(column_name='account', sdtype='id')
+    if 'trans_id' in columns:
+        metadata.update_column(column_name='trans_id', sdtype='id')
     metadataDict = metadata.to_dict()
-    if 'account' in metadataDict['columns']:
-        metadataDict['columns']['account']['sdtype'] = 'pii'
     print(f"\n{fileName}:")
     pp.pprint(metadataDict)
     synthesizer = CTGANSynthesizer(metadata)
