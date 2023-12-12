@@ -55,7 +55,10 @@ def do_synthesize(df, columns, pids, fileName):
     # Doesn't exist, so let's make it!
     print(f"Synthesizing {filePath} with columns {columns}")
     df_syn = df[columns]
-    df_syn = Synthesizer(df_syn, pids=df[pids]).sample()
+    if pids:
+        df_syn = Synthesizer(df_syn, pids=df[pids]).sample()
+    else:
+        df_syn = Synthesizer(df_syn).sample()
     with bz2.BZ2File(filePath, 'w') as f:
         pickle.dump(df_syn, f)
     return df_syn
@@ -111,7 +114,7 @@ def trans_amounts_sorted(df, df_mo, df_ct, fileName):
     plt.savefig(synFilePath)
     plt.close()
 
-def trans_max_balance_sorted(df, df_mo, fileName):
+def trans_max_balance_sorted(df, df_mo, df_ct, fileName):
     ''' I want to display the sorted values of the maximum balance
         of each account
     '''
@@ -126,13 +129,52 @@ def trans_max_balance_sorted(df, df_mo, fileName):
     df_mo_max_balance.rename(columns={'balance': 'max_balance'}, inplace=True)
     print(f"df_mo_max_balance has {len(df_mo_max_balance)} rows, and {df_mo_max_balance['account_id'].nunique()} distinct account_id")
 
+    print(f"df_ct has {len(df_ct)} rows, and {df_ct['account_id'].nunique()} distinct account_id")
+    df_ct_max_balance = df_ct.groupby('account_id')['balance'].max().reset_index()
+    df_ct_max_balance.rename(columns={'balance': 'max_balance'}, inplace=True)
+    print(f"df_ct_max_balance has {len(df_ct_max_balance)} rows, and {df_ct_max_balance['account_id'].nunique()} distinct account_id")
+
+    # Synthesize the max_balance data
+    columns = ['max_balance']
+    pids = None      # Not needed because one row per pid
+    df_syn = do_synthesize(df_max_balance, columns, pids, fileName)
+    print(f"df_syn has columns {list(df_syn.columns)}")
+    df_mo = df_mo_max_balance[columns]
+    df_ct = df_ct_max_balance[columns]
+    df_orig = df_max_balance[columns]
+    df_syn = df_syn.sort_values(by=columns, ascending=False)
+    df_syn = df_syn.reset_index(drop=True)
+    df_syn.index.name = 'index'
+    df_mo = df_mo.sort_values(by=columns, ascending=False)
+    df_mo = df_mo.reset_index(drop=True)
+    df_mo.index.name = 'index'
+    df_ct = df_ct.sort_values(by=columns, ascending=False)
+    df_ct = df_ct.reset_index(drop=True)
+    df_ct.index.name = 'index'
+    df_orig = df_orig.sort_values(by=columns, ascending=False)
+    df_orig = df_orig.reset_index(drop=True)
+    df_orig.index.name = 'index'
+    synFilePath = os.path.join('plots', makeSynFileName(fileName, columns)+'.png')
+    fig, ax = plt.subplots()
+    sns.lineplot(data=df_orig, x=df_orig.index.name, y='max_balance', label='Original', ax=ax, linewidth=4)
+    sns.lineplot(data=df_syn, x=df_syn.index.name, y='max_balance', label='SynDiffix', ax=ax)
+    sns.lineplot(data=df_mo, x=df_mo.index.name, y='max_balance', label='Mostly AI', ax=ax)
+    sns.lineplot(data=df_ct, x=df_ct.index.name, y='max_balance', label='CTGAN', ax=ax)
+    ax.set_yscale('log')
+    ax.set_ylim([1,None])
+    ax.grid(axis='y')
+    ax.tick_params(labelbottom=False, bottom=False)
+    ax.legend()
+    ax.set(xlabel='Sorted by Max Balance', ylabel='Transaction Max Balance')
+    plt.savefig(synFilePath)
+    plt.close()
     pass
 
 df_trans = getDf('trans_account_card_clients')
 df_trans_mo = getDf('trans_account_card_clients.mostly')
 # TODO replace with CTGAN file when I have it
 df_trans_ct = getDf('trans_account_card_clients.mostly')
-if True:
-    trans_amounts_sorted(df_trans, df_trans_mo, df_trans_ct, 'trans_account_card_clients')
 if False:
+    trans_amounts_sorted(df_trans, df_trans_mo, df_trans_ct, 'trans_account_card_clients')
+if True:
     trans_max_balance_sorted(df_trans, df_trans_mo, df_trans_ct, 'trans_account_card_clients')
