@@ -53,6 +53,7 @@ for fileNameRoot in filesToSynthesize:
     columns = list(df.columns)
     metadata = SingleTableMetadata()
     metadata.detect_from_dataframe(df)
+    metadata.update_column(column_name='account_id', sdtype='id')
     if 'account' in columns:
         metadata.update_column(column_name='account', sdtype='id')
     if 'trans_id' in columns:
