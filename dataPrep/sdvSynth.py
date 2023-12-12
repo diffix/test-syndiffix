@@ -65,9 +65,11 @@ for fileNameRoot in seqFilesToSynthesize:
     metadataDict = metadata.to_dict()
     print(f"\n{fileName}:")
     pp.pprint(metadataDict)
+    num_sequences = df['account_id'].nunique()
+    print(num_sequences)
     synthesizer = PARSynthesizer(metadata)
     synthesizer.fit(df)
-    df_syn = synthesizer.sample(num_rows=len(df))
+    df_syn = synthesizer.sample(num_sequences=num_sequences)
     saveDf(fileNameRoot+'.ctgan.seq', df_syn)
 
 for fileNameRoot in filesToSynthesize:

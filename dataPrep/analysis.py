@@ -70,24 +70,29 @@ def unify_lengths(*args):
         results.append(df.sample(n=minLen))
     return results
 
-def trans_amounts_sorted(df, df_mo, fileName):
+def trans_amounts_sorted(df, df_mo, df_ct, fileName):
     ''' Make a graph with the transaction amounts sorted high to low
     '''
     print(list(df.columns))
     print(list(df_mo.columns))
+    print(list(df_ct.columns))
     columns = ['amount']
     pids = ['account_id']
     df_syn = do_synthesize(df, columns, pids, fileName)
     print(f"df_syn has columns {list(df_syn.columns)}")
     df_mo = df_mo[columns]
+    df_ct = df_ct[columns]
     df_orig = df[columns]
-    df_orig, df_syn, df_mo = unify_lengths(df_orig, df_syn, df_mo)
+    df_orig, df_syn, df_mo, df_ct = unify_lengths(df_orig, df_syn, df_mo, df_ct)
     df_syn = df_syn.sort_values(by=columns, ascending=False)
     df_syn = df_syn.reset_index(drop=True)
     df_syn.index.name = 'index'
     df_mo = df_mo.sort_values(by=columns, ascending=False)
     df_mo = df_mo.reset_index(drop=True)
     df_mo.index.name = 'index'
+    df_ct = df_ct.sort_values(by=columns, ascending=False)
+    df_ct = df_ct.reset_index(drop=True)
+    df_ct.index.name = 'index'
     df_orig = df_orig.sort_values(by=columns, ascending=False)
     df_orig = df_orig.reset_index(drop=True)
     df_orig.index.name = 'index'
@@ -96,6 +101,7 @@ def trans_amounts_sorted(df, df_mo, fileName):
     sns.lineplot(data=df_orig, x=df_orig.index.name, y='amount', label='Original', ax=ax, linewidth=4)
     sns.lineplot(data=df_syn, x=df_syn.index.name, y='amount', label='SynDiffix', ax=ax)
     sns.lineplot(data=df_mo, x=df_mo.index.name, y='amount', label='Mostly AI', ax=ax)
+    sns.lineplot(data=df_ct, x=df_ct.index.name, y='amount', label='CTGAN', ax=ax)
     ax.set_yscale('log')
     ax.set_ylim([1,None])
     ax.grid(axis='y')
@@ -124,7 +130,9 @@ def trans_max_balance_sorted(df, df_mo, fileName):
 
 df_trans = getDf('trans_account_card_clients')
 df_trans_mo = getDf('trans_account_card_clients.mostly')
-if False:
-    trans_amounts_sorted(df_trans, df_trans_mo, 'trans_account_card_clients')
+# TODO replace with CTGAN file when I have it
+df_trans_ct = getDf('trans_account_card_clients.mostly')
 if True:
-    trans_max_balance_sorted(df_trans, df_trans_mo, 'trans_account_card_clients')
+    trans_amounts_sorted(df_trans, df_trans_mo, df_trans_ct, 'trans_account_card_clients')
+if False:
+    trans_max_balance_sorted(df_trans, df_trans_mo, df_trans_ct, 'trans_account_card_clients')
