@@ -21,9 +21,7 @@ def download_and_load(url):
 
 
 def getDf(fileName):
-    with bz2.BZ2File(fileName, "rb") as f:
-        # load the pickle object
-        return pickle.load(f)
+    return pd.read_pickle(fileName, compression='bz2')
 
 def saveDf(fileName, df):
     with bz2.BZ2File(f"{fileName}.pbz2", 'w') as f:
