@@ -8,8 +8,10 @@ import pprint
 from sdv.metadata import SingleTableMetadata
 import sdv 
 from sdv.single_table import CTGANSynthesizer
+from sdv.sequential import PARSynthesizer
 
 print(f"SDV version {sdv.__version__}")
+dataSetDir = 'datasets'
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -19,32 +21,59 @@ def download_and_load(url):
     df = pickle.loads(data)
     return df
 
-
 def getDf(fileName):
     return pd.read_pickle(fileName, compression='bz2')
 
-def saveDf(fileName, df):
-    with bz2.BZ2File(f"{fileName}.pbz2", 'w') as f:
+def saveDf(fileName, df, dataDir=dataSetDir):
+    fn_pbz2 = os.path.join(dataDir, fileName + '.pbz2')
+    fn_csv = os.path.join(dataDir, fileName + '.csv')
+    with bz2.BZ2File(fn_pbz2, 'w') as f:
         pickle.dump(df, f)
-    df.to_csv(f"{fileName}.csv", index=False)
+    df.to_csv(fn_csv, index=False)
 
 filesToSynthesize = [
     'account_card_clients',
-    'loan_account_card_clients',
-    'loan_account_card',
-    'loan',
-    'order_account_card_clients',
-    'order_account_card',
-    'order',
+]
+seqFilesToSynthesize = [
     'trans_account_card_clients',
-    'trans_account_card',
-    'trans',
+    'loan_account_card_clients',
+    'order_account_card_clients',
 ]
 
+for fileNameRoot in seqFilesToSynthesize:
+    fileName = os.path.join(dataSetDir, fileNameRoot + '.pbz2')
+    print(fileName)
+    fileNameCsv = os.path.join(dataSetDir, fileNameRoot + '.ctgan.seq.csv')
+    print(fileNameCsv)
+    fileNamePbz2 = os.path.join(dataSetDir, fileNameRoot + '.ctgan.seq.pbz2')
+    print(fileNamePbz2)
+    if os.path.exists(fileNameCsv):
+        print(f"Already did {fileName}")
+        continue
+    df = getDf(fileName)
+    columns = list(df.columns)
+    metadata = SingleTableMetadata()
+    metadata.detect_from_dataframe(df)
+    metadata.update_column(column_name='account_id', sdtype='id')
+    if 'account' in columns:
+        metadata.update_column(column_name='account', sdtype='id')
+    if 'trans_id' in columns:
+        metadata.update_column(column_name='trans_id', sdtype='id')
+    metadata.set_sequence_key(column_name='account_id')
+    metadata.set_sequence_index(column_name='date')
+
+    metadataDict = metadata.to_dict()
+    print(f"\n{fileName}:")
+    pp.pprint(metadataDict)
+    synthesizer = PARSynthesizer(metadata)
+    synthesizer.fit(df)
+    df_syn = synthesizer.sample(num_rows=len(df))
+    saveDf(fileNameRoot+'.ctgan.seq', df_syn)
+
 for fileNameRoot in filesToSynthesize:
-    fileName = fileNameRoot + '.pbz2'
-    fileNameCsv = fileNameRoot + '.ctgan.csv'
-    fileNamePbz2 = fileNameRoot + '.ctgan.pbz2'
+    fileName = os.path.join(dataSetDir, fileNameRoot + '.pbz2')
+    fileNameCsv = os.path.join(dataSetDir, fileNameRoot + '.ctgan.csv')
+    fileNamePbz2 = os.path.join(dataSetDir, fileNameRoot + '.ctgan.pbz2')
     if os.path.exists(fileNameCsv):
         print(f"Already did {fileName}")
         continue

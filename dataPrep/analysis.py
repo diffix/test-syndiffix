@@ -105,6 +105,26 @@ def trans_amounts_sorted(df, df_mo, fileName):
     plt.savefig(synFilePath)
     plt.close()
 
+def trans_max_balance_sorted(df, df_mo, fileName):
+    ''' I want to display the sorted values of the maximum balance
+        of each account
+    '''
+    df = df[['account_id', 'balance']]
+    print(f"df has {len(df)} rows, and {df['account_id'].nunique()} distinct account_id")
+    df_max_balance = df.groupby('account_id')['balance'].max().reset_index()
+    df_max_balance.rename(columns={'balance': 'max_balance'}, inplace=True)
+    print(f"df_max_balance has {len(df_max_balance)} rows, and {df_max_balance['account_id'].nunique()} distinct account_id")
+
+    print(f"df_mo has {len(df_mo)} rows, and {df_mo['account_id'].nunique()} distinct account_id")
+    df_mo_max_balance = df_mo.groupby('account_id')['balance'].max().reset_index()
+    df_mo_max_balance.rename(columns={'balance': 'max_balance'}, inplace=True)
+    print(f"df_mo_max_balance has {len(df_mo_max_balance)} rows, and {df_mo_max_balance['account_id'].nunique()} distinct account_id")
+
+    pass
+
 df_trans = getDf('trans_account_card_clients')
 df_trans_mo = getDf('trans_account_card_clients.mostly')
-trans_amounts_sorted(df_trans, df_trans_mo, 'trans_account_card_clients')
+if False:
+    trans_amounts_sorted(df_trans, df_trans_mo, 'trans_account_card_clients')
+if True:
+    trans_max_balance_sorted(df_trans, df_trans_mo, 'trans_account_card_clients')
