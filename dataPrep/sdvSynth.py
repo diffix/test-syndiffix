@@ -34,12 +34,36 @@ def saveDf(fileName, df, dataDir=dataSetDir):
 
 filesToSynthesize = [
     'account_card_clients',
+    'trans_account_card_clients',
 ]
 seqFilesToSynthesize = [
     'trans_account_card_clients',
     'loan_account_card_clients',
     'order_account_card_clients',
 ]
+
+for fileNameRoot in filesToSynthesize:
+    fileName = os.path.join(dataSetDir, fileNameRoot + '.pbz2')
+    fileNameCsv = os.path.join(dataSetDir, fileNameRoot + '.ctgan.csv')
+    fileNamePbz2 = os.path.join(dataSetDir, fileNameRoot + '.ctgan.pbz2')
+    if os.path.exists(fileNameCsv):
+        print(f"Already did {fileName}")
+        continue
+    df = getDf(fileName)
+    columns = list(df.columns)
+    metadata = SingleTableMetadata()
+    metadata.detect_from_dataframe(df)
+    if 'account' in columns:
+        metadata.update_column(column_name='account', sdtype='id')
+    if 'trans_id' in columns:
+        metadata.update_column(column_name='trans_id', sdtype='id')
+    metadataDict = metadata.to_dict()
+    print(f"\n{fileName}:")
+    pp.pprint(metadataDict)
+    synthesizer = CTGANSynthesizer(metadata)
+    synthesizer.fit(df)
+    df_syn = synthesizer.sample(num_rows=len(df))
+    saveDf(fileNameRoot+'.ctgan', df_syn)
 
 for fileNameRoot in seqFilesToSynthesize:
     fileName = os.path.join(dataSetDir, fileNameRoot + '.pbz2')
@@ -75,26 +99,3 @@ for fileNameRoot in seqFilesToSynthesize:
     df_syn = synthesizer.sample(num_sequences=num_sequences)
     print("After sample")
     saveDf(fileNameRoot+'.ctgan.seq', df_syn)
-
-for fileNameRoot in filesToSynthesize:
-    fileName = os.path.join(dataSetDir, fileNameRoot + '.pbz2')
-    fileNameCsv = os.path.join(dataSetDir, fileNameRoot + '.ctgan.csv')
-    fileNamePbz2 = os.path.join(dataSetDir, fileNameRoot + '.ctgan.pbz2')
-    if os.path.exists(fileNameCsv):
-        print(f"Already did {fileName}")
-        continue
-    df = getDf(fileName)
-    columns = list(df.columns)
-    metadata = SingleTableMetadata()
-    metadata.detect_from_dataframe(df)
-    if 'account' in columns:
-        metadata.update_column(column_name='account', sdtype='id')
-    if 'trans_id' in columns:
-        metadata.update_column(column_name='trans_id', sdtype='id')
-    metadataDict = metadata.to_dict()
-    print(f"\n{fileName}:")
-    pp.pprint(metadataDict)
-    synthesizer = CTGANSynthesizer(metadata)
-    synthesizer.fit(df)
-    df_syn = synthesizer.sample(num_rows=len(df))
-    saveDf(fileNameRoot+'.ctgan', df_syn)

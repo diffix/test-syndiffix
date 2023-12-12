@@ -108,7 +108,7 @@ def trans_amounts_sorted(df, df_mo, df_ct, fileName):
     ax.set_yscale('log')
     ax.set_ylim([1,None])
     ax.grid(axis='y')
-    ax.tick_params(labelbottom=False, bottom=False)
+    #ax.tick_params(labelbottom=False, bottom=False)
     ax.legend()
     ax.set(xlabel='Sorted by Amount', ylabel='Transaction Amount')
     plt.savefig(synFilePath)
@@ -163,7 +163,7 @@ def trans_max_balance_sorted(df, df_mo, df_ct, fileName):
     ax.set_yscale('log')
     ax.set_ylim([1,None])
     ax.grid(axis='y')
-    ax.tick_params(labelbottom=False, bottom=False)
+    #ax.tick_params(labelbottom=False, bottom=False)
     ax.legend()
     ax.set(xlabel='Sorted by Max Balance', ylabel='Transaction Max Balance')
     plt.savefig(synFilePath)
@@ -174,7 +174,7 @@ df_trans = getDf('trans_account_card_clients')
 df_trans_mo = getDf('trans_account_card_clients.mostly')
 # TODO replace with CTGAN file when I have it
 df_trans_ct = getDf('trans_account_card_clients.mostly')
-if False:
+if True:
     trans_amounts_sorted(df_trans, df_trans_mo, df_trans_ct, 'trans_account_card_clients')
 if True:
     trans_max_balance_sorted(df_trans, df_trans_mo, df_trans_ct, 'trans_account_card_clients')
