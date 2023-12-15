@@ -98,3 +98,4 @@ data/
 # for dataPrep
 *.csv
 *.pbz2
+*.png
