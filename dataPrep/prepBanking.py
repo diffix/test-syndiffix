@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import bz2
 import pickle
+import os
 
 def transformDate(dateVal):
     dateStr = str(dateVal)
@@ -60,58 +61,73 @@ def saveDf(fileName, df):
         pickle.dump(df, f)
     df.to_csv(f"{fileName}.csv", index=False)
 
-if True:
+datasetsDir = 'datasets'
+if False:
     fileName = 'district'
-    df = pd.read_csv(fileName+'_orig.csv', sep=';', low_memory=False)
+    filePath = os.path.join(datasetsDir, fileName)
+    df = pd.read_csv(filePath+'_orig.csv', sep=';', low_memory=False)
     df.rename(columns={'A1':'district_id'}, inplace=True)
     df.rename(columns={'A2':'city'}, inplace=True)
     df.rename(columns={'A3':'region'}, inplace=True)
     df.rename(columns={'A4':'population'}, inplace=True)
+    df.rename(columns={'A11':'avg_salary'}, inplace=True)
+    df.rename(columns={'A14':'entrepreneur_rate'}, inplace=True)
+    df['average_unemployment_rate'] = df[['A12', 'A13']].mean(axis=1)
+    df['average_crime_rate'] = df[['A15', 'A16']].mean(axis=1) / df['population']
     df = doGenericTransformations(df)
     print(df.dtypes)
-    saveDf(fileName, df)
+    saveDf(filePath, df)
 if False:
     fileName = 'trans'
-    df = pd.read_csv(fileName+'_orig.csv', sep=';', low_memory=False)
+    filePath = os.path.join(datasetsDir, fileName)
+    df = pd.read_csv(filePath+'_orig.csv', sep=';', low_memory=False)
     df = doGenericTransformations(df)
     print(df.dtypes)
-    saveDf(fileName, df)
+    saveDf(filePath, df)
 if False:
     fileName = 'order'
-    df = pd.read_csv(fileName+'_orig.csv', sep=';', low_memory=False)
+    filePath = os.path.join(datasetsDir, fileName)
+    df = pd.read_csv(filePath+'_orig.csv', sep=';', low_memory=False)
     df = doGenericTransformations(df)
-    saveDf(fileName, df)
-if False:
+    saveDf(filePath, df)
+if True:
     fileName = 'loan'
-    df = pd.read_csv(fileName+'_orig.csv', sep=';', low_memory=False)
+    filePath = os.path.join(datasetsDir, fileName)
+    df = pd.read_csv(filePath+'_orig.csv', sep=';', low_memory=False)
+    df['defaulted'] = (df['status'] == 'B') | (df['status'] == 'D')
     df = doGenericTransformations(df)
-    saveDf(fileName, df)
+    df.rename(columns={'date':'loan_date'}, inplace=True)
+    saveDf(filePath, df)
 if False:
     fileName = 'disp'
-    df = pd.read_csv(fileName+'_orig.csv', sep=';', low_memory=False)
+    filePath = os.path.join(datasetsDir, fileName)
+    df = pd.read_csv(filePath+'_orig.csv', sep=';', low_memory=False)
     df = doGenericTransformations(df)
-    saveDf(fileName, df)
+    saveDf(filePath, df)
 if False:
     fileName = 'client'
-    df = pd.read_csv(fileName+'_orig.csv', sep=';', low_memory=False)
+    filePath = os.path.join(datasetsDir, fileName)
+    df = pd.read_csv(filePath+'_orig.csv', sep=';', low_memory=False)
     # Add sex column
     df['sex'] = df['birth_number'].apply(populateSex)
     df['birth_number'] = df['birth_number'].apply(transformDate)
     df['birth_number'] = pd.to_datetime(df['birth_number'])
     df = doGenericTransformations(df)
     print(df.dtypes)
-    saveDf(fileName, df)
+    saveDf(filePath, df)
 if False:
     fileName = 'card'
-    df = pd.read_csv(fileName+'_orig.csv', sep=';', low_memory=False)
+    filePath = os.path.join(datasetsDir, fileName)
+    df = pd.read_csv(filePath+'_orig.csv', sep=';', low_memory=False)
     if 'issued' in df.columns:
         df['issued'] = df['issued'].apply(transformDate)
         df['issued'] = pd.to_datetime(df['issued'])
     df = doGenericTransformations(df)
     print(df.dtypes)
-    saveDf(fileName, df)
+    saveDf(filePath, df)
 if False:
     fileName = 'account'
-    df = pd.read_csv(fileName+'_orig.csv', sep=';', low_memory=False)
+    filePath = os.path.join(datasetsDir, fileName)
+    df = pd.read_csv(filePath+'_orig.csv', sep=';', low_memory=False)
     df = doGenericTransformations(df)
-    saveDf(fileName, df)
+    saveDf(filePath, df)
